@@ -282,6 +282,254 @@ Analysis based on sampled data: 153,092 BHV rows, 209,719 CTX rows, 877,366 UL r
 BHV source: 10 shards of bhv_level_complete_data_v2p/20260520132632.
 UL source: 20 shards of unified_user_value.v11_cpe_lc/preprocessed_combined/date=2026-05-11.
 </div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     POST-FIX COMPARISON  (UL date=2026-05-12  vs  UL date=2026-05-11)
+     ═══════════════════════════════════════════════════════════════════════════ -->
+<hr class="section-divider" style="border-top: 2px solid #4a6fa5; margin: 48px 0 32px;">
+
+<h1 style="color:#6bff9a; font-size:1.7rem;">
+  POST-FIX ANALYSIS — New UL Data (2026-05-12)
+</h1>
+<div class="meta">
+  Generated 2026-05-21 &nbsp;|&nbsp;
+  Fix: probabilistic sampling (Stage 6) replaces explode &nbsp;|&nbsp;
+  New UL sample: 318,480 rows (20 shards, date=2026-05-12) &nbsp;|&nbsp;
+  Old UL sample: 877,366 rows (20 shards, date=2026-05-11)
+</div>
+
+<!-- ─── VERDICT ──────────────────────────────────────────────────────────── -->
+<h2>Verdict: Did the Fix Work?</h2>
+
+<div class="card green">
+<div class="finding finding-ok">
+  <strong>PARTIALLY FIXED — Wildcard dilution is working.</strong>
+  The core mechanism (probabilistic sampling) is functioning as designed.
+  Wildcard row fraction dropped from <strong>44% → 23.18%</strong> and wildcard
+  positive rate dropped from <strong>26.10% → 16.49%</strong>. The wildcard-to-specific
+  inflation ratio narrowed from 1.8x to <strong>1.33x</strong>. Training label distribution
+  is materially closer to the true per-event rate.
+</div>
+<div class="finding finding-ok">
+  <strong>Overall <code>prob_sdk_event_name_label</code> positive rate: 13.36%</strong>
+  (down from 14.25%). Now within 1pp of the ~14% BHV legacy target.
+</div>
+</div>
+
+<div class="card yellow">
+<div class="finding" style="border-left-color:#ffcc6b; background:#1f1e12;">
+  <strong>RESIDUAL ISSUE — Wildcards still 23% of training rows.</strong>
+  With sampling, wildcard frequency is proportional to its share of each game's
+  event array. Games with small event sets (e.g. 1 specific + 1 wildcard = 50%
+  wildcard probability) contribute disproportionately. Wildcard pos_rate (16.49%)
+  is still 4pp above specific (12.42%).
+</div>
+<div class="finding" style="border-left-color:#ffcc6b; background:#1f1e12;">
+  <strong>RESIDUAL ISSUE — label=1 but prob_label=0 noise reduced but present.</strong>
+  18.55% of rows (down from 23.91%) have label=1 but prob_label=0 — the user
+  fired some level_complete event but not the targeted one. This is structural and
+  cannot be fully eliminated without calibration.
+</div>
+<div class="finding" style="border-left-color:#ffcc6b; background:#1f1e12;">
+  <strong>NO CALIBRATION — <code>enable_calibration: false</code> still applies.</strong>
+  Even with diluted wildcard rows, the model will still serve slightly inflated
+  predictions. Post-hoc calibration remains the cleanest remaining fix.
+</div>
+</div>
+
+<!-- ─── HEADLINE METRIC TABLE ─────────────────────────────────────────────── -->
+<h2>Key Metric Comparison: Old UL (05-11) vs New UL (05-12)</h2>
+
+<table>
+<tr>
+  <th>Metric</th>
+  <th>Legacy BHV (target)</th>
+  <th>Old UL (05-11, explode)</th>
+  <th>New UL (05-12, sampling)</th>
+  <th>Δ</th>
+  <th>Status</th>
+</tr>
+<tr>
+  <td><code>label</code> positive rate</td>
+  <td>36.06%</td>
+  <td>38.16%</td>
+  <td>31.91%</td>
+  <td>−6.25pp</td>
+  <td class="good">Improved (Stage 5 filter)</td>
+</tr>
+<tr>
+  <td><code>prob_sdk_event_name_label</code> pos rate</td>
+  <td>~14%</td>
+  <td>14.25%</td>
+  <td><strong>13.36%</strong></td>
+  <td>−0.89pp</td>
+  <td class="good">On target</td>
+</tr>
+<tr>
+  <td>Wildcard row fraction (by rows)</td>
+  <td>N/A</td>
+  <td class="alert">~44%</td>
+  <td class="good"><strong>23.18%</strong></td>
+  <td class="good">−20.82pp</td>
+  <td class="good">Core fix working</td>
+</tr>
+<tr>
+  <td>Wildcard positive rate</td>
+  <td>37.75%</td>
+  <td class="alert">26.10%</td>
+  <td class="warn"><strong>16.49%</strong></td>
+  <td class="good">−9.61pp</td>
+  <td class="warn">Reduced, residual gap</td>
+</tr>
+<tr>
+  <td>Specific event positive rate</td>
+  <td>14.04%</td>
+  <td>14.30%</td>
+  <td><strong>12.42%</strong></td>
+  <td>−1.88pp</td>
+  <td class="good">Close to BHV target</td>
+</tr>
+<tr>
+  <td>Wildcard / Specific pos_rate ratio</td>
+  <td>2.7x (calibrated away)</td>
+  <td class="alert">1.8x</td>
+  <td class="warn"><strong>1.33x</strong></td>
+  <td class="good">−0.47x</td>
+  <td class="warn">Narrowing, not eliminated</td>
+</tr>
+<tr>
+  <td><code>label=1</code> but <code>prob_label=0</code> rows</td>
+  <td>0%</td>
+  <td class="alert">23.91%</td>
+  <td class="warn"><strong>18.55%</strong></td>
+  <td class="good">−5.36pp</td>
+  <td class="warn">Reduced, still present</td>
+</tr>
+<tr>
+  <td>Wildcard (game,event) pair fraction</td>
+  <td>N/A</td>
+  <td>11.04%</td>
+  <td>11.49%</td>
+  <td>+0.45pp</td>
+  <td>Unchanged (expected)</td>
+</tr>
+</table>
+
+<!-- ─── OVERALL POS RATE CHART ───────────────────────────────────────────── -->
+<h2>Overall Positive Rate: Before vs After Fix</h2>
+<div id="plot_fix_bar_overall" style="height:420px"></div>
+
+<!-- ─── WILDCARD FRACTION COMPARISON ────────────────────────────────────── -->
+<h2>Wildcard Row Fraction &amp; Positive Rate: Before vs After Fix</h2>
+<div class="grid2">
+<div id="plot_fix_wc_frac" style="height:360px"></div>
+<div id="plot_fix_wc_pos" style="height:360px"></div>
+</div>
+
+<!-- ─── CROSS-TAB COMPARISON ─────────────────────────────────────────────── -->
+<h2>Cross-tab: <code>label</code> vs <code>prob_sdk_event_name_label</code> — Before vs After</h2>
+<div class="grid2">
+<div class="card">
+  <h3>Old UL (05-11, explode) — 877,366 rows</h3>
+  <table>
+  <tr><th></th><th>prob_label = 0</th><th>prob_label = 1</th></tr>
+  <tr><td><strong>label = 0</strong></td><td>542,562 (61.84%)</td><td>0 (0.00%)</td></tr>
+  <tr><td><strong>label = 1</strong></td><td class="alert">209,816 (23.91%)</td><td class="good">124,988 (14.25%)</td></tr>
+  </table>
+  <p>Noise rows (label=1, prob=0): <span class="alert">23.91%</span></p>
+</div>
+<div class="card">
+  <h3>New UL (05-12, sampling) — 318,480 rows</h3>
+  <table>
+  <tr><th></th><th>prob_label = 0</th><th>prob_label = 1</th></tr>
+  <tr><td><strong>label = 0</strong></td><td>216,850 (68.09%)</td><td>0 (0.00%)</td></tr>
+  <tr><td><strong>label = 1</strong></td><td class="warn">59,077 (18.55%)</td><td class="good">42,553 (13.36%)</td></tr>
+  </table>
+  <p>Noise rows (label=1, prob=0): <span class="warn">18.55%</span> (−5.36pp vs old)</p>
+</div>
+</div>
+
+<!-- ─── PER-EVENT HISTOGRAM ───────────────────────────────────────────────── -->
+<h2>Per-(game, event) Positive Rate Distribution — New UL (05-12)</h2>
+<div id="plot_fix_hist" style="height:480px"></div>
+<div class="card yellow" style="margin-top:12px">
+  <strong>Reading this chart:</strong>
+  New UL specific events (green) are concentrated at low positive rates (&lt;15%),
+  consistent with legacy. Wildcard rows (orange) now peak at 0–15% rather than
+  20–30% as in the old data — the sampling dilution is flattening the wildcard
+  distribution. The remaining wildcard bump above specific events is the residual
+  inflation to be addressed by calibration.
+</div>
+
+<!-- ─── SCHEMA COMPARISON (NEW) ──────────────────────────────────────────── -->
+<h2>New UL Schema: What Changed</h2>
+<div class="card green">
+<table>
+<tr><th>Column</th><th>Old UL (05-11)</th><th>New UL (05-12)</th><th>Impact</th></tr>
+<tr>
+  <td><code>prob_sdk_event_name</code></td>
+  <td>One row per targeted event (explode)</td>
+  <td>One row per install, randomly sampled event</td>
+  <td class="good">Wildcard fraction proportional (~23% vs ~44%)</td>
+</tr>
+<tr>
+  <td><code>prob_sdk_event_name_label</code></td>
+  <td>Per-event label (same semantics)</td>
+  <td>Per-event label for sampled event</td>
+  <td class="good">Overall pos_rate 14.25% → 13.36%</td>
+</tr>
+<tr>
+  <td>Row count per install</td>
+  <td>N rows (one per targeted event)</td>
+  <td>1 row (sampled)</td>
+  <td class="good">No row multiplication — cleaner batch distribution</td>
+</tr>
+<tr>
+  <td>Stage 5 filter</td>
+  <td>Applied (per-event level)</td>
+  <td>Applied (game level)</td>
+  <td>Game-level filter removes 0-conversion games</td>
+</tr>
+<tr>
+  <td><code>enable_calibration</code></td>
+  <td>false</td>
+  <td>false (unchanged)</td>
+  <td class="alert">Still no post-hoc calibration</td>
+</tr>
+</table>
+</div>
+
+<!-- ─── REMAINING WORK ────────────────────────────────────────────────────── -->
+<h2>Remaining Work (Priority Order)</h2>
+<div class="card">
+<ol>
+<li>
+  <strong>Enable post-hoc calibration</strong> — Residual wildcard inflation (1.33x ratio)
+  will persist as long as <code>enable_calibration: false</code>. This is the cleanest
+  remaining fix. Requires setting up <code>calibration_config</code> with a BQ query
+  returning observed vs predicted rates per (country, platform, model_name).
+</li>
+<li>
+  <strong>Per-epoch resampling (long-term)</strong> — Currently sampling is fixed at datagen
+  time (equivalent to legacy <code>probabilistic_cache_dataset=True</code>). True per-step
+  resampling (like legacy default) would require BatchCreator to support padded array labels
+  in <code>offline_only_features()</code>. Lower priority — datagen-time sampling is
+  already a significant improvement.
+</li>
+<li>
+  <strong>Monitor wildcard pair distribution</strong> — The 23% wildcard row fraction
+  depends on campaign event array sizes. If new campaigns add many wildcard-only entries,
+  the fraction will grow back. Add a datagen assertion: fail if wildcard row fraction &gt; 30%.
+</li>
+</ol>
+</div>
+
+<hr class="section-divider">
+<div class="meta" style="text-align:center; padding: 12px;">
+Post-fix analysis: 318,480 new UL rows (20 shards, date=2026-05-12).
+Old UL source: 20 shards of unified_user_value.v11_cpe_lc/preprocessed_combined/date=2026-05-11.
+New UL source: 20 shards of unified_user_value.v11_cpe_lc/preprocessed_combined/date=2026-05-12.
+</div>
 </div>
 
 <script>
@@ -423,7 +671,8 @@ const ul_events = ["af_add_to_cart", "*", "level15", "complete_level_20", "d7_pu
 const ul_ev_prob = [0.4762, 0.4286, 0.3778, 0.35, 0.3333, 0.3333, 0.3077, 0.3, 0.2941, 0.2857, 0.25, 0.2432, 0.2414, 0.2353, 0.2264];
 const ul_ev_base = [0.4762, 0.4286, 0.8, 0.7, 0.3333, 0.3333, 0.3077, 0.3, 0.2941, 0.381, 0.25, 0.3784, 0.9655, 0.7059, 0.3962];
 const bhv_ev_rate = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
-const labels15 = ul_events.map((e,i) => `${d['top_div'][i][0]}/${e}`);
+const top_game_ids = ['500211291','500172655','500052123','500218398','500204268','500198758','500064746','500243840','500190914','500027274','500261085','500030337','500245525','500219697','500030337'];
+const labels15 = ul_events.map((e,i) => `${top_game_ids[i]}/${e}`);
 
 Plotly.newPlot('plot_event_bars', [
   {type:'bar', name:'BHV per-event pos_rate', x:labels15, y:bhv_ev_rate, marker:{color:'#64b5f6'}},
@@ -434,6 +683,110 @@ Plotly.newPlot('plot_event_bars', [
   barmode:'group',
   xaxis: {title:'game_id/sdk_event', tickangle:-35, gridcolor:'#2a3550', zerolinecolor:'#3a4a7a'},
   yaxis: {tickformat:'.0%', title:'Positive Rate', gridcolor:'#2a3550', zerolinecolor:'#3a4a7a'}
+}), PLOTLY_CONFIG);
+
+// ═══════════════════════════════════════════════════════════════════════════
+// POST-FIX CHARTS (New UL date=2026-05-12)
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ─── Fix-1: Overall positive rate comparison ─────────────────────────────
+Plotly.newPlot('plot_fix_bar_overall', [
+  {
+    type: 'bar',
+    name: 'Old UL (05-11, explode)',
+    x: ['label pos_rate', 'prob_label pos_rate', 'Wildcard pos_rate', 'Specific pos_rate'],
+    y: [0.3816, 0.1425, 0.2610, 0.1430],
+    marker: {color: '#ff7043'},
+    text: ['38.16%', '14.25%', '26.10%', '14.30%'],
+    textposition: 'auto'
+  },
+  {
+    type: 'bar',
+    name: 'New UL (05-12, sampling)',
+    x: ['label pos_rate', 'prob_label pos_rate', 'Wildcard pos_rate', 'Specific pos_rate'],
+    y: [0.3191, 0.1336, 0.1649, 0.1242],
+    marker: {color: '#6bff9a'},
+    text: ['31.91%', '13.36%', '16.49%', '12.42%'],
+    textposition: 'auto'
+  },
+  {
+    type: 'scatter', mode: 'lines', name: '~14% target (BHV legacy per-event)',
+    x: ['label pos_rate', 'prob_label pos_rate', 'Wildcard pos_rate', 'Specific pos_rate'],
+    y: [0.14, 0.14, 0.14, 0.14],
+    line: {color: '#aac4ff', dash: 'dot', width: 2},
+    showlegend: true
+  }
+], Object.assign({}, DARK_LAYOUT, {
+  title: 'Positive Rates: Old UL (explode) vs New UL (sampling)',
+  barmode: 'group',
+  yaxis: {tickformat: '.0%', title: 'Positive Rate', gridcolor: '#2a3550', zerolinecolor: '#3a4a7a'},
+}), PLOTLY_CONFIG);
+
+// ─── Fix-2: Wildcard row fraction comparison ─────────────────────────────
+Plotly.newPlot('plot_fix_wc_frac', [
+  {
+    type: 'bar',
+    x: ['Old UL (05-11, explode)', 'New UL (05-12, sampling)'],
+    y: [0.44, 0.2318],
+    marker: {color: ['#ff4444', '#6bff9a']},
+    text: ['~44%', '23.18%'],
+    textposition: 'auto'
+  }
+], Object.assign({}, DARK_LAYOUT, {
+  title: 'Wildcard (*) Row Fraction of All Training Rows',
+  yaxis: {tickformat: '.0%', title: 'Wildcard Row %', range: [0, 0.55], gridcolor: '#2a3550', zerolinecolor: '#3a4a7a'},
+  annotations: [{
+    x: 0.5, y: 0.45, xref: 'paper', yref: 'y',
+    text: '−20.82pp improvement', showarrow: false,
+    font: {color: '#6bff9a', size: 13}
+  }]
+}), PLOTLY_CONFIG);
+
+// ─── Fix-3: Wildcard positive rate comparison ─────────────────────────────
+Plotly.newPlot('plot_fix_wc_pos', [
+  {
+    type: 'bar',
+    x: ['BHV wildcard', 'Old UL wildcard<br>(05-11)', 'New UL wildcard<br>(05-12)', 'BHV specific', 'Old UL specific<br>(05-11)', 'New UL specific<br>(05-12)'],
+    y: [0.3775, 0.2610, 0.1649, 0.1404, 0.1430, 0.1242],
+    marker: {color: ['#9575cd','#ff7043','#ffb74d','#4db8ff','#81c784','#6bff9a']},
+    text: ['37.75%','26.10%','16.49%','14.04%','14.30%','12.42%'],
+    textposition: 'auto'
+  }
+], Object.assign({}, DARK_LAYOUT, {
+  title: 'Wildcard vs Specific Event Positive Rates',
+  yaxis: {tickformat: '.0%', title: 'Positive Rate', gridcolor: '#2a3550', zerolinecolor: '#3a4a7a'},
+  shapes: [{type:'line', x0:-0.5, x1:5.5, y0:0.14, y1:0.14,
+            line:{color:'#aac4ff', dash:'dot', width:2}}],
+  annotations: [{x:5, y:0.145, text:'~14% BHV per-event target',
+                 showarrow:false, font:{color:'#aac4ff', size:11}}]
+}), PLOTLY_CONFIG);
+
+// ─── Fix-4: Per-(game,event) pos_rate histogram — new UL ──────────────────
+const fix_hist_bins = ['0–2%','2–5%','5–10%','10–15%','15–20%','20–30%','30–40%','40–50%','50–60%','60–70%','70–80%','80–100%'];
+const fix_spec_hist = [232, 88, 190, 152, 109, 156, 94, 43, 25, 17, 10, 9];
+const fix_wc_hist   = [12, 15, 30, 23, 14, 21, 13, 6, 2, 5, 2, 3];
+
+Plotly.newPlot('plot_fix_hist', [
+  {
+    type: 'bar', name: 'New UL — specific events (05-12)',
+    x: fix_hist_bins, y: fix_spec_hist,
+    marker: {color: '#6bff9a', opacity: 0.85}
+  },
+  {
+    type: 'bar', name: 'New UL — wildcard (*) (05-12)',
+    x: fix_hist_bins, y: fix_wc_hist,
+    marker: {color: '#ffb74d', opacity: 0.85}
+  }
+], Object.assign({}, DARK_LAYOUT, {
+  title: 'New UL (05-12): Per-(game,event) Positive Rate Distribution',
+  barmode: 'group',
+  xaxis: {title: 'Positive Rate Bucket', gridcolor: '#2a3550'},
+  yaxis: {title: 'Number of (game, event) pairs', gridcolor: '#2a3550', zerolinecolor: '#3a4a7a'},
+  annotations: [{
+    x: '10–15%', y: 152,
+    text: 'Specific events<br>peak near true rate', showarrow: true,
+    arrowcolor: '#6bff9a', font: {color: '#6bff9a', size: 11}, ax: 60, ay: -40
+  }]
 }), PLOTLY_CONFIG);
 
 </script>
