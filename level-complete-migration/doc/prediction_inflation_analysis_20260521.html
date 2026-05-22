@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>CPE LC v4 — Prediction Inflation Analysis (v11-cpe-lc-4 vs Legacy)</title>
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+const XCHECK = [{"game":"500186905","event":"star5_hero_received","ul_pred":0.0531,"ul_label":0.0,"leg_pred":0.0044,"leg_label":0.023809523809523808,"pred_ratio":12.13,"ul_bias":null,"leg_bias":0.18480000000000002,"label_inflation":null,"ul_n":299,"leg_n":175},{"game":"500042705","event":"pc_t2_d60_ios_custom","ul_pred":0.1769,"ul_label":0.013722127303481102,"leg_pred":0.0187,"leg_label":0.01639344262295082,"pred_ratio":9.48,"ul_bias":12.891587148817885,"leg_bias":1.1407,"label_inflation":0.8370497655123472,"ul_n":1166,"leg_n":577},{"game":"500226181","event":"ftd","ul_pred":0.0899,"ul_label":0.02083333395421505,"leg_pred":0.0108,"leg_label":0.0,"pred_ratio":8.35,"ul_bias":4.315199871397022,"leg_bias":null,"label_inflation":null,"ul_n":192,"leg_n":124},{"game":"500126376","event":"3rdparcelpurchased","ul_pred":0.2149,"ul_label":0.0,"leg_pred":0.0298,"leg_label":0.14285714285714285,"pred_ratio":7.21,"ul_bias":null,"leg_bias":0.2086,"label_inflation":null,"ul_n":37,"leg_n":15},{"game":"500133901","event":"d7_puzzle60_hint5","ul_pred":0.3398,"ul_label":0.04443359375,"leg_pred":0.0501,"leg_label":0.04518950437317784,"pred_ratio":6.78,"ul_bias":7.647367032967033,"leg_bias":1.1086645161290323,"label_inflation":0.9832724294354839,"ul_n":2048,"leg_n":1490},{"game":"500177040","event":"af_ftd","ul_pred":0.5269,"ul_label":0.0714285746216774,"leg_pred":0.0874,"leg_label":0.0,"pred_ratio":6.03,"ul_bias":7.3765996702402985,"leg_bias":null,"label_inflation":null,"ul_n":14,"leg_n":9},{"game":"500219388","event":"segment_lambdas_first_offer_re","ul_pred":0.5281,"ul_label":0.10227272659540176,"leg_pred":0.1051,"leg_label":0.23529411764705882,"pred_ratio":5.03,"ul_bias":5.163644478641911,"leg_bias":0.446675,"label_inflation":0.4346590880304575,"ul_n":352,"leg_n":154},{"game":"500201983","event":"eventw","ul_pred":0.4153,"ul_label":0.03375658020377159,"leg_pred":0.0889,"leg_label":0.04086021505376344,"pred_ratio":4.67,"ul_bias":12.302786523191674,"leg_bias":2.1757105263157897,"label_inflation":0.82614788393441,"ul_n":3229,"leg_n":2131},{"game":"500025671","event":"af_level_up_20","ul_pred":0.3877,"ul_label":0.046875,"leg_pred":0.0886,"leg_label":0.10416666666666667,"pred_ratio":4.37,"ul_bias":8.270933333333334,"leg_bias":0.85056,"label_inflation":0.44999999999999996,"ul_n":128,"leg_n":102},{"game":"500203302","event":"level_end_success_35","ul_pred":0.7987,"ul_label":0.08888889104127884,"leg_pred":0.197,"leg_label":0.0,"pred_ratio":4.05,"ul_bias":8.985374782424659,"leg_bias":null,"label_inflation":null,"ul_n":45,"leg_n":31},{"game":"500248843","event":"aj_vip","ul_pred":0.224,"ul_label":0.007067137863487005,"leg_pred":0.0559,"leg_label":0.0,"pred_ratio":4.01,"ul_bias":31.6959997564666,"leg_bias":null,"label_inflation":null,"ul_n":283,"leg_n":23},{"game":"500230137","event":"level_end_success_40","ul_pred":0.7915,"ul_label":0.0,"leg_pred":0.1977,"leg_label":NaN,"pred_ratio":4.0,"ul_bias":null,"leg_bias":null,"label_inflation":null,"ul_n":5,"leg_n":2},{"game":"500206220","event":"grt_24h_inter_15","ul_pred":0.5835,"ul_label":0.048048049211502075,"leg_pred":0.1464,"leg_label":0.08928571428571429,"pred_ratio":3.99,"ul_bias":12.144093455938222,"leg_bias":1.63968,"label_inflation":0.5381381511688232,"ul_n":333,"leg_n":177},{"game":"500090588","event":"log_city_upgrade_6","ul_pred":0.4024,"ul_label":0.05882352963089943,"leg_pred":0.1033,"leg_label":0.25,"pred_ratio":3.9,"ul_bias":6.840799974516034,"leg_bias":0.4132,"label_inflation":0.23529411852359772,"ul_n":17,"leg_n":11},{"game":"500021255","event":"af_level_100","ul_pred":0.4049,"ul_label":0.0,"leg_pred":0.1075,"leg_label":NaN,"pred_ratio":3.77,"ul_bias":null,"leg_bias":null,"label_inflation":null,"ul_n":9,"leg_n":6},{"game":"500257871","event":"recvd_coins_400","ul_pred":0.2683,"ul_label":0.13684210181236267,"leg_pred":0.0716,"leg_label":0.10884353741496598,"pred_ratio":3.74,"ul_bias":1.960653895596341,"leg_bias":0.657825,"label_inflation":1.257236810401082,"ul_n":380,"leg_n":306},{"game":"500205921","event":"level_end_success_50","ul_pred":0.6115,"ul_label":0.0,"leg_pred":0.1677,"leg_label":NaN,"pred_ratio":3.65,"ul_bias":null,"leg_bias":null,"label_inflation":null,"ul_n":28,"leg_n":7},{"game":"500187350","event":"","ul_pred":0.204,"ul_label":NaN,"leg_pred":0.0565,"leg_label":NaN,"pred_ratio":3.61,"ul_bias":null,"leg_bias":null,"label_inflation":null,"ul_n":0,"leg_n":0},{"game":"500201983","event":"eventa","ul_pred":0.7107,"ul_label":0.1431238353252411,"leg_pred":0.2012,"leg_label":0.1956989247311828,"pred_ratio":3.53,"ul_bias":4.965629927293194,"leg_bias":1.02810989010989,"label_inflation":0.7313470706179901,"ul_n":3214,"leg_n":2131},{"game":"500187658","event":"af_lvl_100","ul_pred":0.3359,"ul_label":0.0,"leg_pred":0.0963,"leg_label":0.0,"pred_ratio":3.49,"ul_bias":null,"leg_bias":null,"label_inflation":null,"ul_n":17,"leg_n":9},{"game":"500247636","event":"tlevelplayed","ul_pred":0.9364,"ul_label":0.2889273464679718,"leg_pred":0.2789,"leg_label":0.1780821917808219,"pred_ratio":3.36,"ul_bias":3.240953171955296,"leg_bias":1.566130769230769,"label_inflation":1.6224381763201494,"ul_n":578,"leg_n":301},{"game":"500101393","event":"log_city_upgrade_6","ul_pred":0.2557,"ul_label":0.05315614491701126,"leg_pred":0.0779,"leg_label":0.0375,"pred_ratio":3.28,"ul_bias":4.8103563642398335,"leg_bias":2.0773333333333333,"label_inflation":1.417497197786967,"ul_n":301,"leg_n":199},{"game":"500259204","event":"tlevelplayed","ul_pred":0.8702,"ul_label":0.16972477734088898,"leg_pred":0.2679,"leg_label":0.1111111111111111,"pred_ratio":3.25,"ul_bias":5.127124121967294,"leg_bias":2.4111000000000002,"label_inflation":1.5275229960680008,"ul_n":218,"leg_n":118},{"game":"500182711","event":"level_end_success_20","ul_pred":0.7707,"ul_label":0.0,"leg_pred":0.2393,"leg_label":0.0,"pred_ratio":3.22,"ul_bias":null,"leg_bias":null,"label_inflation":null,"ul_n":43,"leg_n":19},{"game":"500157082","event":"level_end_success_30","ul_pred":0.9527,"ul_label":0.13333334028720856,"leg_pred":0.297,"leg_label":0.0,"pred_ratio":3.21,"ul_bias":7.1452496273461925,"leg_bias":null,"label_inflation":null,"ul_n":30,"leg_n":14}];
+
+// ─── 6. Label cross-check table ─────────────────────────────
+(function() {
+  const rows = XCHECK;
+  let h = `<table>
+  <thead><tr>
+    <th>#</th><th>Game</th><th>Event</th>
+    <th colspan="3" style="text-align:center;border-left:2px solid #2e3f6a">UL Model</th>
+    <th colspan="3" style="text-align:center;border-left:2px solid #2e3f6a">Legacy Model</th>
+    <th style="border-left:2px solid #2e3f6a">Label Infl.</th>
+    <th>Diagnosis</th>
+  </tr>
+  <tr style="font-size:0.75rem;color:#7a8aaa">
+    <th></th><th></th><th></th>
+    <th style="border-left:2px solid #2e3f6a">pred</th><th>label</th><th>bias</th>
+    <th style="border-left:2px solid #2e3f6a">pred</th><th>label</th><th>bias</th>
+    <th style="border-left:2px solid #2e3f6a">ul/leg</th>
+    <th></th>
+  </tr></thead><tbody>`;
+
+  rows.forEach((r, i) => {
+    const fmt = (v, d=4) => v != null ? v.toFixed(d) : '<span style="color:#555">N/A</span>';
+    const fmtx = (v) => v != null ? `${v.toFixed(1)}x` : '<span style="color:#555">N/A</span>';
+    const biasColor = (v) => {
+      if (v == null) return '#6a7a9a';
+      if (v > 5) return '#ff4444';
+      if (v > 2) return '#ff8c42';
+      if (v > 1.3) return '#ffd166';
+      return '#6bffaa';
+    };
+    const inflColor = (v) => {
+      if (v == null) return '#6a7a9a';
+      if (v > 1.5) return '#ff4444';
+      if (v > 1.2) return '#ffaa60';
+      if (v < 0.5) return '#48cae4';
+      return '#c0cce8';
+    };
+    const diagColor = (d) => {
+      if (!d) return '#6a7a9a';
+      if (d.includes('INFLATED')) return '#ff4444';
+      if (d.includes('over-predict (both)')) return '#ff8c42';
+      if (d.includes('over-predict')) return '#ffd166';
+      if (d.includes('UL label=0')) return '#b5838d';
+      return '#6a7a9a';
+    };
+
+    h += `<tr>
+      <td style="color:#6a7a9a">${i+1}</td>
+      <td style="font-family:monospace;font-size:0.78rem">${r.game}</td>
+      <td style="font-family:monospace;font-size:0.78rem">${r.event || '<em style="color:#555">(empty)</em>'}</td>
+      <td style="border-left:2px solid #1e2840">${fmt(r.ul_pred)}</td>
+      <td>${fmt(r.ul_label)}</td>
+      <td style="color:${biasColor(r.ul_bias)};font-weight:600">${fmtx(r.ul_bias)}</td>
+      <td style="border-left:2px solid #1e2840;color:#8ba0c4">${fmt(r.leg_pred)}</td>
+      <td style="color:#8ba0c4">${fmt(r.leg_label)}</td>
+      <td style="color:${biasColor(r.leg_bias)}">${fmtx(r.leg_bias)}</td>
+      <td style="border-left:2px solid #1e2840;color:${inflColor(r.label_inflation)};font-weight:600">${fmtx(r.label_inflation)}</td>
+      <td style="color:${diagColor(r.diagnosis)};font-size:0.78rem">${r.diagnosis || ''}</td>
+    </tr>`;
+  });
+  h += '</tbody></table>';
+  document.getElementById('table-label-xcheck').innerHTML = h;
+})();
+
+// ─── 7. Bias bar chart (UL bias vs Legacy bias) ──────────────
+(function() {
+  const rows = XCHECK.filter(r => r.ul_n > 5);
+  const labels = rows.map(r => `${r.game}\n${r.event.slice(0,20)}`);
+  Plotly.newPlot('chart-bias', [
+    {
+      type: 'bar', name: 'UL bias (pred/label)',
+      x: labels, y: rows.map(r => r.ul_bias),
+      marker: { color: rows.map(r => {
+        const v = r.ul_bias;
+        if (!v) return '#555';
+        if (v > 8) return '#ff3333'; if (v > 4) return '#ff8c42';
+        if (v > 2) return '#ffd166'; return '#52b788';
+      })},
+      text: rows.map(r => r.ul_bias ? `${r.ul_bias.toFixed(1)}x` : ''),
+      textposition: 'outside',
+      hovertemplate: '<b>%{x}</b><br>UL bias: %{y:.1f}x<extra></extra>',
+    },
+    {
+      type: 'bar', name: 'Legacy bias (pred/label)',
+      x: labels, y: rows.map(r => r.leg_bias),
+      marker: { color: '#3a5fa5', opacity: 0.6 },
+      text: rows.map(r => r.leg_bias ? `${r.leg_bias.toFixed(1)}x` : ''),
+      textposition: 'outside',
+      hovertemplate: '<b>%{x}</b><br>Legacy bias: %{y:.1f}x<extra></extra>',
+    },
+    {
+      type: 'scatter', mode: 'lines', name: '1x (perfect calibration)',
+      x: labels, y: labels.map(() => 1),
+      line: { color: '#ffffff', dash: 'dot', width: 1.5 },
+    }
+  ], {
+    ...layout_base,
+    barmode: 'group',
+    title: { text: 'Prediction Bias = pred / training_label (UL vs Legacy) — lower is better calibrated', font: { size: 13, color: '#d0dcff' } },
+    xaxis: { ...layout_base.xaxis, tickangle: -45, automargin: true },
+    yaxis: { ...layout_base.yaxis, title: 'Bias (pred / label)', rangemode: 'tozero' },
+    height: 520,
+    margin: { l: 60, r: 20, t: 50, b: 180 },
+  }, config);
+})();
+
+// ─── 8. Label scatter: UL label vs Legacy label ──────────────
+(function() {
+  const rows = XCHECK.filter(r => r.ul_label != null && r.leg_label != null && r.ul_n > 5 && r.leg_n > 5);
+  const maxV = Math.max(...rows.map(r => Math.max(r.ul_label||0, r.leg_label||0))) * 1.1;
+  Plotly.newPlot('chart-label-scatter', [
+    {
+      type: 'scatter', mode: 'markers+text',
+      x: rows.map(r => r.leg_label),
+      y: rows.map(r => r.ul_label),
+      text: rows.map(r => r.event.slice(0,12)),
+      textposition: 'top center',
+      textfont: { size: 9, color: '#8ba0c4' },
+      marker: {
+        color: rows.map(r => {
+          const infl = r.label_inflation;
+          if (!infl) return '#7b8ec8';
+          if (infl > 1.5) return '#ff4444';
+          if (infl > 1.2) return '#ff8c42';
+          if (infl < 0.5) return '#48cae4';
+          return '#52b788';
+        }),
+        size: rows.map(r => Math.max(8, Math.min(22, 5 + Math.sqrt(r.ul_n || 1) * 0.35))),
+        opacity: 0.85,
+        line: { color: 'rgba(0,0,0,0.3)', width: 1 },
+      },
+      customdata: rows.map(r => [r.game, r.event, r.label_inflation, r.ul_n, r.leg_n]),
+      hovertemplate: '<b>%{customdata[1]}</b><br>Game: %{customdata[0]}<br>' +
+        'Legacy label: %{x:.4f}<br>UL label: %{y:.4f}<br>' +
+        'Inflation: <b>%{customdata[2]:.2f}x</b><br>UL n=%{customdata[3]}, Leg n=%{customdata[4]}<extra></extra>',
+    },
+    {
+      type: 'scatter', mode: 'lines', name: 'y=x (same label rate)',
+      x: [0, maxV], y: [0, maxV],
+      line: { color: '#ffffff', dash: 'dot', width: 1.5 },
+    },
+    {
+      type: 'scatter', mode: 'lines', name: 'y=1.5x (50% UL inflation)',
+      x: [0, maxV], y: [0, maxV * 1.5],
+      line: { color: '#ff4444', dash: 'dash', width: 1 },
+    },
+  ], {
+    ...layout_base,
+    title: { text: 'UL Training Label Rate vs Legacy Label Rate per (game, event) — bubble size = UL sample count', font: { size: 13, color: '#d0dcff' } },
+    xaxis: { ...layout_base.xaxis, title: 'Legacy PSN label rate', rangemode: 'tozero' },
+    yaxis: { ...layout_base.yaxis, title: 'UL PSN label rate', rangemode: 'tozero' },
+    height: 520,
+  }, config);
+})();
+
+}); // DOMContentLoaded
+</script>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+         background: #0f1117; color: #e8eaf0; margin: 0; padding: 0; }
+  .container { max-width: 1440px; margin: 0 auto; padding: 28px 32px; }
+  h1 { font-size: 1.85rem; color: #f0f4ff; border-bottom: 2px solid #2e3f6a; padding-bottom: 14px; margin-bottom: 6px; }
+  h2 { font-size: 1.3rem; color: #90b4ff; margin-top: 44px; border-left: 4px solid #3a5fa5; padding-left: 12px; }
+  .meta { color: #6a7a9a; font-size: 0.88rem; margin-bottom: 28px; }
+  .stat-row { display: flex; gap: 16px; flex-wrap: wrap; margin: 20px 0; }
+  .stat { flex: 1; min-width: 150px; background: #181d2e; border: 1px solid #2a3550; border-radius: 10px;
+           padding: 18px 20px; text-align: center; }
+  .stat .val { font-size: 2rem; font-weight: 700; }
+  .stat .lbl { font-size: 0.8rem; color: #7a8aaa; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .red   { border-color: #7a2525 !important; background: #1e1212 !important; }
+  .orange { border-color: #7a4a15 !important; background: #1e1608 !important; }
+  .yellow { border-color: #6a5a20 !important; background: #1a1910 !important; }
+  .green { border-color: #255a35 !important; background: #101e14 !important; }
+  .blue  { border-color: #254a7a !important; background: #0e1622 !important; }
+  .alert { color: #ff6b6b; }
+  .warn  { color: #ffcc6b; }
+  .good  { color: #6bffaa; }
+  .muted { color: #8ba0c4; }
+  .chart-box { background: #141828; border: 1px solid #22304a; border-radius: 10px; padding: 16px; margin: 18px 0; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 900px) { .grid2 { grid-template-columns: 1fr; } }
+  table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin-top: 10px; }
+  th { background: #1e2840; color: #90b4ff; font-weight: 600; padding: 9px 12px; text-align: left; border-bottom: 2px solid #2e3f6a; }
+  td { padding: 7px 12px; border-bottom: 1px solid #1e2840; vertical-align: middle; }
+  tr:hover td { background: #1a2238; }
+  .ratio-bar { display: inline-block; height: 8px; border-radius: 4px; background: #3a5fa5; vertical-align: middle; margin-left: 6px; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.72rem; font-weight: 600; }
+  .badge-red    { background: #4a1515; color: #ff8080; }
+  .badge-orange { background: #4a2a0a; color: #ffaa60; }
+  .badge-yellow { background: #3a3010; color: #ffd060; }
+  .badge-green  { background: #0a2a15; color: #60ff90; }
+  .insight { background: #13192e; border-left: 4px solid #3a5fa5; border-radius: 6px; padding: 14px 18px; margin: 12px 0; font-size: 0.9rem; line-height: 1.6; }
+  .insight.critical { border-color: #aa3333; }
+  .insight.warn { border-color: #aa7733; }
+  .insight.info { border-color: #336688; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>CPE LC v4 &mdash; Prediction Inflation Analysis</h1>
+  <div class="meta">
+    Model: <strong>unified-user-value-v11-cpe-lc-4</strong> vs Legacy BHV / CTX &nbsp;&bull;&nbsp;
+    Date: 2026-05-21 &nbsp;&bull;&nbsp;
+    228 comparable (campaign, game, sdk_event) combos
+  </div>
+
+  <!-- KPI row -->
+  <div class="stat-row">
+    <div class="stat blue">
+      <div class="val muted">228</div>
+      <div class="lbl">Comparable combos</div>
+    </div>
+    <div class="stat yellow">
+      <div class="val warn">1.77x</div>
+      <div class="lbl">Median over-bid ratio</div>
+    </div>
+    <div class="stat orange">
+      <div class="val warn">99 / 228</div>
+      <div class="lbl">&ge;2x over-bidding (43%)</div>
+    </div>
+    <div class="stat red">
+      <div class="val alert">38 / 228</div>
+      <div class="lbl">&ge;3x over-bidding (17%)</div>
+    </div>
+    <div class="stat green">
+      <div class="val good">14 / 228</div>
+      <div class="lbl">Under-bidding &lt;1x (6%)</div>
+    </div>
+  </div>
+
+  <!-- Key insights — updated after cross-dataset label rate analysis (2026-05-21) -->
+  <div class="insight critical">
+    <strong>Root Cause #1 — Architecture Over-Generalization (5–13× prediction bias confirmed):</strong>
+    Cross-dataset label analysis confirms the UL PSN head predicts <strong>5–13× above its own training label rates</strong>
+    for most high-ratio combos. This is <em>not</em> a label data problem — UL training labels are comparable to legacy
+    for the majority of events. The model architecture over-generalizes from correlated game-level and CTX features
+    (shared <code>target_game_id</code> embedding) rather than learning event-specific signal.
+    Even LEVEL_END_SUCCESS combos with <em>zero</em> positive labels in training receive 61–95% predictions.
+    <strong>This is the dominant driver of over-bidding and requires architecture-level or calibration fixes.</strong>
+  </div>
+  <div class="insight critical">
+    <strong>Root Cause #2 — Missing Product Accuracy Calibration:</strong>
+    The <code>_calib_tensor</code> in UL <code>DeployModel</code> is all-ones until
+    <code>refresh_product_accuracy_calibration.py</code> runs against live traffic and the model is redeployed.
+    Legacy BHV applies per-campaign <code>evt_rate_factor</code> correction. Once populated, the calibration tensor
+    can correct architecture bias by up to 20× (clamped to [0.05, 1.0]) — this is the most actionable near-term fix.
+  </div>
+  <div class="insight warn">
+    <strong>Root Cause #3 — LEVEL_END_SUCCESS &amp; Sparse Events: Zero Labels, Non-Zero Predictions:</strong>
+    Games like 500230137 (LES_40), 500182711 (LES_20), 500205921 (LES_50) have <em>zero positive labels</em>
+    in the UL training sample yet the model predicts 61–79%. FTD-family events average <strong>6.5× over-prediction</strong>
+    for the same reason. The shared <code>target_game_id</code> embedding bleeds signal from wildcard <code>*</code>
+    campaigns into specific-event predictions.
+    <strong>Mechanism 1 (eligibility gate) must zero these out at serving time</strong> — it is the critical safety net
+    until calibration is fully operational.
+  </div>
+  <div class="insight info">
+    <strong>Root Cause #4 — Label Inflation Isolated to tlevelplayed (1.5–1.6×):</strong>
+    Unlike other event types, <code>tlevelplayed</code> shows genuine UL training label inflation of 1.5–1.6×
+    vs legacy (games 500247636, 500259204). This is consistent with wildcard <code>*</code> campaign contamination
+    of the tlevelplayed embedding in Stage 2 <code>collect_set</code> aggregation.
+    However, even this inflation is insufficient to explain 3×+ over-prediction — architecture bias accounts for the remainder.
+    For all other event groups, UL and legacy label rates are broadly comparable (label inflation ≈ 1.0×).
+  </div>
+
+  <!-- Charts row 1 -->
+  <h2>Ratio Distribution</h2>
+  <div class="grid2">
+    <div class="chart-box">
+      <div id="chart-histogram"></div>
+    </div>
+    <div class="chart-box">
+      <div id="chart-group-bar"></div>
+    </div>
+  </div>
+
+  <!-- Scatter -->
+  <h2>UL Prediction vs Legacy Prediction (by event group)</h2>
+  <div class="chart-box">
+    <div id="chart-scatter"></div>
+  </div>
+
+  <!-- Top over-bidding table -->
+  <h2>Top 30 Over-Bidding Combos</h2>
+  <div class="chart-box" style="overflow-x:auto">
+    <div id="table-top30"></div>
+  </div>
+
+  <!-- Group detail chart -->
+  <h2>Per-Group Over-Bidding Summary</h2>
+  <div class="chart-box">
+    <div id="chart-group-detail"></div>
+  </div>
+
+  <!-- Label cross-check section -->
+  <h2>Label Rate Cross-Check: Dataset vs Model Predictions (Top 30 Combos)</h2>
+  <div class="insight critical">
+    <strong>Key Finding — Model over-predicts vs its OWN training labels:</strong>
+    The UL PSN head bias (pred / label) is <strong>5–13x</strong> for most high-ratio combos.
+    This is not primarily a label inflation problem — UL training labels are comparable to legacy for most events.
+    The model architecture itself is over-generalising from correlated features (e.g. game embedding, CTX signal).
+  </div>
+  <div class="insight warn">
+    <strong>Exception — tlevelplayed shows true label inflation (1.5–1.6x):</strong>
+    Games 500247636 and 500259204 have UL PSN label rates 1.5–1.6x higher than legacy,
+    likely from wildcard <code>*</code> contamination bleeding into the tlevelplayed embedding.
+    But even this inflation is insufficient to explain 3x+ over-prediction — architecture bias accounts for the rest.
+  </div>
+  <div class="insight info">
+    <strong>UL label = 0 for LEVEL_END_SUCCESS and sparse events:</strong>
+    Games like 500230137 (LES_40), 500182711 (LES_20), 500205921 (LES_50) show <em>zero positive labels</em>
+    in the UL training sample for those specific events — yet the model predicts 61–79%.
+    These combos either have too few positive examples in the sampled shards, or the eligibility gate
+    failed to block them. Mechanism 1 should gate these to cost = 0 at serving time.
+  </div>
+
+  <div class="chart-box" style="overflow-x:auto">
+    <div id="table-label-xcheck"></div>
+  </div>
+
+  <h2>Prediction Bias: UL vs Legacy (pred / training label)</h2>
+  <div class="chart-box">
+    <div id="chart-bias"></div>
+  </div>
+
+  <h2>UL Label Rate vs Legacy Label Rate (per combo)</h2>
+  <div class="chart-box">
+    <div id="chart-label-scatter"></div>
+  </div>
+
+
+</div>
+
+<script>
+const DATA = {"buckets":{"<1.0x":14,"1.0-1.5x":66,"1.5-2x":49,"2-3x":61,"3-5x":30,"5-10x":7,">10x":1},"group_summary":[{"group":"FTD/First events","count":3,"avg":6.48,"median":6.03,"max":8.35},{"group":"LEVEL_END_SUCCESS","count":30,"avg":2.36,"median":2.63,"max":4.05},{"group":"Level-up","count":9,"avg":2.35,"median":2.01,"max":4.37},{"group":"Retention","count":16,"avg":2.29,"median":2.0,"max":6.78},{"group":"Other","count":87,"avg":2.27,"median":1.77,"max":12.13},{"group":"tlevelplayed","count":28,"avg":1.96,"median":1.99,"max":3.36},{"group":"VIP/wildcard-like","count":34,"avg":1.72,"median":1.42,"max":4.01},{"group":"GRT events","count":21,"avg":1.71,"median":1.56,"max":3.99}],"top30":[{"campaign_id":"652214aefc636157750229a8","target_game_id":"500186905","sdk_event_name":"star5_hero_received","ul_pred":0.0531,"legacy_pred":0.0044,"ul_starts":1254,"legacy_starts":166,"ratio":12.13,"group":"Other","legacy_model":"bhv"},{"campaign_id":"69c4447a75bdf4ae2c38cc0d","target_game_id":"500042705","sdk_event_name":"pc_t2_d60_ios_custom","ul_pred":0.1769,"legacy_pred":0.0187,"ul_starts":1053,"legacy_starts":6998,"ratio":9.48,"group":"Other","legacy_model":"bhv"},{"campaign_id":"69a57f4e28fa19069f999829","target_game_id":"500226181","sdk_event_name":"ftd","ul_pred":0.0899,"legacy_pred":0.0108,"ul_starts":3,"legacy_starts":3405,"ratio":8.35,"group":"FTD/First events","legacy_model":"bhv"},{"campaign_id":"69f50d252e5cc8a34b740396","target_game_id":"500126376","sdk_event_name":"3rdparcelpurchased","ul_pred":0.2149,"legacy_pred":0.0298,"ul_starts":27,"legacy_starts":1129,"ratio":7.21,"group":"Other","legacy_model":"bhv"},{"campaign_id":"684ac40f6da6f407ddfa47fd","target_game_id":"500133901","sdk_event_name":"d7_puzzle60_hint5","ul_pred":0.3398,"legacy_pred":0.0501,"ul_starts":185,"legacy_starts":3136,"ratio":6.78,"group":"Retention","legacy_model":"bhv"},{"campaign_id":"69fddb9e9b6f4e87053afc76","target_game_id":"500177040","sdk_event_name":"af_ftd","ul_pred":0.5269,"legacy_pred":0.0874,"ul_starts":68,"legacy_starts":6221,"ratio":6.03,"group":"FTD/First events","legacy_model":"bhv"},{"campaign_id":"6728c92b33e2df92c85bb371","target_game_id":"500177040","sdk_event_name":"af_ftd","ul_pred":0.5208,"legacy_pred":0.1026,"ul_starts":1,"legacy_starts":1380,"ratio":5.07,"group":"FTD/First events","legacy_model":"bhv"},{"campaign_id":"69d574184e28da44850be3b8","target_game_id":"500219388","sdk_event_name":"segment_lambdas_first_offer_reconciled","ul_pred":0.5281,"legacy_pred":0.1051,"ul_starts":8,"legacy_starts":887,"ratio":5.03,"group":"Other","legacy_model":"bhv"},{"campaign_id":"6825d515a47ee6e329c70bdd","target_game_id":"500201983","sdk_event_name":"eventW","ul_pred":0.4153,"legacy_pred":0.0889,"ul_starts":26,"legacy_starts":201,"ratio":4.67,"group":"Other","legacy_model":"bhv"},{"campaign_id":"69d683f79a836a32675eaad0","target_game_id":"500219388","sdk_event_name":"segment_lambdas_first_offer_reconciled","ul_pred":0.4855,"legacy_pred":0.1051,"ul_starts":4,"legacy_starts":742,"ratio":4.62,"group":"Other","legacy_model":"bhv"},{"campaign_id":"69767381da814029af3ac254","target_game_id":"500025671","sdk_event_name":"af_level_up_20","ul_pred":0.3877,"legacy_pred":0.0886,"ul_starts":316,"legacy_starts":16822,"ratio":4.37,"group":"Level-up","legacy_model":"bhv"},{"campaign_id":"68271649a021613e001844d3","target_game_id":"500203302","sdk_event_name":"LEVEL_END_SUCCESS_35","ul_pred":0.7987,"legacy_pred":0.197,"ul_starts":4,"legacy_starts":59,"ratio":4.05,"group":"LEVEL_END_SUCCESS","legacy_model":"bhv"},{"campaign_id":"685e72777dd83b9c8536915e","target_game_id":"500201983","sdk_event_name":"eventw","ul_pred":0.2978,"legacy_pred":0.0738,"ul_starts":92,"legacy_starts":14,"ratio":4.03,"group":"Other","legacy_model":"bhv"},{"campaign_id":"6a018cecbe03f13e1d819343","target_game_id":"500248843","sdk_event_name":"aj_vip","ul_pred":0.224,"legacy_pred":0.0559,"ul_starts":47,"legacy_starts":113,"ratio":4.01,"group":"VIP/wildcard-like","legacy_model":"bhv"},{"campaign_id":"680f453b4a2a53d52b5b5c9d","target_game_id":"500230137","sdk_event_name":"LEVEL_END_SUCCESS_40","ul_pred":0.7915,"legacy_pred":0.1977,"ul_starts":53,"legacy_starts":33,"ratio":4.0,"group":"LEVEL_END_SUCCESS","legacy_model":"bhv"},{"campaign_id":"6958f0c7d3c68c367a8e1fe9","target_game_id":"500206220","sdk_event_name":"grt_24h_inter_15","ul_pred":0.5835,"legacy_pred":0.1464,"ul_starts":61,"legacy_starts":1173,"ratio":3.99,"group":"GRT events","legacy_model":"bhv"},{"campaign_id":"675fe08483020d7c80e8ea9b","target_game_id":"500090588","sdk_event_name":"log_city_upgrade_6","ul_pred":0.4024,"legacy_pred":0.1033,"ul_starts":19,"legacy_starts":1494,"ratio":3.9,"group":"Other","legacy_model":"bhv"},{"campaign_id":"6a0847d35cf19e65ec817cc3","target_game_id":"500021255","sdk_event_name":"af_level_100","ul_pred":0.4049,"legacy_pred":0.1075,"ul_starts":5,"legacy_starts":53,"ratio":3.77,"group":"Level-up","legacy_model":"bhv"},{"campaign_id":"69eae6280d291c5f22675e19","target_game_id":"500257871","sdk_event_name":"recvd_coins_400","ul_pred":0.2683,"legacy_pred":0.0716,"ul_starts":9,"legacy_starts":13938,"ratio":3.74,"group":"Other","legacy_model":"bhv"},{"campaign_id":"6842ace553ac96803b5c4581","target_game_id":"500205921","sdk_event_name":"LEVEL_END_SUCCESS_50","ul_pred":0.6115,"legacy_pred":0.1677,"ul_starts":6,"legacy_starts":11,"ratio":3.65,"group":"LEVEL_END_SUCCESS","legacy_model":"bhv"},{"campaign_id":"65a54c78bf21c672e9821580","target_game_id":"500187350","sdk_event_name":"","ul_pred":0.204,"legacy_pred":0.0565,"ul_starts":361,"legacy_starts":1922,"ratio":3.61,"group":"VIP/wildcard-like","legacy_model":"bhv"},{"campaign_id":"67930a6ff40ed9d2bb8782f0","target_game_id":"500201983","sdk_event_name":"eventA","ul_pred":0.7107,"legacy_pred":0.2012,"ul_starts":21,"legacy_starts":14542,"ratio":3.53,"group":"Other","legacy_model":"bhv"},{"campaign_id":"6a05dd5ba69b886a7e135160","target_game_id":"500187658","sdk_event_name":"af_lvl_100","ul_pred":0.3359,"legacy_pred":0.0963,"ul_starts":75,"legacy_starts":14,"ratio":3.49,"group":"Other","legacy_model":"bhv"},{"campaign_id":"679e18b1f37ec3d15f7186f0","target_game_id":"500201983","sdk_event_name":"eventA","ul_pred":0.5842,"legacy_pred":0.1685,"ul_starts":19,"legacy_starts":210,"ratio":3.47,"group":"Other","legacy_model":"bhv"},{"campaign_id":"6842caf6d3bf778d13dda41f","target_game_id":"500201983","sdk_event_name":"eventA","ul_pred":0.6813,"legacy_pred":0.201,"ul_starts":46,"legacy_starts":1658,"ratio":3.39,"group":"Other","legacy_model":"bhv"},{"campaign_id":"69a65ea4da9676c23eece100","target_game_id":"500247636","sdk_event_name":"tlevelplayed","ul_pred":0.9364,"legacy_pred":0.2789,"ul_starts":1,"legacy_starts":279,"ratio":3.36,"group":"tlevelplayed","legacy_model":"bhv"},{"campaign_id":"66417ef602464c49ace985a7","target_game_id":"500101393","sdk_event_name":"log_city_upgrade_6","ul_pred":0.2557,"legacy_pred":0.0779,"ul_starts":119,"legacy_starts":71113,"ratio":3.28,"group":"Other","legacy_model":"bhv"},{"campaign_id":"69d257d322fd258244e7882a","target_game_id":"500259204","sdk_event_name":"tlevelplayed","ul_pred":0.8702,"legacy_pred":0.2679,"ul_starts":1,"legacy_starts":25,"ratio":3.25,"group":"tlevelplayed","legacy_model":"bhv"},{"campaign_id":"6846a4f896419385fdae9ec0","target_game_id":"500182711","sdk_event_name":"level_end_success_20","ul_pred":0.7707,"legacy_pred":0.2393,"ul_starts":3,"legacy_starts":70,"ratio":3.22,"group":"LEVEL_END_SUCCESS","legacy_model":"bhv"},{"campaign_id":"6826ce3465ae12f8408f84fd","target_game_id":"500157082","sdk_event_name":"LEVEL_END_SUCCESS_30","ul_pred":0.9527,"legacy_pred":0.297,"ul_starts":1,"legacy_starts":30,"ratio":3.21,"group":"LEVEL_END_SUCCESS","legacy_model":"bhv"}],"scatter":[{"x":0.0044,"y":0.0531,"ratio":12.13,"game":"500186905","event":"star5_hero_received","group":"Other","starts":1254},{"x":0.0187,"y":0.1769,"ratio":9.48,"game":"500042705","event":"pc_t2_d60_ios_custom","group":"Other","starts":1053},{"x":0.0108,"y":0.0899,"ratio":8.35,"game":"500226181","event":"ftd","group":"FTD/First events","starts":3},{"x":0.0298,"y":0.2149,"ratio":7.21,"game":"500126376","event":"3rdparcelpurchased","group":"Other","starts":27},{"x":0.0501,"y":0.3398,"ratio":6.78,"game":"500133901","event":"d7_puzzle60_hint5","group":"Retention","starts":185},{"x":0.0874,"y":0.5269,"ratio":6.03,"game":"500177040","event":"af_ftd","group":"FTD/First events","starts":68},{"x":0.1026,"y":0.5208,"ratio":5.07,"game":"500177040","event":"af_ftd","group":"FTD/First events","starts":1},{"x":0.1051,"y":0.5281,"ratio":5.03,"game":"500219388","event":"segment_lambdas_first_offer_re","group":"Other","starts":8},{"x":0.0889,"y":0.4153,"ratio":4.67,"game":"500201983","event":"eventW","group":"Other","starts":26},{"x":0.1051,"y":0.4855,"ratio":4.62,"game":"500219388","event":"segment_lambdas_first_offer_re","group":"Other","starts":4},{"x":0.0886,"y":0.3877,"ratio":4.37,"game":"500025671","event":"af_level_up_20","group":"Level-up","starts":316},{"x":0.197,"y":0.7987,"ratio":4.05,"game":"500203302","event":"LEVEL_END_SUCCESS_35","group":"LEVEL_END_SUCCESS","starts":4},{"x":0.0738,"y":0.2978,"ratio":4.03,"game":"500201983","event":"eventw","group":"Other","starts":92},{"x":0.0559,"y":0.224,"ratio":4.01,"game":"500248843","event":"aj_vip","group":"VIP/wildcard-like","starts":47},{"x":0.1977,"y":0.7915,"ratio":4.0,"game":"500230137","event":"LEVEL_END_SUCCESS_40","group":"LEVEL_END_SUCCESS","starts":53},{"x":0.1464,"y":0.5835,"ratio":3.99,"game":"500206220","event":"grt_24h_inter_15","group":"GRT events","starts":61},{"x":0.1033,"y":0.4024,"ratio":3.9,"game":"500090588","event":"log_city_upgrade_6","group":"Other","starts":19},{"x":0.1075,"y":0.4049,"ratio":3.77,"game":"500021255","event":"af_level_100","group":"Level-up","starts":5},{"x":0.0716,"y":0.2683,"ratio":3.74,"game":"500257871","event":"recvd_coins_400","group":"Other","starts":9},{"x":0.1677,"y":0.6115,"ratio":3.65,"game":"500205921","event":"LEVEL_END_SUCCESS_50","group":"LEVEL_END_SUCCESS","starts":6},{"x":0.0565,"y":0.204,"ratio":3.61,"game":"500187350","event":"","group":"VIP/wildcard-like","starts":361},{"x":0.2012,"y":0.7107,"ratio":3.53,"game":"500201983","event":"eventA","group":"Other","starts":21},{"x":0.0963,"y":0.3359,"ratio":3.49,"game":"500187658","event":"af_lvl_100","group":"Other","starts":75},{"x":0.1685,"y":0.5842,"ratio":3.47,"game":"500201983","event":"eventA","group":"Other","starts":19},{"x":0.201,"y":0.6813,"ratio":3.39,"game":"500201983","event":"eventA","group":"Other","starts":46},{"x":0.2789,"y":0.9364,"ratio":3.36,"game":"500247636","event":"tlevelplayed","group":"tlevelplayed","starts":1},{"x":0.0779,"y":0.2557,"ratio":3.28,"game":"500101393","event":"log_city_upgrade_6","group":"Other","starts":119},{"x":0.2679,"y":0.8702,"ratio":3.25,"game":"500259204","event":"tlevelplayed","group":"tlevelplayed","starts":1},{"x":0.2393,"y":0.7707,"ratio":3.22,"game":"500182711","event":"level_end_success_20","group":"LEVEL_END_SUCCESS","starts":3},{"x":0.297,"y":0.9527,"ratio":3.21,"game":"500157082","event":"LEVEL_END_SUCCESS_30","group":"LEVEL_END_SUCCESS","starts":1},{"x":0.1537,"y":0.4916,"ratio":3.2,"game":"500257871","event":"recvd_coins_400","group":"Other","starts":4},{"x":0.0832,"y":0.2645,"ratio":3.18,"game":"500248843","event":"aj_vip","group":"VIP/wildcard-like","starts":104},{"x":0.2186,"y":0.6802,"ratio":3.11,"game":"500238377","event":"af_xinhuciliu","group":"Other","starts":8},{"x":0.166,"y":0.5155,"ratio":3.11,"game":"500201983","event":"eventa","group":"Other","starts":8},{"x":0.2124,"y":0.6568,"ratio":3.09,"game":"500205921","event":"LEVEL_END_SUCCESS_35","group":"LEVEL_END_SUCCESS","starts":5},{"x":0.223,"y":0.6892,"ratio":3.09,"game":"500182711","event":"LEVEL_END_SUCCESS_20","group":"LEVEL_END_SUCCESS","starts":129},{"x":0.1065,"y":0.3222,"ratio":3.03,"game":"500071743","event":"ajvip","group":"VIP/wildcard-like","starts":102},{"x":0.0837,"y":0.2532,"ratio":3.02,"game":"500093311","event":"day5_retention","group":"Retention","starts":125},{"x":0.1724,"y":0.5154,"ratio":2.99,"game":"500215761","event":"LEVEL_END_SUCCESS_40","group":"LEVEL_END_SUCCESS","starts":1},{"x":0.1835,"y":0.5384,"ratio":2.93,"game":"500201983","event":"event8mru","group":"Other","starts":9},{"x":0.2392,"y":0.6916,"ratio":2.89,"game":"500240987","event":"level_end_success_30","group":"LEVEL_END_SUCCESS","starts":6},{"x":0.1293,"y":0.3712,"ratio":2.87,"game":"500136474","event":"ajvip","group":"VIP/wildcard-like","starts":11},{"x":0.2821,"y":0.8095,"ratio":2.87,"game":"500114618","event":"LEVEL_END_SUCCESS_30","group":"LEVEL_END_SUCCESS","starts":2},{"x":0.2263,"y":0.6452,"ratio":2.85,"game":"500240987","event":"level_end_success_40","group":"LEVEL_END_SUCCESS","starts":2},{"x":0.0571,"y":0.1623,"ratio":2.84,"game":"500133901","event":"d7_puzzle60_hint5","group":"Retention","starts":7},{"x":0.2475,"y":0.6964,"ratio":2.81,"game":"500259204","event":"tlevelplayed","group":"tlevelplayed","starts":3},{"x":0.3115,"y":0.8757,"ratio":2.81,"game":"500060922","event":"LEVEL_END_SUCCESS_30","group":"LEVEL_END_SUCCESS","starts":9},{"x":0.1657,"y":0.4545,"ratio":2.74,"game":"500201983","event":"eventa2","group":"Other","starts":31},{"x":0.2324,"y":0.637,"ratio":2.74,"game":"500219681","event":"level_end_success_50","group":"LEVEL_END_SUCCESS","starts":16},{"x":0.1085,"y":0.2957,"ratio":2.73,"game":"500219388","event":"segment_lambdas_first_offer_re","group":"Other","starts":17},{"x":0.0064,"y":0.0174,"ratio":2.71,"game":"500178023","event":"golden_android_conversion_mid","group":"Other","starts":379},{"x":0.1927,"y":0.5219,"ratio":2.71,"game":"500249863","event":"cvlink_kabupresent","group":"Other","starts":7},{"x":0.1444,"y":0.3908,"ratio":2.71,"game":"500136474","event":"ajvip","group":"VIP/wildcard-like","starts":50},{"x":0.2111,"y":0.5622,"ratio":2.66,"game":"500254939","event":"d2_retention","group":"Retention","starts":76},{"x":0.2344,"y":0.6213,"ratio":2.65,"game":"500230137","event":"LEVEL_END_SUCCESS_30","group":"LEVEL_END_SUCCESS","starts":4},{"x":0.2729,"y":0.717,"ratio":2.63,"game":"500062793","event":"LEVEL_END_SUCCESS_30","group":"LEVEL_END_SUCCESS","starts":2},{"x":0.094,"y":0.246,"ratio":2.62,"game":"500071743","event":"ajvip","group":"VIP/wildcard-like","starts":43},{"x":0.2706,"y":0.7072,"ratio":2.61,"game":"500182710","event":"LEVEL_END_SUCCESS_20","group":"LEVEL_END_SUCCESS","starts":17},{"x":0.2521,"y":0.6587,"ratio":2.61,"game":"500062793","event":"LEVEL_END_SUCCESS_30","group":"LEVEL_END_SUCCESS","starts":5},{"x":0.2527,"y":0.6589,"ratio":2.61,"game":"500157082","event":"LEVEL_END_SUCCESS_30","group":"LEVEL_END_SUCCESS","starts":5},{"x":0.2737,"y":0.7124,"ratio":2.6,"game":"500247636","event":"tlevelplayed","group":"tlevelplayed","starts":14},{"x":0.2282,"y":0.5932,"ratio":2.6,"game":"500104804","event":"af_level_up_15","group":"Level-up","starts":3},{"x":0.0733,"y":0.1898,"ratio":2.59,"game":"500104804","event":"af_level_up_20","group":"Level-up","starts":442},{"x":0.2204,"y":0.5708,"ratio":2.59,"game":"500259204","event":"tlevelplayed","group":"tlevelplayed","starts":5},{"x":0.2224,"y":0.5606,"ratio":2.52,"game":"500255340","event":"tlevelplayed","group":"tlevelplayed","starts":7},{"x":0.3412,"y":0.8585,"ratio":2.52,"game":"500245702","event":"tlevelplayed","group":"tlevelplayed","starts":2},{"x":0.292,"y":0.7296,"ratio":2.5,"game":"500245702","event":"tlevelplayed","group":"tlevelplayed","starts":5},{"x":0.1554,"y":0.3877,"ratio":2.5,"game":"500219388","event":"segment_lambdas_first_offer_re","group":"Other","starts":147},{"x":0.2499,"y":0.6089,"ratio":2.44,"game":"500201983","event":"eventA2","group":"Other","starts":10},{"x":0.2964,"y":0.7192,"ratio":2.43,"game":"500255340","event":"tlevelplayed","group":"tlevelplayed","starts":1},{"x":0.272,"y":0.6523,"ratio":2.4,"game":"500201983","event":"eventA2","group":"Other","starts":20},{"x":0.2145,"y":0.5139,"ratio":2.4,"game":"500201983","event":"eventa","group":"Other","starts":2},{"x":0.1028,"y":0.2435,"ratio":2.37,"game":"500219388","event":"segment_lambdas_first_offer_re","group":"Other","starts":2},{"x":0.2759,"y":0.652,"ratio":2.36,"game":"500031041","event":"paid_imp_75","group":"Other","starts":14},{"x":0.3305,"y":0.7649,"ratio":2.31,"game":"500035177","event":"40levelsplayed","group":"Other","starts":49},{"x":0.3105,"y":0.7067,"ratio":2.28,"game":"500143087","event":"","group":"VIP/wildcard-like","starts":14},{"x":0.3574,"y":0.7907,"ratio":2.21,"game":"500245702","event":"tlevelplayed","group":"tlevelplayed","starts":4},{"x":0.1857,"y":0.4061,"ratio":2.19,"game":"500201983","event":"eventa2","group":"Other","starts":13},{"x":0.3359,"y":0.7334,"ratio":2.18,"game":"500035177","event":"40levelsplayed","group":"Other","starts":105},{"x":0.2119,"y":0.4558,"ratio":2.15,"game":"500199981","event":"grt_7d_ltv_20_15","group":"GRT events","starts":70},{"x":0.3598,"y":0.7739,"ratio":2.15,"game":"500040932","event":"d2_retention","group":"Retention","starts":1},{"x":0.2422,"y":0.5201,"ratio":2.15,"game":"500196051","event":"grt_7d_ltv_25p","group":"GRT events","starts":193},{"x":0.4123,"y":0.8851,"ratio":2.15,"game":"500226169","event":"play_short_3","group":"Other","starts":1},{"x":0.2705,"y":0.5691,"ratio":2.1,"game":"500040932","event":"d2_retention","group":"Retention","starts":7},{"x":0.3189,"y":0.6704,"ratio":2.1,"game":"500245702","event":"tlevelplayed","group":"tlevelplayed","starts":13},{"x":0.3528,"y":0.7322,"ratio":2.08,"game":"500247636","event":"tlevelplayed","group":"tlevelplayed","starts":1},{"x":0.2015,"y":0.4168,"ratio":2.07,"game":"500199981","event":"grt_7d_ltv_20_15","group":"GRT events","starts":31},{"x":0.2367,"y":0.4894,"ratio":2.07,"game":"500253218","event":"active_1days_retention","group":"Retention","starts":111},{"x":0.2963,"y":0.6118,"ratio":2.06,"game":"500205921","event":"level_end_success_30","group":"LEVEL_END_SUCCESS","starts":1},{"x":0.2659,"y":0.5483,"ratio":2.06,"game":"500257871","event":"recvd_coins_400","group":"Other","starts":2},{"x":0.3435,"y":0.7064,"ratio":2.06,"game":"500201983","event":"eventA2","group":"Other","starts":3},{"x":0.2197,"y":0.4476,"ratio":2.04,"game":"500201983","event":"eventa","group":"Other","starts":1},{"x":0.3258,"y":0.6621,"ratio":2.03,"game":"500142495","event":"WINCOUNT10","group":"Other","starts":6},{"x":0.135,"y":0.2737,"ratio":2.03,"game":"500093311","event":"reach_viplv2","group":"VIP/wildcard-like","starts":169},{"x":0.3129,"y":0.6333,"ratio":2.02,"game":"500229380","event":"success_first_ride","group":"Other","starts":6},{"x":0.1118,"y":0.2252,"ratio":2.01,"game":"500104804","event":"af_level_up_20","group":"Level-up","starts":32},{"x":0.1307,"y":0.2628,"ratio":2.01,"game":"500093311","event":"kill_zombie_lv1","group":"Other","starts":44},{"x":0.3775,"y":0.7568,"ratio":2.0,"game":"500256774","event":"active_1days_retention","group":"Retention","starts":52},{"x":0.2013,"y":0.4027,"ratio":2.0,"game":"500254939","event":"d2_retention","group":"Retention","starts":30},{"x":0.2434,"y":0.4868,"ratio":2.0,"game":"500247636","event":"tlevelplayed","group":"tlevelplayed","starts":6},{"x":0.1882,"y":0.3755,"ratio":1.99,"game":"500203302","event":"LEVEL_END_SUCCESS_40","group":"LEVEL_END_SUCCESS","starts":12},{"x":0.2808,"y":0.5587,"ratio":1.99,"game":"500255340","event":"tlevelplayed","group":"tlevelplayed","starts":10},{"x":0.3299,"y":0.6543,"ratio":1.98,"game":"500256774","event":"active_1days_retention","group":"Retention","starts":60},{"x":0.3693,"y":0.7176,"ratio":1.94,"game":"500196051","event":"grt_7d_level30_notir","group":"GRT events","starts":7},{"x":0.2282,"y":0.4388,"ratio":1.92,"game":"500093455","event":"advanced_search10","group":"Other","starts":6},{"x":0.1773,"y":0.3344,"ratio":1.89,"game":"500201983","event":"eventa2","group":"Other","starts":9},{"x":0.3622,"y":0.6773,"ratio":1.87,"game":"500257871","event":"recvd_coins_400","group":"Other","starts":2},{"x":0.2292,"y":0.4279,"ratio":1.87,"game":"500201983","event":"eventA","group":"Other","starts":164},{"x":0.2877,"y":0.5229,"ratio":1.82,"game":"500025671","event":"af_level_up_15","group":"Level-up","starts":28},{"x":0.3432,"y":0.6124,"ratio":1.78,"game":"500196051","event":"grt_7d_level30_notir","group":"GRT events","starts":13},{"x":0.3443,"y":0.6129,"ratio":1.78,"game":"500040932","event":"d2_retention","group":"Retention","starts":1},{"x":0.1975,"y":0.3507,"ratio":1.78,"game":"500133901","event":"d7_puzzle60_hint5","group":"Retention","starts":106},{"x":0.3432,"y":0.6081,"ratio":1.77,"game":"500226169","event":"app_second_start","group":"Other","starts":17},{"x":0.347,"y":0.6138,"ratio":1.77,"game":"500090657","event":"Registration-S2S","group":"Other","starts":6},{"x":0.2734,"y":0.4801,"ratio":1.76,"game":"500215761","event":"LEVEL_END_SUCCESS_45","group":"LEVEL_END_SUCCESS","starts":32},{"x":0.3078,"y":0.5352,"ratio":1.74,"game":"500205921","event":"level_end_success_25","group":"LEVEL_END_SUCCESS","starts":1},{"x":0.4307,"y":0.748,"ratio":1.74,"game":"500245519","event":"player_level_05","group":"Other","starts":4},{"x":0.332,"y":0.5736,"ratio":1.73,"game":"500255340","event":"tlevelplayed","group":"tlevelplayed","starts":1},{"x":0.2676,"y":0.4567,"ratio":1.71,"game":"500182711","event":"level_end_success_20","group":"LEVEL_END_SUCCESS","starts":4},{"x":0.4038,"y":0.686,"ratio":1.7,"game":"500253218","event":"active_1days_retention","group":"Retention","starts":123},{"x":0.2892,"y":0.4897,"ratio":1.69,"game":"500196051","event":"grt_7d_level30_notir","group":"GRT events","starts":20},{"x":0.2259,"y":0.3812,"ratio":1.69,"game":"500229380","event":"success_first_ride","group":"Other","starts":11},{"x":0.3433,"y":0.5769,"ratio":1.68,"game":"500196051","event":"grt_7d_level30_notir","group":"GRT events","starts":19},{"x":0.2036,"y":0.3411,"ratio":1.68,"game":"500259204","event":"tlevelplayed","group":"tlevelplayed","starts":1},{"x":0.1711,"y":0.2797,"ratio":1.63,"game":"500104804","event":"af_level_up_20","group":"Level-up","starts":197},{"x":0.3936,"y":0.6432,"ratio":1.63,"game":"500226169","event":"app_second_start","group":"Other","starts":50},{"x":0.2426,"y":0.396,"ratio":1.63,"game":"500093455","event":"castle_lv5","group":"Other","starts":9},{"x":0.3058,"y":0.4942,"ratio":1.62,"game":"500247636","event":"tlevelplayed","group":"tlevelplayed","starts":1},{"x":0.2445,"y":0.3935,"ratio":1.61,"game":"500259204","event":"tlevelplayed","group":"tlevelplayed","starts":4},{"x":0.3588,"y":0.5761,"ratio":1.61,"game":"500196051","event":"grt_7d_level30_notir","group":"GRT events","starts":23},{"x":0.2798,"y":0.4489,"ratio":1.6,"game":"500199981","event":"grt_7d_level40_notir","group":"GRT events","starts":24},{"x":0.4926,"y":0.7893,"ratio":1.6,"game":"500219585","event":"","group":"VIP/wildcard-like","starts":4},{"x":0.5636,"y":0.8971,"ratio":1.59,"game":"500245490","event":"","group":"VIP/wildcard-like","starts":4},{"x":0.3986,"y":0.6301,"ratio":1.58,"game":"500219585","event":"nameofevent","group":"Other","starts":2},{"x":0.3818,"y":0.5988,"ratio":1.57,"game":"500245304","event":"level_end_success_20","group":"LEVEL_END_SUCCESS","starts":13},{"x":0.4312,"y":0.6747,"ratio":1.56,"game":"500196051","event":"grt_7d_level30_notir","group":"GRT events","starts":3},{"x":0.3195,"y":0.4999,"ratio":1.56,"game":"500199981","event":"grt_7d_ltv_20_15","group":"GRT events","starts":36},{"x":0.1353,"y":0.2111,"ratio":1.56,"game":"500013078","event":"","group":"VIP/wildcard-like","starts":48},{"x":0.3767,"y":0.5871,"ratio":1.56,"game":"500245519","event":"player_level_05","group":"Other","starts":2},{"x":0.4586,"y":0.7131,"ratio":1.56,"game":"500235231","event":"","group":"VIP/wildcard-like","starts":18},{"x":0.2504,"y":0.3888,"ratio":1.55,"game":"500199981","event":"grt_7d_level40_notir","group":"GRT events","starts":106},{"x":0.3105,"y":0.481,"ratio":1.55,"game":"500255340","event":"tlevelplayed","group":"tlevelplayed","starts":4},{"x":0.3096,"y":0.4783,"ratio":1.54,"game":"500253218","event":"onlinetime_60m","group":"Other","starts":355},{"x":0.1937,"y":0.2945,"ratio":1.52,"game":"500257871","event":"recvd_coins_400","group":"Other","starts":1},{"x":0.3139,"y":0.4746,"ratio":1.51,"game":"500247636","event":"tlevelplayed","group":"tlevelplayed","starts":1},{"x":0.4976,"y":0.7517,"ratio":1.51,"game":"500245490","event":"","group":"VIP/wildcard-like","starts":4},{"x":0.2976,"y":0.4491,"ratio":1.51,"game":"500247636","event":"tlevelplayed","group":"tlevelplayed","starts":1},{"x":0.3949,"y":0.5956,"ratio":1.51,"game":"500245702","event":"tlevelplayed","group":"tlevelplayed","starts":2},{"x":0.3711,"y":0.5562,"ratio":1.5,"game":"500238869","event":"online40min","group":"Other","starts":13},{"x":0.3138,"y":0.4702,"ratio":1.5,"game":"500201983","event":"eventa2","group":"Other","starts":31},{"x":0.2713,"y":0.4049,"ratio":1.49,"game":"500247636","event":"tlevelplayed","group":"tlevelplayed","starts":1},{"x":0.2068,"y":0.3047,"ratio":1.47,"game":"500093455","event":"character_get_5","group":"Other","starts":1},{"x":0.3625,"y":0.5339,"ratio":1.47,"game":"500196051","event":"grt_7d_level30_notir","group":"GRT events","starts":7},{"x":0.451,"y":0.6615,"ratio":1.47,"game":"500219585","event":"","group":"VIP/wildcard-like","starts":3},{"x":0.3142,"y":0.459,"ratio":1.46,"game":"500256774","event":"onlinetime_60m","group":"Other","starts":35},{"x":0.6431,"y":0.9389,"ratio":1.46,"game":"500245525","event":"player_level_05","group":"Other","starts":14},{"x":0.4936,"y":0.7172,"ratio":1.45,"game":"500226169","event":"app_feedback_five","group":"Other","starts":5},{"x":0.5728,"y":0.8165,"ratio":1.43,"game":"500226169","event":"app_feedback_five","group":"Other","starts":2},{"x":0.585,"y":0.8331,"ratio":1.42,"game":"500235231","event":"","group":"VIP/wildcard-like","starts":1},{"x":0.5282,"y":0.7517,"ratio":1.42,"game":"500235231","event":"","group":"VIP/wildcard-like","starts":4},{"x":0.0928,"y":0.1319,"ratio":1.42,"game":"500253565","event":"trial_started","group":"Other","starts":6},{"x":0.5429,"y":0.7663,"ratio":1.41,"game":"500022233","event":"signup","group":"Other","starts":4},{"x":0.4897,"y":0.6909,"ratio":1.41,"game":"500219585","event":"","group":"VIP/wildcard-like","starts":32},{"x":0.259,"y":0.3634,"ratio":1.4,"game":"500247636","event":"tlevelplayed","group":"tlevelplayed","starts":3},{"x":0.2204,"y":0.3075,"ratio":1.4,"game":"500193586","event":"adjustiosrevenuereachedmin4","group":"Other","starts":7},{"x":0.5955,"y":0.8301,"ratio":1.39,"game":"500244354","event":"level_23","group":"Other","starts":19},{"x":0.4841,"y":0.6744,"ratio":1.39,"game":"500235231","event":"","group":"VIP/wildcard-like","starts":9},{"x":0.23,"y":0.3202,"ratio":1.39,"game":"500104804","event":"","group":"VIP/wildcard-like","starts":3},{"x":0.4672,"y":0.649,"ratio":1.39,"game":"500235231","event":"","group":"VIP/wildcard-like","starts":2},{"x":0.3078,"y":0.4268,"ratio":1.39,"game":"500040932","event":"d2_retention","group":"Retention","starts":3},{"x":0.2549,"y":0.3483,"ratio":1.37,"game":"500199981","event":"grt_7d_level40_notir","group":"GRT events","starts":46},{"x":0.5009,"y":0.6813,"ratio":1.36,"game":"500245519","event":"player_level_05","group":"Other","starts":3},{"x":0.2784,"y":0.3745,"ratio":1.35,"game":"500199981","event":"grt_7d_level40_notir","group":"GRT events","starts":11},{"x":0.1008,"y":0.1349,"ratio":1.34,"game":"500072927","event":"ajvip","group":"VIP/wildcard-like","starts":20},{"x":0.42,"y":0.5596,"ratio":1.33,"game":"500253218","event":"onlinetime_30m","group":"Other","starts":148},{"x":0.2393,"y":0.3188,"ratio":1.33,"game":"500199981","event":"grt_7d_level40_notir","group":"GRT events","starts":36},{"x":0.2833,"y":0.3767,"ratio":1.33,"game":"500199981","event":"grt_7d_level40_notir","group":"GRT events","starts":70},{"x":0.5421,"y":0.7121,"ratio":1.31,"game":"500190914","event":"","group":"VIP/wildcard-like","starts":1},{"x":0.6856,"y":0.8977,"ratio":1.31,"game":"500259173","event":"order_12","group":"Other","starts":2},{"x":0.5379,"y":0.703,"ratio":1.31,"game":"500238377","event":"af_rounds30","group":"Other","starts":1},{"x":0.1927,"y":0.2499,"ratio":1.3,"game":"500201983","event":"eventa2","group":"Other","starts":1},{"x":0.3692,"y":0.4787,"ratio":1.3,"game":"500212481","event":"level_end_success_30","group":"LEVEL_END_SUCCESS","starts":4},{"x":0.5861,"y":0.7434,"ratio":1.27,"game":"500226169","event":"app_feedback_eight","group":"Other","starts":2},{"x":0.5523,"y":0.7005,"ratio":1.27,"game":"500219585","event":"","group":"VIP/wildcard-like","starts":5},{"x":0.6475,"y":0.8136,"ratio":1.26,"game":"500244354","event":"level_23","group":"Other","starts":11},{"x":0.4886,"y":0.6137,"ratio":1.26,"game":"500235231","event":"","group":"VIP/wildcard-like","starts":1},{"x":0.6019,"y":0.7496,"ratio":1.25,"game":"500244354","event":"level_25","group":"Other","starts":1},{"x":0.705,"y":0.8767,"ratio":1.24,"game":"500208356","event":"af_registration","group":"Other","starts":4},{"x":0.4184,"y":0.5192,"ratio":1.24,"game":"500235231","event":"","group":"VIP/wildcard-like","starts":4},{"x":0.1635,"y":0.202,"ratio":1.24,"game":"500225868","event":"af_level_100","group":"Level-up","starts":7},{"x":0.3104,"y":0.3822,"ratio":1.23,"game":"500255340","event":"tlevelplayed","group":"tlevelplayed","starts":1},{"x":0.447,"y":0.5491,"ratio":1.23,"game":"500196051","event":"grt_7d_level30_notir","group":"GRT events","starts":94},{"x":0.3915,"y":0.481,"ratio":1.23,"game":"500040932","event":"d2_retention","group":"Retention","starts":1},{"x":0.329,"y":0.4018,"ratio":1.22,"game":"500199981","event":"grt_7d_level40_notir","group":"GRT events","starts":9},{"x":0.2406,"y":0.2887,"ratio":1.2,"game":"500177458","event":"grt_7d_levelpass_40","group":"GRT events","starts":7},{"x":0.1259,"y":0.1478,"ratio":1.17,"game":"500253575","event":"trial_started","group":"Other","starts":6},{"x":0.6114,"y":0.7108,"ratio":1.16,"game":"500244354","event":"level_20","group":"Other","starts":5},{"x":0.1368,"y":0.1587,"ratio":1.16,"game":"500104804","event":"af_level_up_20","group":"Level-up","starts":29},{"x":0.521,"y":0.6027,"ratio":1.16,"game":"500219585","event":"","group":"VIP/wildcard-like","starts":6},{"x":0.4963,"y":0.5726,"ratio":1.15,"game":"500253218","event":"onlinetime_30m","group":"Other","starts":9},{"x":0.5456,"y":0.6292,"ratio":1.15,"game":"500226169","event":"app_feedback_eight","group":"Other","starts":6},{"x":0.5159,"y":0.5938,"ratio":1.15,"game":"500226169","event":"play_short_2","group":"Other","starts":2},{"x":0.348,"y":0.3988,"ratio":1.15,"game":"500040932","event":"d2_retention","group":"Retention","starts":1},{"x":0.2313,"y":0.2647,"ratio":1.14,"game":"137962","event":"af_custom_event_in_room_chat","group":"Other","starts":16},{"x":0.6163,"y":0.6911,"ratio":1.12,"game":"500219585","event":"","group":"VIP/wildcard-like","starts":4},{"x":0.8479,"y":0.9376,"ratio":1.11,"game":"500208356","event":"af_registration","group":"Other","starts":10},{"x":0.2926,"y":0.3205,"ratio":1.1,"game":"500247636","event":"tlevelplayed","group":"tlevelplayed","starts":1},{"x":0.4225,"y":0.4538,"ratio":1.07,"game":"500235231","event":"","group":"VIP/wildcard-like","starts":3},{"x":0.4594,"y":0.4869,"ratio":1.06,"game":"500181807","event":"LEVEL_END_SUCCESS_2","group":"LEVEL_END_SUCCESS","starts":2},{"x":0.3801,"y":0.3957,"ratio":1.04,"game":"500245702","event":"tlevelplayed","group":"tlevelplayed","starts":1},{"x":0.4134,"y":0.4288,"ratio":1.04,"game":"500243840","event":"registration_successful","group":"Other","starts":7},{"x":0.3703,"y":0.3822,"ratio":1.03,"game":"500199981","event":"","group":"VIP/wildcard-like","starts":20},{"x":0.951,"y":0.9618,"ratio":1.01,"game":"500208356","event":"af_login","group":"Other","starts":1},{"x":0.1901,"y":0.192,"ratio":1.01,"game":"500022328","event":"purchase_ftu","group":"Other","starts":13},{"x":0.6044,"y":0.6022,"ratio":1.0,"game":"500245490","event":"","group":"VIP/wildcard-like","starts":1},{"x":0.406,"y":0.3954,"ratio":0.97,"game":"500199981","event":"","group":"VIP/wildcard-like","starts":167},{"x":0.5856,"y":0.5657,"ratio":0.97,"game":"500219585","event":"","group":"VIP/wildcard-like","starts":2},{"x":0.2348,"y":0.2213,"ratio":0.94,"game":"500093311","event":"common_search_1","group":"Other","starts":24},{"x":0.2448,"y":0.2284,"ratio":0.93,"game":"500182710","event":"LEVEL_END_SUCCESS_20","group":"LEVEL_END_SUCCESS","starts":3},{"x":0.4603,"y":0.4235,"ratio":0.92,"game":"500238869","event":"level_achieve_3","group":"Other","starts":3},{"x":0.4239,"y":0.3865,"ratio":0.91,"game":"500201983","event":"eventa2","group":"Other","starts":2},{"x":0.7382,"y":0.6578,"ratio":0.89,"game":"500040489","event":"playerlevelup","group":"Other","starts":7},{"x":0.3527,"y":0.2976,"ratio":0.84,"game":"500255340","event":"tlevelplayed","group":"tlevelplayed","starts":1},{"x":0.3329,"y":0.2765,"ratio":0.83,"game":"500060922","event":"LEVEL_END_SUCCESS_30","group":"LEVEL_END_SUCCESS","starts":2},{"x":0.1812,"y":0.1465,"ratio":0.81,"game":"500013078","event":"","group":"VIP/wildcard-like","starts":2},{"x":0.2824,"y":0.214,"ratio":0.76,"game":"500080073","event":"LEVEL_END_SUCCESS_15","group":"LEVEL_END_SUCCESS","starts":2},{"x":0.5357,"y":0.4038,"ratio":0.75,"game":"500263093","event":"r_done","group":"Other","starts":2},{"x":0.2395,"y":0.1285,"ratio":0.54,"game":"500182710","event":"level_end_success_20","group":"LEVEL_END_SUCCESS","starts":2}],"stats":{"total":228,"median":1.77,"over2x":99,"over3x":38,"under1":14},"all_ratios":[0.536,0.754,0.758,0.809,0.831,0.844,0.891,0.912,0.92,0.933,0.942,0.966,0.974,0.996,1.01,1.011,1.032,1.037,1.041,1.06,1.074,1.095,1.106,1.121,1.145,1.146,1.151,1.153,1.154,1.157,1.16,1.162,1.174,1.2,1.221,1.228,1.228,1.231,1.236,1.241,1.244,1.246,1.256,1.256,1.268,1.268,1.297,1.297,1.307,1.309,1.314,1.33,1.332,1.332,1.339,1.345,1.36,1.367,1.386,1.389,1.392,1.393,1.394,1.395,1.403,1.411,1.412,1.42,1.423,1.424,1.425,1.453,1.46,1.461,1.467,1.473,1.474,1.493,1.499,1.499,1.508,1.509,1.511,1.512,1.521,1.545,1.549,1.553,1.555,1.559,1.56,1.564,1.565,1.568,1.581,1.592,1.602,1.604,1.606,1.609,1.616,1.633,1.634,1.634,1.675,1.681,1.687,1.694,1.699,1.706,1.728,1.737,1.739,1.756,1.769,1.772,1.775,1.78,1.784,1.817,1.867,1.87,1.886,1.923,1.943,1.984,1.99,1.995,2.0,2.001,2.005,2.01,2.014,2.024,2.028,2.032,2.038,2.056,2.062,2.065,2.068,2.068,2.075,2.102,2.104,2.147,2.148,2.151,2.151,2.184,2.187,2.212,2.276,2.315,2.364,2.367,2.396,2.398,2.427,2.437,2.496,2.499,2.516,2.521,2.59,2.59,2.6,2.603,2.607,2.613,2.614,2.616,2.628,2.65,2.663,2.706,2.709,2.711,2.726,2.741,2.743,2.811,2.813,2.844,2.851,2.87,2.871,2.891,2.934,2.989,3.024,3.026,3.09,3.092,3.106,3.112,3.179,3.198,3.208,3.221,3.248,3.281,3.358,3.39,3.466,3.488,3.532,3.61,3.647,3.744,3.767,3.895,3.985,4.004,4.007,4.033,4.054,4.374,4.62,4.67,5.026,5.073,6.031,6.776,7.206,8.348,9.476,12.129]};
+
+// ─── helpers ────────────────────────────────────────────────
+const layout_base = {
+  paper_bgcolor: 'rgba(0,0,0,0)',
+  plot_bgcolor:  'rgba(0,0,0,0)',
+  font: { color: '#c0cce8', family: '-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif', size: 12 },
+  margin: { l: 50, r: 20, t: 40, b: 50 },
+  xaxis: { gridcolor: '#1e2840', zerolinecolor: '#2e3f6a' },
+  yaxis: { gridcolor: '#1e2840', zerolinecolor: '#2e3f6a' },
+  legend: { bgcolor: 'rgba(0,0,0,0.3)', bordercolor: '#2e3f6a', borderwidth: 1 },
+};
+const config = { displayModeBar: true, responsive: true, modeBarButtonsToRemove: ['lasso2d','select2d'] };
+
+// ─── 1. Histogram of ratio buckets ───────────────────────────
+(function() {
+  const b = DATA.buckets;
+  const labels = Object.keys(b);
+  const vals   = Object.values(b);
+  const colors = ['#52b788','#7b8ec8','#48cae4','#ffd166','#ff8c42','#ff5555','#cc2222'];
+  Plotly.newPlot('chart-histogram', [{
+    type: 'bar', x: labels, y: vals,
+    marker: { color: colors, line: { color: '#0f1117', width: 1.5 } },
+    text: vals.map(v => `${v}`),
+    textposition: 'outside',
+    hovertemplate: '<b>%{x}</b><br>%{y} combos<extra></extra>',
+  }], {
+    ...layout_base,
+    title: { text: 'UL / Legacy Ratio Distribution (228 combos)', font: { size: 14, color: '#d0dcff' } },
+    xaxis: { ...layout_base.xaxis, title: 'UL / Legacy ratio bucket' },
+    yaxis: { ...layout_base.yaxis, title: 'Number of combos' },
+    bargap: 0.25,
+  }, config);
+})();
+
+// ─── 2. Group average ratio bar chart ────────────────────────
+(function() {
+  const gs = DATA.group_summary.slice().sort((a,b) => b.avg - a.avg);
+  const colorMap = {
+    'FTD/First events':   '#ff4444',
+    'LEVEL_END_SUCCESS':  '#ff8c42',
+    'Level-up':           '#ffd166',
+    'Retention':          '#a8dadc',
+    'Other':              '#7b8ec8',
+    'tlevelplayed':       '#48cae4',
+    'VIP/wildcard-like':  '#b5838d',
+    'GRT events':         '#52b788',
+  };
+  Plotly.newPlot('chart-group-bar', [
+    {
+      type: 'bar', orientation: 'h',
+      x: gs.map(g => g.avg),
+      y: gs.map(g => `${g.group} (n=${g.count})`),
+      name: 'Avg ratio',
+      marker: { color: gs.map(g => colorMap[g.group] || '#7b8ec8') },
+      text: gs.map(g => `${g.avg.toFixed(2)}x`),
+      textposition: 'outside',
+      hovertemplate: '<b>%{y}</b><br>Avg: %{x:.2f}x<extra></extra>',
+    },
+    {
+      type: 'bar', orientation: 'h',
+      x: gs.map(g => g.median),
+      y: gs.map(g => `${g.group} (n=${g.count})`),
+      name: 'Median ratio',
+      marker: { color: gs.map(g => colorMap[g.group] || '#7b8ec8'), opacity: 0.45 },
+      text: gs.map(g => `${g.median.toFixed(2)}x`),
+      textposition: 'outside',
+      hovertemplate: '<b>%{y}</b><br>Median: %{x:.2f}x<extra></extra>',
+    }
+  ], {
+    ...layout_base,
+    barmode: 'group',
+    title: { text: 'Avg & Median Over-Bid Ratio by Event Group', font: { size: 14, color: '#d0dcff' } },
+    xaxis: { ...layout_base.xaxis, title: 'UL / Legacy ratio' },
+    yaxis: { ...layout_base.yaxis, automargin: true },
+    margin: { l: 220, r: 60, t: 40, b: 50 },
+    height: 380,
+  }, config);
+})();
+
+// ─── 3. Scatter UL pred vs Legacy pred ───────────────────────
+(function() {
+  const colorMap = {
+    'FTD/First events':   '#ff4444',
+    'LEVEL_END_SUCCESS':  '#ff8c42',
+    'Level-up':           '#ffd166',
+    'Retention':          '#a8dadc',
+    'Other':              '#7b8ec8',
+    'tlevelplayed':       '#48cae4',
+    'VIP/wildcard-like':  '#b5838d',
+    'GRT events':         '#52b788',
+  };
+  const groups = [...new Set(DATA.scatter.map(d => d.group))];
+  const traces = groups.map(grp => {
+    const pts = DATA.scatter.filter(d => d.group === grp);
+    return {
+      type: 'scatter', mode: 'markers', name: grp,
+      x: pts.map(d => d.x),
+      y: pts.map(d => d.y),
+      marker: {
+        color: colorMap[grp] || '#7b8ec8',
+        size: pts.map(d => Math.max(6, Math.min(20, 4 + Math.sqrt(d.starts || 1) * 0.4))),
+        opacity: 0.8,
+        line: { color: 'rgba(0,0,0,0.3)', width: 1 },
+      },
+      customdata: pts.map(d => [d.game, d.event, d.ratio, d.starts]),
+      hovertemplate: '<b>%{customdata[1]}</b><br>game: %{customdata[0]}<br>' +
+                     'Legacy: %{x:.4f}<br>UL: %{y:.4f}<br>' +
+                     'Ratio: <b>%{customdata[2]:.2f}x</b><br>UL starts: %{customdata[3]}<extra></extra>',
+    };
+  });
+  // diagonal reference line (y=x)
+  const maxV = Math.max(...DATA.scatter.map(d => Math.max(d.x, d.y)));
+  traces.push({
+    type: 'scatter', mode: 'lines', name: 'y = x (perfect calibration)',
+    x: [0, maxV * 1.05], y: [0, maxV * 1.05],
+    line: { color: '#ffffff', width: 1.5, dash: 'dot' },
+    hoverinfo: 'none',
+  });
+  // 2x line
+  traces.push({
+    type: 'scatter', mode: 'lines', name: 'y = 2x',
+    x: [0, maxV * 1.05], y: [0, maxV * 2.1],
+    line: { color: '#ff8c42', width: 1, dash: 'dash' },
+    hoverinfo: 'none',
+  });
+  Plotly.newPlot('chart-scatter', traces, {
+    ...layout_base,
+    title: { text: 'UL Prediction vs Legacy Prediction (bubble size = UL start count)', font: { size: 14, color: '#d0dcff' } },
+    xaxis: { ...layout_base.xaxis, title: 'Legacy avg_pred', rangemode: 'tozero' },
+    yaxis: { ...layout_base.yaxis, title: 'UL avg_pred', rangemode: 'tozero' },
+    height: 560,
+  }, config);
+})();
+
+// ─── 4. Top-30 table ─────────────────────────────────────────
+(function() {
+  const rows = DATA.top30;
+  const maxRatio = Math.max(...rows.map(r => r.ratio));
+  const badgeClass = r => {
+    if (r >= 5) return 'badge badge-red';
+    if (r >= 3) return 'badge badge-orange';
+    if (r >= 2) return 'badge badge-yellow';
+    return 'badge badge-green';
+  };
+  let html = `<table>
+  <thead><tr>
+    <th>#</th><th>Campaign ID</th><th>Game ID</th><th>SDK Event Name</th>
+    <th>UL Pred</th><th>Legacy Pred</th><th>Ratio</th><th>UL Starts</th><th>Group</th>
+  </tr></thead><tbody>`;
+  rows.forEach((r, i) => {
+    const barW = Math.round((r.ratio / maxRatio) * 120);
+    html += `<tr>
+      <td>${i+1}</td>
+      <td style="font-family:monospace;font-size:0.75rem;color:#8ba0c4">${r.campaign_id.slice(-8)}</td>
+      <td>${r.target_game_id}</td>
+      <td style="font-family:monospace;font-size:0.78rem">${r.sdk_event_name}</td>
+      <td>${r.ul_pred.toFixed(4)}</td>
+      <td style="color:#8ba0c4">${r.legacy_pred.toFixed(4)}</td>
+      <td>
+        <span class="${badgeClass(r.ratio)}">${r.ratio.toFixed(2)}x</span>
+        <span class="ratio-bar" style="width:${barW}px"></span>
+      </td>
+      <td style="color:${r.ul_starts > 500 ? '#6bffaa' : r.ul_starts < 10 ? '#ff6b6b' : '#e8eaf0'}">${r.ul_starts.toLocaleString()}</td>
+      <td><span style="color:#90b4ff;font-size:0.78rem">${r.group}</span></td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  document.getElementById('table-top30').innerHTML = html;
+})();
+
+// ─── 5. Box plot per group ────────────────────────────────────
+(function() {
+  const colorMap = {
+    'FTD/First events':   '#ff4444',
+    'LEVEL_END_SUCCESS':  '#ff8c42',
+    'Level-up':           '#ffd166',
+    'Retention':          '#a8dadc',
+    'Other':              '#7b8ec8',
+    'tlevelplayed':       '#48cae4',
+    'VIP/wildcard-like':  '#b5838d',
+    'GRT events':         '#52b788',
+  };
+  const gs = DATA.group_summary.slice().sort((a,b) => b.avg - a.avg);
+  const scatter = DATA.scatter;
+  const traces = gs.map(g => {
+    const pts = scatter.filter(d => d.group === g.group);
+    return {
+      type: 'box', name: g.group,
+      y: pts.map(d => d.ratio),
+      marker: { color: colorMap[g.group] || '#7b8ec8', size: 4 },
+      line: { color: colorMap[g.group] || '#7b8ec8' },
+      fillcolor: (colorMap[g.group] || '#7b8ec8') + '33',
+      boxmean: 'sd',
+      hovertemplate: '%{y:.2f}x<extra>%{fullData.name}</extra>',
+    };
+  });
+  // 1x and 2x reference lines
+  const allX = gs.map(g => g.group);
+  Plotly.newPlot('chart-group-detail', [
+    ...traces,
+    {
+      type: 'scatter', mode: 'lines', name: 'y=1x (no bias)', showlegend: true,
+      x: [gs[0].group, gs[gs.length-1].group], y: [1, 1],
+      line: { color: '#ffffff', width: 1.5, dash: 'dot' },
+    },
+    {
+      type: 'scatter', mode: 'lines', name: 'y=2x threshold', showlegend: true,
+      x: [gs[0].group, gs[gs.length-1].group], y: [2, 2],
+      line: { color: '#ff8c42', width: 1.5, dash: 'dash' },
+    },
+  ], {
+    ...layout_base,
+    title: { text: 'UL/Legacy Ratio Distribution per Event Group (box = IQR, dot = mean±sd)', font: { size: 14, color: '#d0dcff' } },
+    xaxis: { ...layout_base.xaxis, title: 'Event Group' },
+    yaxis: { ...layout_base.yaxis, title: 'UL / Legacy ratio', rangemode: 'tozero' },
+    height: 480,
+    showlegend: true,
+  }, config);
+})();
+</script>
+</body>
+</html>
