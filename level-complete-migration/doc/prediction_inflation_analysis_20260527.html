@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>CPE LC v4 — 10% Online Traffic Prediction Analysis (v11-cpe-lc-4 vs Legacy BHV & CTX) 2026-05-27</title>
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+         background: #0f1117; color: #e8eaf0; margin: 0; padding: 0; }
+  .container { max-width: 1440px; margin: 0 auto; padding: 28px 32px; }
+  h1 { font-size: 1.85rem; color: #f0f4ff; border-bottom: 2px solid #2e3f6a; padding-bottom: 14px; margin-bottom: 6px; }
+  h2 { font-size: 1.3rem; color: #90b4ff; margin-top: 44px; border-left: 4px solid #3a5fa5; padding-left: 12px; }
+  .meta { color: #6a7a9a; font-size: 0.88rem; margin-bottom: 28px; }
+  .stat-row { display: flex; gap: 16px; flex-wrap: wrap; margin: 20px 0; }
+  .stat { flex: 1; min-width: 150px; background: #181d2e; border: 1px solid #2a3550; border-radius: 10px;
+           padding: 18px 20px; text-align: center; }
+  .stat .val { font-size: 2rem; font-weight: 700; }
+  .stat .lbl { font-size: 0.8rem; color: #7a8aaa; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .red    { border-color: #7a2525 !important; background: #1e1212 !important; }
+  .orange { border-color: #7a4a15 !important; background: #1e1608 !important; }
+  .yellow { border-color: #6a5a20 !important; background: #1a1910 !important; }
+  .green  { border-color: #255a35 !important; background: #101e14 !important; }
+  .blue   { border-color: #254a7a !important; background: #0e1622 !important; }
+  .teal   { border-color: #1a5a5a !important; background: #0a1e1e !important; }
+  .alert  { color: #ff6b6b; }
+  .warn   { color: #ffcc6b; }
+  .good   { color: #6bffaa; }
+  .great  { color: #48cae4; }
+  .muted  { color: #8ba0c4; }
+  .chart-box { background: #141828; border: 1px solid #22304a; border-radius: 10px; padding: 16px; margin: 18px 0; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 900px) { .grid2 { grid-template-columns: 1fr; } }
+  table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin-top: 10px; }
+  th { background: #1e2840; color: #90b4ff; font-weight: 600; padding: 9px 12px; text-align: left; border-bottom: 2px solid #2e3f6a; }
+  td { padding: 7px 12px; border-bottom: 1px solid #1e2840; vertical-align: middle; }
+  tr:hover td { background: #1a2238; }
+  .ratio-bar { display: inline-block; height: 8px; border-radius: 4px; background: #3a5fa5; vertical-align: middle; margin-left: 6px; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.72rem; font-weight: 600; }
+  .badge-red    { background: #4a1515; color: #ff8080; }
+  .badge-orange { background: #4a2a0a; color: #ffaa60; }
+  .badge-yellow { background: #3a3010; color: #ffd060; }
+  .badge-green  { background: #0a2a15; color: #60ff90; }
+  .badge-teal   { background: #0a2828; color: #48cae4; }
+  .insight { background: #13192e; border-left: 4px solid #3a5fa5; border-radius: 6px; padding: 14px 18px; margin: 12px 0; font-size: 0.9rem; line-height: 1.6; }
+  .insight.critical { border-color: #aa3333; }
+  .insight.warn     { border-color: #aa7733; }
+  .insight.good     { border-color: #33aa55; }
+  .insight.info     { border-color: #336688; }
+  .compare-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
+  .compare-card { background: #181d2e; border: 1px solid #2a3550; border-radius: 10px; padding: 18px 20px; }
+  .compare-card h3 { font-size: 1rem; margin: 0 0 14px 0; padding-bottom: 8px; border-bottom: 1px solid #2a3550; }
+  .compare-card .before { color: #ff8c42; }
+  .compare-card .after  { color: #6bffaa; }
+  .compare-card table { font-size: 0.82rem; }
+  .compare-card td { padding: 5px 8px; border-bottom: 1px solid #1e2840; }
+  .delta-good  { color: #6bffaa; font-weight: 600; }
+  .delta-bad   { color: #ff6b6b; font-weight: 600; }
+  .delta-warn  { color: #ffcc6b; font-weight: 600; }
+  .tab-bar { display: flex; gap: 4px; margin: 20px 0 0 0; }
+  .tab { padding: 8px 18px; border-radius: 8px 8px 0 0; cursor: pointer; font-size: 0.88rem; font-weight: 600;
+           background: #181d2e; border: 1px solid #2a3550; border-bottom: none; color: #8ba0c4; }
+  .tab.active { background: #1e2840; color: #90b4ff; border-color: #3a5fa5; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>CPE LC v4 &mdash; 10% Online Traffic: Prediction Analysis</h1>
+  <div class="meta">
+    Model: <strong>unified-user-value-v11-cpe-lc-4-model</strong> vs Legacy BHV &amp; CTX &nbsp;&bull;&nbsp;
+    Date: 2026-05-27 &nbsp;&bull;&nbsp; Source: 10% live traffic &nbsp;&bull;&nbsp;
+    356 combos vs BHV &nbsp;|&nbsp; 351 combos vs CTX
+  </div>
+
+  <!-- KPI row BHV -->
+  <h2>vs Legacy BHV Model &mdash; 356 Combos</h2>
+  <div class="stat-row">
+    <div class="stat blue">
+      <div class="val muted">356</div>
+      <div class="lbl">Comparable combos</div>
+    </div>
+    <div class="stat green">
+      <div class="val good">0.96x</div>
+      <div class="lbl">Median over-bid ratio</div>
+    </div>
+    <div class="stat yellow">
+      <div class="val warn">14 / 356</div>
+      <div class="lbl">&ge;2x over-bidding (3.9%)</div>
+    </div>
+    <div class="stat orange">
+      <div class="val warn">5 / 356</div>
+      <div class="lbl">&ge;3x over-bidding (1.4%)</div>
+    </div>
+    <div class="stat teal">
+      <div class="val great">194 / 356</div>
+      <div class="lbl">Under-bidding &lt;1x (54.5%)</div>
+    </div>
+  </div>
+
+  <!-- KPI row CTX -->
+  <h2>vs Legacy CTX Model &mdash; 351 Combos</h2>
+  <div class="stat-row">
+    <div class="stat blue">
+      <div class="val muted">351</div>
+      <div class="lbl">Comparable combos</div>
+    </div>
+    <div class="stat green">
+      <div class="val good">0.95x</div>
+      <div class="lbl">Median over-bid ratio</div>
+    </div>
+    <div class="stat yellow">
+      <div class="val warn">12 / 351</div>
+      <div class="lbl">&ge;2x over-bidding (3.4%)</div>
+    </div>
+    <div class="stat orange">
+      <div class="val warn">3 / 351</div>
+      <div class="lbl">&ge;3x over-bidding (0.9%)</div>
+    </div>
+    <div class="stat teal">
+      <div class="val great">201 / 351</div>
+      <div class="lbl">Under-bidding &lt;1x (57.3%)</div>
+    </div>
+  </div>
+
+  <!-- Shadow vs Live comparison -->
+  <h2>Shadow (2026-05-22) vs Live 10% Traffic (2026-05-27) Comparison</h2>
+  <div class="compare-row">
+    <div class="compare-card">
+      <h3><span class="before">Shadow</span> &mdash; v11-cpe-lc-4 with gating+calib (2026-05-22, offline)</h3>
+      <table>
+        <tr><td>Comparable combos</td><td><strong>138</strong></td></tr>
+        <tr><td>Median ratio (vs BHV)</td><td><span class="before">1.04x</span></td></tr>
+        <tr><td>&ge;2x over-bidding</td><td><span class="before">12 / 138 (8.7%)</span></td></tr>
+        <tr><td>&ge;3x over-bidding</td><td><span class="before">4 / 138 (2.9%)</span></td></tr>
+        <tr><td>&ge;5x over-bidding</td><td><span class="before">1 / 138 (0.7%)</span></td></tr>
+        <tr><td>Max ratio</td><td><span class="before">8.42x</span></td></tr>
+        <tr><td>Under-bidding &lt;1x</td><td>59 / 138 (42.8%)</td></tr>
+      </table>
+    </div>
+    <div class="compare-card">
+      <h3><span class="after">Live 10%</span> &mdash; v11-cpe-lc-4 online traffic (2026-05-27) vs BHV</h3>
+      <table>
+        <tr><td>Comparable combos</td><td><strong>356</strong> <span class="muted" style="font-size:0.8rem">(+218 more combos with live data)</span></td></tr>
+        <tr><td>Median ratio (vs BHV)</td><td><span class="after">0.96x</span> <span class="delta-good">&darr; -0.08x</span></td></tr>
+        <tr><td>&ge;2x over-bidding</td><td><span class="after">14 / 356 (3.9%)</span> <span class="delta-good">&darr; -4.8pp</span></td></tr>
+        <tr><td>&ge;3x over-bidding</td><td><span class="after">5 / 356 (1.4%)</span> <span class="delta-good">&darr; -1.5pp</span></td></tr>
+        <tr><td>&ge;5x over-bidding</td><td><span class="after">1 / 356 (0.3%)</span> <span class="muted">~flat</span></td></tr>
+        <tr><td>Max ratio</td><td><span class="after">11.15x</span> <span class="delta-warn">&uarr; higher (sparse legacy)</span></td></tr>
+        <tr><td>Under-bidding &lt;1x</td><td>194 / 356 (54.5%) <span class="delta-warn">&uarr; +11.7pp</span></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- Key insights -->
+  <div class="insight good">
+    <strong>Live Traffic Confirms Improvement:</strong>
+    The model is performing even better on live 10% traffic than in shadow mode.
+    Median ratio vs BHV is <strong>0.96x</strong> (shadow was 1.04x) and vs CTX is <strong>0.95x</strong> &mdash; both near-perfect parity.
+    At <strong>3.9%</strong> of combos &ge;2x over-bidding vs BHV (down from 43% pre-gating, 8.7% in shadow),
+    the gating and calibration mechanisms are working correctly in production.
+  </div>
+  <div class="insight warn">
+    <strong>High-Ratio Outliers &mdash; Mostly Sparse Legacy Data:</strong>
+    The top outlier is <code>build_3manor</code> on game 500023189 at <strong>11.15x</strong> &mdash; but legacy has only 6 starts vs 42,227 UL starts.
+    Similarly <code>star5_hero_received</code> (500186905, 4.92x) has 36 legacy starts vs 20,323 UL starts.
+    These are artifacts of sparse legacy traffic, not genuine model over-prediction.
+    The only concerning case with substantial legacy volume is <code>log_city_upgrade_6</code> (500101393, 2.6x, 13,268 legacy starts &amp; 33,640 UL starts) &mdash; worth investigating.
+  </div>
+  <div class="insight info">
+    <strong>GRT Events Still Under-Bidding:</strong>
+    GRT events show median <strong>0.71x</strong> vs BHV (consistent with shadow analysis at 0.72x).
+    This systematic under-bidding pattern is stable and may reduce impression volume on GRT campaigns.
+    Review calibration factors for GRT event types if revenue recovery is a priority.
+  </div>
+  <div class="insight info">
+    <strong>Increased Combo Coverage (138 &rarr; 356 vs BHV):</strong>
+    Live traffic covers 2.6x more campaign/game/event combos than the shadow snapshot,
+    giving much higher confidence in the per-group statistics.
+    LEVEL_END_SUCCESS now has 36 combos (vs ~9 in shadow), tlevelplayed has 49 combos, GRT has 21 combos.
+  </div>
+
+  <!-- Charts row 1 -->
+  <h2>Ratio Distribution (vs BHV)</h2>
+  <div class="grid2">
+    <div class="chart-box"><div id="chart-histogram-bhv"></div></div>
+    <div class="chart-box"><div id="chart-group-bar-bhv"></div></div>
+  </div>
+
+  <h2>UL Prediction vs Legacy Prediction &mdash; BHV</h2>
+  <div class="chart-box"><div id="chart-scatter-bhv"></div></div>
+
+  <h2>Top 30 Combos by Ratio &mdash; vs BHV (sorted highest first)</h2>
+  <div class="chart-box" style="overflow-x:auto"><div id="table-top30-bhv"></div></div>
+
+  <h2>Per-Group Ratio Distribution &mdash; vs BHV</h2>
+  <div class="chart-box"><div id="chart-group-detail-bhv"></div></div>
+
+  <!-- CTX Section -->
+  <h2>Ratio Distribution (vs CTX)</h2>
+  <div class="grid2">
+    <div class="chart-box"><div id="chart-histogram-ctx"></div></div>
+    <div class="chart-box"><div id="chart-group-bar-ctx"></div></div>
+  </div>
+
+  <h2>UL Prediction vs Legacy Prediction &mdash; CTX</h2>
+  <div class="chart-box"><div id="chart-scatter-ctx"></div></div>
+
+  <h2>Top 30 Combos by Ratio &mdash; vs CTX (sorted highest first)</h2>
+  <div class="chart-box" style="overflow-x:auto"><div id="table-top30-ctx"></div></div>
+
+  <!-- Shadow vs Live comparison chart -->
+  <h2>Shadow (2026-05-22) vs Live 10% (2026-05-27): Ratio Distribution</h2>
+  <div class="chart-box"><div id="chart-compare"></div></div>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- TOP SPENDER CAMPAIGNS SECTION                                   -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <h2 style="margin-top:60px;border-left-color:#e040fb">&#9733; Top 20 Spender Campaigns — Prediction Deep Dive</h2>
+  <div class="meta" style="margin-bottom:16px">
+    Top campaigns sorted by total spend (from advertiser dashboard) &nbsp;&bull;&nbsp;
+    18 / 20 campaigns present in 10% traffic data &nbsp;&bull;&nbsp;
+    2 campaigns absent (no UL traffic yet): <code>696b7b871e4b898ea5ddbdb0</code>, <code>69d613e7b27c8de436b59094</code>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat blue">
+      <div class="val muted">18 / 20</div>
+      <div class="lbl">Top spenders with UL data</div>
+    </div>
+    <div class="stat green">
+      <div class="val good">0.85x</div>
+      <div class="lbl">Median ratio vs BHV</div>
+    </div>
+    <div class="stat green">
+      <div class="val good">0.86x</div>
+      <div class="lbl">Median ratio vs CTX</div>
+    </div>
+    <div class="stat green">
+      <div class="val good">0 / 18</div>
+      <div class="lbl">&#8805;2x over-bidding (0%)</div>
+    </div>
+    <div class="stat teal">
+      <div class="val great">7 / 18</div>
+      <div class="lbl">Within 0.8&ndash;1.2x parity (39%)</div>
+    </div>
+    <div class="stat yellow">
+      <div class="val warn">11 / 18</div>
+      <div class="lbl">Under-bidding &lt;1x vs BHV (61%)</div>
+    </div>
+  </div>
+
+  <div class="insight good">
+    <strong>Top Spenders: Zero Over-Bidding.</strong>
+    Among the top 20 highest-spend campaigns, <strong>not a single combo exceeds 2x ratio</strong> vs either BHV or CTX.
+    The median ratio is <strong>0.85x vs BHV</strong> and <strong>0.86x vs CTX</strong> &mdash;
+    the model is slightly under-bidding on average, which is the safe failure mode.
+    The highest ratio is <strong>1.64x</strong> (rank #2: <code>segment_lambdas_first_offer_reconciled</code> on game 500219388).
+  </div>
+  <div class="insight info">
+    <strong>Notable Under-Bidders:</strong>
+    Rank #1 (<code>eventA</code>, game 500201983) is at <strong>0.48x vs BHV</strong> with 116K legacy starts &mdash; significant under-bidding on the highest-spend campaign.
+    Rank #4 (VIP/wildcard-like, game 500199981) is at <strong>0.62x</strong> with 191K BHV starts.
+    These campaigns may be losing impression volume to legacy. Monitor CPE and win-rate impact.
+  </div>
+  <div class="insight warn">
+    <strong>Very Low UL Traffic on Some Top Campaigns:</strong>
+    Rank #11 (<code>leanappautologinsuccess</code>, game 500257910) has only <strong>3 UL starts</strong> vs 2,412 BHV starts.
+    Rank #14 (<code>reach_viplv2</code>, game 500093311) has only 13 UL starts vs 17,102 BHV starts.
+    These may be partially gated. Ratios will stabilize as UL traffic ramps up.
+  </div>
+
+  <h2 style="border-left-color:#e040fb">Top Spenders: Per-Campaign Prediction Comparison</h2>
+  <div class="grid2">
+    <div class="chart-box"><div id="chart-ts-scatter-bhv"></div></div>
+    <div class="chart-box"><div id="chart-ts-hist"></div></div>
+  </div>
+  <div class="chart-box" style="overflow-x:auto"><div id="table-ts-bhv"></div></div>
+
+  <h2 style="border-left-color:#e040fb">Top Spenders: vs CTX</h2>
+  <div class="chart-box" style="overflow-x:auto"><div id="table-ts-ctx"></div></div>
+
+</div>
+
+<script>
+const DATA_BHV = {"buckets":{"<0.5x":14,"0.5-0.8x":75,"0.8-1.0x":105,"1.0-1.2x":80,"1.2-1.5x":44,"1.5-2x":24,"2-3x":9,"3-5x":4,">5x":1},"group_summary":[{"group":"FTD/First events","count":3,"avg":1.26,"median":1.12,"max":2.28},{"group":"Retention","count":18,"avg":1.12,"median":1.08,"max":1.62},{"group":"LEVEL_END_SUCCESS","count":36,"avg":1.17,"median":1.08,"max":3.78},{"group":"tlevelplayed","count":49,"avg":1.09,"median":1.08,"max":1.92},{"group":"Level-up","count":10,"avg":1.05,"median":0.98,"max":2.25},{"group":"VIP/wildcard-like","count":61,"avg":0.96,"median":0.95,"max":1.7},{"group":"Other","count":158,"avg":1.12,"median":0.93,"max":11.15},{"group":"GRT events","count":21,"avg":0.8,"median":0.71,"max":1.52}],"top30":[{"campaign_id":"6a140cc28b532b14d2064755","target_game_id":"500023189","sdk_event_name":"build_3manor","ul_pred":0.1888,"legacy_pred":0.0169,"ul_starts":42227,"legacy_starts":6,"ratio":11.15,"group":"Other","legacy_model":"bhv"},{"campaign_id":"652214aefc636157750229a8","target_game_id":"500186905","sdk_event_name":"star5_hero_received","ul_pred":0.0203,"legacy_pred":0.0041,"ul_starts":20323,"legacy_starts":36,"ratio":4.92,"group":"Other","legacy_model":"bhv"},{"campaign_id":"694a50cfdc5dc03a71cc7536","target_game_id":"500240987","sdk_event_name":"level_end_success_40","ul_pred":0.3077,"legacy_pred":0.0815,"ul_starts":633,"legacy_starts":26,"ratio":3.78,"group":"LEVEL_END_SUCCESS","legacy_model":"bhv"},{"campaign_id":"685e6c8f7dd83b9c85344630","target_game_id":"500201983","sdk_event_name":"eventa","ul_pred":0.485,"legacy_pred":0.1404,"ul_starts":107,"legacy_starts":21,"ratio":3.46,"group":"Other","legacy_model":"bhv"},{"campaign_id":"69f50d252e5cc8a34b740396","target_game_id":"500126376","sdk_event_name":"3rdparcelpurchased","ul_pred":0.0936,"legacy_pred":0.0281,"ul_starts":435,"legacy_starts":659,"ratio":3.33,"group":"Other","legacy_model":"bhv"},{"campaign_id":"684ac40f6da6f407ddfa47fd","target_game_id":"500133901","sdk_event_name":"d7_puzzle60_hint5","ul_pred":0.1312,"legacy_pred":0.0444,"ul_starts":1371,"legacy_starts":2165,"ratio":2.95,"group":"Other","legacy_model":"bhv"},{"campaign_id":"68886a3830620db0e146f458","target_game_id":"500133901","sdk_event_name":"d7_puzzle60_hint5","ul_pred":0.1366,"legacy_pred":0.0492,"ul_starts":1135,"legacy_starts":380,"ratio":2.78,"group":"Other","legacy_model":"bhv"},{"campaign_id":"69d683f79a836a32675eaad0","target_game_id":"500219388","sdk_event_name":"segment_lambdas_first_offer_reconciled","ul_pred":0.3186,"legacy_pred":0.1161,"ul_starts":476,"legacy_starts":165,"ratio":2.74,"group":"Other","legacy_model":"bhv"},{"campaign_id":"66417ef602464c49ace985a7","target_game_id":"500101393","sdk_event_name":"log_city_upgrade_6","ul_pred":0.1679,"legacy_pred":0.0645,"ul_starts":33640,"legacy_starts":13268,"ratio":2.6,"group":"Other","legacy_model":"bhv"},{"campaign_id":"69a57f4e28fa19069f999829","target_game_id":"500226181","sdk_event_name":"ftd","ul_pred":0.0234,"legacy_pred":0.0103,"ul_starts":267,"legacy_starts":1943,"ratio":2.28,"group":"FTD/First events","legacy_model":"bhv"},{"campaign_id":"69767381da814029af3ac254","target_game_id":"500025671","sdk_event_name":"af_level_up_20","ul_pred":0.1908,"legacy_pred":0.0848,"ul_starts":17781,"legacy_starts":1709,"ratio":2.25,"group":"Level-up","legacy_model":"bhv"},{"campaign_id":"69eae6280d291c5f22675e19","target_game_id":"500257871","sdk_event_name":"recvd_coins_400","ul_pred":0.1473,"legacy_pred":0.0707,"ul_starts":255,"legacy_starts":571,"ratio":2.08,"group":"Other","legacy_model":"bhv"},{"campaign_id":"6836f0fb989a7e70ae0f3fe1","target_game_id":"500071743","sdk_event_name":"ajvaildtodaypay","ul_pred":0.1336,"legacy_pred":0.065,"ul_starts":704,"legacy_starts":395,"ratio":2.06,"group":"Other","legacy_model":"bhv"},{"campaign_id":"69d67d2c2761a3ac094babac","target_game_id":"500219388","sdk_event_name":"segment_lambdas_first_offer_reconciled","ul_pred":0.2283,"legacy_pred":0.1126,"ul_starts":774,"legacy_starts":349,"ratio":2.03,"group":"Other","legacy_model":"bhv"},{"campaign_id":"69c4447a75bdf4ae2c38cc0d","target_game_id":"500042705","sdk_event_name":"pc_t2_d60_ios_custom","ul_pred":0.0336,"legacy_pred":0.017,"ul_starts":9993,"legacy_starts":1837,"ratio":1.98,"group":"Other","legacy_model":"bhv"},{"campaign_id":"69d565f713f4a720d1097ebe","target_game_id":"500219388","sdk_event_name":"segment_lambdas_first_offer_reconciled","ul_pred":0.2243,"legacy_pred":0.1152,"ul_starts":500,"legacy_starts":227,"ratio":1.95,"group":"Other","legacy_model":"bhv"},{"campaign_id":"69fb09e3da7aba205494d798","target_game_id":"500245702","sdk_event_name":"tlevelplayed","ul_pred":0.3349,"legacy_pred":0.1746,"ul_starts":1,"legacy_starts":1,"ratio":1.92,"group":"tlevelplayed","legacy_model":"bhv"},{"campaign_id":"690c67cae2e7567d171031bc","target_game_id":"500240987","sdk_event_name":"level_end_success_30","ul_pred":0.3839,"legacy_pred":0.2032,"ul_starts":3272,"legacy_starts":884,"ratio":1.89,"group":"LEVEL_END_SUCCESS","legacy_model":"bhv"},{"campaign_id":"6a06f8a0ca94e637f99fd67f","target_game_id":"500226169","sdk_event_name":"play_short_3","ul_pred":0.548,"legacy_pred":0.2911,"ul_starts":397,"legacy_starts":111,"ratio":1.88,"group":"Other","legacy_model":"bhv"},{"campaign_id":"69d574184e28da44850be3b8","target_game_id":"500219388","sdk_event_name":"segment_lambdas_first_offer_reconciled","ul_pred":0.2041,"legacy_pred":0.1145,"ul_starts":998,"legacy_starts":455,"ratio":1.78,"group":"Other","legacy_model":"bhv"},{"campaign_id":"698c3fb26ae04d3b9aa0167d","target_game_id":"500136474","sdk_event_name":"ajvip","ul_pred":0.2155,"legacy_pred":0.1267,"ul_starts":2418,"legacy_starts":376,"ratio":1.7,"group":"VIP/wildcard-like","legacy_model":"bhv"},{"campaign_id":"6842abc5dbe1f5f75edbda8f","target_game_id":"500205921","sdk_event_name":"LEVEL_END_SUCCESS_40","ul_pred":0.3237,"legacy_pred":0.1918,"ul_starts":110,"legacy_starts":3,"ratio":1.69,"group":"LEVEL_END_SUCCESS","legacy_model":"bhv"},{"campaign_id":"6a101f042ff29dcb229654ba","target_game_id":"500093455","sdk_event_name":"kill_zombie_lv1","ul_pred":0.3906,"legacy_pred":0.2354,"ul_starts":337,"legacy_starts":1,"ratio":1.66,"group":"Other","legacy_model":"bhv"},{"campaign_id":"6729ec4fab1f7306fd3ee7ab","target_game_id":"500215761","sdk_event_name":"LEVEL_END_SUCCESS_40","ul_pred":0.3281,"legacy_pred":0.1991,"ul_starts":5,"legacy_starts":1,"ratio":1.65,"group":"LEVEL_END_SUCCESS","legacy_model":"bhv"},{"campaign_id":"69fb68379b6f4e8705d4f8e7","target_game_id":"500219388","sdk_event_name":"segment_lambdas_first_offer_reconciled","ul_pred":0.2626,"legacy_pred":0.1605,"ul_starts":32388,"legacy_starts":8239,"ratio":1.64,"group":"Other","legacy_model":"bhv"},{"campaign_id":"6a018cecbe03f13e1d819343","target_game_id":"500248843","sdk_event_name":"aj_vip","ul_pred":0.0815,"legacy_pred":0.0503,"ul_starts":2331,"legacy_starts":1253,"ratio":1.62,"group":"VIP/wildcard-like","legacy_model":"bhv"},{"campaign_id":"6a1017c0c48ff81f4c8a0b91","target_game_id":"500093311","sdk_event_name":"day5_retention","ul_pred":0.1477,"legacy_pred":0.091,"ul_starts":9098,"legacy_starts":10882,"ratio":1.62,"group":"Retention","legacy_model":"bhv"},{"campaign_id":"69fc0c08670047872db52fff","target_game_id":"500238377","sdk_event_name":"af_xinhuciliu","ul_pred":0.3978,"legacy_pred":0.2464,"ul_starts":955,"legacy_starts":95,"ratio":1.61,"group":"Other","legacy_model":"bhv"},{"campaign_id":"6a111ea864784f04c61db083","target_game_id":"500093311","sdk_event_name":"day5_retention","ul_pred":0.1598,"legacy_pred":0.0996,"ul_starts":2304,"legacy_starts":5205,"ratio":1.6,"group":"Retention","legacy_model":"bhv"},{"campaign_id":"6a0ac7a1acb56cdcf43daa3a","target_game_id":"500235231","sdk_event_name":"","ul_pred":0.6911,"legacy_pred":0.4369,"ul_starts":1902,"legacy_starts":987,"ratio":1.58,"group":"VIP/wildcard-like","legacy_model":"bhv"}],"scatter":[{"x":0.0169,"y":0.1888,"ratio":11.15,"game":"500023189","event":"build_3manor","group":"Other","starts":42227,"legacy_model":"bhv"},{"x":0.0041,"y":0.0203,"ratio":4.92,"game":"500186905","event":"star5_hero_received","group":"Other","starts":20323,"legacy_model":"bhv"},{"x":0.0815,"y":0.3077,"ratio":3.78,"game":"500240987","event":"level_end_success_40","group":"LEVEL_END_SUCCESS","starts":633,"legacy_model":"bhv"},{"x":0.1404,"y":0.485,"ratio":3.46,"game":"500201983","event":"eventa","group":"Other","starts":107,"legacy_model":"bhv"},{"x":0.0281,"y":0.0936,"ratio":3.33,"game":"500126376","event":"3rdparcelpurchased","group":"Other","starts":435,"legacy_model":"bhv"},{"x":0.0444,"y":0.1312,"ratio":2.95,"game":"500133901","event":"d7_puzzle60_hint5","group":"Other","starts":1371,"legacy_model":"bhv"},{"x":0.0492,"y":0.1366,"ratio":2.78,"game":"500133901","event":"d7_puzzle60_hint5","group":"Other","starts":1135,"legacy_model":"bhv"},{"x":0.1161,"y":0.3186,"ratio":2.74,"game":"500219388","event":"segment_lambdas_first_offer_reconciled","group":"Other","starts":476,"legacy_model":"bhv"},{"x":0.0645,"y":0.1679,"ratio":2.6,"game":"500101393","event":"log_city_upgrade_6","group":"Other","starts":33640,"legacy_model":"bhv"},{"x":0.0103,"y":0.0234,"ratio":2.28,"game":"500226181","event":"ftd","group":"FTD/First events","starts":267,"legacy_model":"bhv"},{"x":0.0848,"y":0.1908,"ratio":2.25,"game":"500025671","event":"af_level_up_20","group":"Level-up","starts":17781,"legacy_model":"bhv"},{"x":0.0707,"y":0.1473,"ratio":2.08,"game":"500257871","event":"recvd_coins_400","group":"Other","starts":255,"legacy_model":"bhv"},{"x":0.065,"y":0.1336,"ratio":2.06,"game":"500071743","event":"ajvaildtodaypay","group":"Other","starts":704,"legacy_model":"bhv"},{"x":0.1126,"y":0.2283,"ratio":2.03,"game":"500219388","event":"segment_lambdas_first_offer_reconciled","group":"Other","starts":774,"legacy_model":"bhv"},{"x":0.017,"y":0.0336,"ratio":1.98,"game":"500042705","event":"pc_t2_d60_ios_custom","group":"Other","starts":9993,"legacy_model":"bhv"},{"x":0.1152,"y":0.2243,"ratio":1.95,"game":"500219388","event":"segment_lambdas_first_offer_reconciled","group":"Other","starts":500,"legacy_model":"bhv"},{"x":0.1746,"y":0.3349,"ratio":1.92,"game":"500245702","event":"tlevelplayed","group":"tlevelplayed","starts":1,"legacy_model":"bhv"},{"x":0.2032,"y":0.3839,"ratio":1.89,"game":"500240987","event":"level_end_success_30","group":"LEVEL_END_SUCCESS","starts":3272,"legacy_model":"bhv"},{"x":0.2911,"y":0.548,"ratio":1.88,"game":"500226169","event":"play_short_3","group":"Other","starts":397,"legacy_model":"bhv"},{"x":0.1145,"y":0.2041,"ratio":1.78,"game":"500219388","event":"segment_lambdas_first_offer_reconciled","group":"Other","starts":998,"legacy_model":"bhv"},{"x":0.1267,"y":0.2155,"ratio":1.7,"game":"500136474","event":"ajvip","group":"VIP/wildcard-like","starts":2418,"legacy_model":"bhv"},{"x":0.1918,"y":0.3237,"ratio":1.69,"game":"500205921","event":"LEVEL_END_SUCCESS_40","group":"LEVEL_END_SUCCESS","starts":110,"legacy_model":"bhv"},{"x":0.2354,"y":0.3906,"ratio":1.66,"game":"500093455","event":"kill_zombie_lv1","group":"Other","starts":337,"legacy_model":"bhv"},{"x":0.1991,"y":0.3281,"ratio":1.65,"game":"500215761","event":"LEVEL_END_SUCCESS_40","group":"LEVEL_END_SUCCESS","starts":5,"legacy_model":"bhv"},{"x":0.1605,"y":0.2626,"ratio":1.64,"game":"500219388","event":"segment_lambdas_first_offer_reconciled","group":"Other","starts":32388,"legacy_model":"bhv"},{"x":0.0503,"y":0.0815,"ratio":1.62,"game":"500248843","event":"aj_vip","group":"VIP/wildcard-like","starts":2331,"legacy_model":"bhv"},{"x":0.091,"y":0.1477,"ratio":1.62,"game":"500093311","event":"day5_retention","group":"Retention","starts":9098,"legacy_model":"bhv"},{"x":0.2464,"y":0.3978,"ratio":1.61,"game":"500238377","event":"af_xinhuciliu","group":"Other","starts":955,"legacy_model":"bhv"},{"x":0.0996,"y":0.1598,"ratio":1.6,"game":"500093311","event":"day5_retention","group":"Retention","starts":2304,"legacy_model":"bhv"},{"x":0.4369,"y":0.6911,"ratio":1.58,"game":"500235231","event":"","group":"VIP/wildcard-like","starts":1902,"legacy_model":"bhv"},{"x":0.0863,"y":0.1362,"ratio":1.58,"game":"500093311","event":"day5_retention","group":"Retention","starts":7403,"legacy_model":"bhv"},{"x":0.1837,"y":0.2891,"ratio":1.57,"game":"500203302","event":"LEVEL_END_SUCCESS_40","group":"LEVEL_END_SUCCESS","starts":838,"legacy_model":"bhv"},{"x":0.2193,"y":0.3445,"ratio":1.57,"game":"500157082","event":"LEVEL_END_SUCCESS_30","group":"LEVEL_END_SUCCESS","starts":436,"legacy_model":"bhv"},{"x":0.0661,"y":0.1017,"ratio":1.54,"game":"500071743","event":"ajvip","group":"VIP/wildcard-like","starts":35,"legacy_model":"bhv"},{"x":0.0964,"y":0.1474,"ratio":1.53,"game":"500093311","event":"day5_retention","group":"Retention","starts":1143,"legacy_model":"bhv"},{"x":0.1489,"y":0.2269,"ratio":1.52,"game":"500206220","event":"grt_24h_inter_15","group":"GRT events","starts":5781,"legacy_model":"bhv"},{"x":0.0945,"y":0.1436,"ratio":1.52,"game":"500093311","event":"day5_retention","group":"Retention","starts":9257,"legacy_model":"bhv"},{"x":0.1132,"y":0.1715,"ratio":1.51,"game":"500219388","event":"segment_lambdas_first_offer_reconciled","group":"Other","starts":4106,"legacy_model":"bhv"},{"x":0.3277,"y":0.4847,"ratio":1.48,"game":"500255340","event":"tlevelplayed","group":"tlevelplayed","starts":13,"legacy_model":"bhv"},{"x":0.3369,"y":0.4914,"ratio":1.46,"game":"500245702","event":"tlevelplayed","group":"tlevelplayed","starts":33,"legacy_model":"bhv"},{"x":0.2774,"y":0.3968,"ratio":1.43,"game":"500201983","event":"eventA2","group":"Other","starts":5438,"legacy_model":"bhv"},{"x":0.2218,"y":0.3167,"ratio":1.43,"game":"500203302","event":"LEVEL_END_SUCCESS_35","group":"LEVEL_END_SUCCESS","starts":33,"legacy_model":"bhv"},{"x":0.2173,"y":0.3115,"ratio":1.43,"game":"500041093","event":"games_won_75","group":"Other","starts":1597,"legacy_model":"bhv"},{"x":0.0724,"y":0.1032,"ratio":1.42,"game":"500201983","event":"eventw","group":"Other","starts":1151,"legacy_model":"bhv"},{"x":0.275,"y":0.3913,"ratio":1.42,"game":"500229380","event":"success_first_ride","group":"Other","starts":10,"legacy_model":"bhv"},{"x":0.2446,"y":0.345,"ratio":1.41,"game":"500230137","event":"LEVEL_END_SUCCESS_40","group":"LEVEL_END_SUCCESS","starts":241,"legacy_model":"bhv"},{"x":0.29,"y":0.406,"ratio":1.4,"game":"500114618","event":"LEVEL_END_SUCCESS_30","group":"LEVEL_END_SUCCESS","starts":2,"legacy_model":"bhv"},{"x":0.1999,"y":0.2807,"ratio":1.4,"game":"500201983","event":"eventa","group":"Other","starts":138,"legacy_model":"bhv"},{"x":0.2101,"y":0.2891,"ratio":1.38,"game":"500205921","event":"level_end_success_30","group":"LEVEL_END_SUCCESS","starts":285,"legacy_model":"bhv"},{"x":0.3245,"y":0.4374,"ratio":1.35,"game":"500226169","event":"app_second_start","group":"Other","starts":771,"legacy_model":"bhv"},{"x":0.6404,"y":0.8608,"ratio":1.34,"game":"500219585","event":"","group":"VIP/wildcard-like","starts":2207,"legacy_model":"bhv"},{"x":0.2508,"y":0.3346,"ratio":1.33,"game":"500062793","event":"LEVEL_END_SUCCESS_30","group":"LEVEL_END_SUCCESS","starts":34,"legacy_model":"bhv"},{"x":0.3327,"y":0.4434,"ratio":1.33,"game":"500204701","event":"WINCOUNT10","group":"Other","starts":1,"legacy_model":"bhv"},{"x":0.2055,"y":0.2708,"ratio":1.32,"game":"500205921","event":"LEVEL_END_SUCCESS_35","group":"LEVEL_END_SUCCESS","starts":407,"legacy_model":"bhv"},{"x":0.2938,"y":0.3883,"ratio":1.32,"game":"500245702","event":"tlevelplayed","group":"tlevelplayed","starts":21,"legacy_model":"bhv"},{"x":0.141,"y":0.1857,"ratio":1.32,"game":"500224801","event":"level_20","group":"Other","starts":7,"legacy_model":"bhv"},{"x":0.2344,"y":0.3094,"ratio":1.32,"game":"500259204","event":"tlevelplayed","group":"tlevelplayed","starts":15,"legacy_model":"bhv"},{"x":0.1677,"y":0.2197,"ratio":1.31,"game":"500201983","event":"eventa2","group":"Other","starts":858,"legacy_model":"bhv"},{"x":0.0581,"y":0.0762,"ratio":1.31,"game":"500248843","event":"aj_vip","group":"VIP/wildcard-like","starts":2348,"legacy_model":"bhv"},{"x":0.0977,"y":0.1279,"ratio":1.31,"game":"500187658","event":"af_lvl_100","group":"Other","starts":4029,"legacy_model":"bhv"},{"x":0.3726,"y":0.484,"ratio":1.3,"game":"500226169","event":"app_second_start","group":"Other","starts":2244,"legacy_model":"bhv"},{"x":0.261,"y":0.3385,"ratio":1.3,"game":"500196051","event":"grt_7d_level30_notir","group":"GRT events","starts":5118,"legacy_model":"bhv"},{"x":0.161,"y":0.2076,"ratio":1.29,"game":"500023189","event":"dawnsworm_10","group":"Other","starts":5853,"legacy_model":"bhv"},{"x":0.293,"y":0.3751,"ratio":1.28,"game":"500245702","event":"tlevelplayed","group":"tlevelplayed","starts":169,"legacy_model":"bhv"},{"x":0.1,"y":0.1268,"ratio":1.27,"game":"500104804","event":"af_level_up_20","group":"Level-up","starts":7456,"legacy_model":"bhv"},{"x":0.0939,"y":0.118,"ratio":1.26,"game":"500201983","event":"eventW","group":"Other","starts":2431,"legacy_model":"bhv"},{"x":0.2095,"y":0.2643,"ratio":1.26,"game":"500205921","event":"LEVEL_END_SUCCESS_50","group":"LEVEL_END_SUCCESS","starts":296,"legacy_model":"bhv"},{"x":0.2794,"y":0.3523,"ratio":1.26,"game":"500182711","event":"level_end_success_20","group":"LEVEL_END_SUCCESS","starts":465,"legacy_model":"bhv"},{"x":0.4613,"y":0.5793,"ratio":1.26,"game":"500245490","event":"","group":"VIP/wildcard-like","starts":157,"legacy_model":"bhv"},{"x":0.2369,"y":0.2965,"ratio":1.25,"game":"500247636","event":"tlevelplayed","group":"tlevelplayed","starts":48,"legacy_model":"bhv"},{"x":0.2284,"y":0.2837,"ratio":1.24,"game":"500259204","event":"tlevelplayed","group":"tlevelplayed","starts":286,"legacy_model":"bhv"},{"x":0.3264,"y":0.4043,"ratio":1.24,"game":"500245702","event":"tlevelplayed","group":"tlevelplayed","starts":187,"legacy_model":"bhv"},{"x":0.1333,"y":0.1644,"ratio":1.23,"game":"500225868","event":"af_level_100","group":"Level-up","starts":93,"legacy_model":"bhv"},{"x":0.5627,"y":0.6917,"ratio":1.23,"game":"500235231","event":"","group":"VIP/wildcard-like","starts":579,"legacy_model":"bhv"},{"x":0.2744,"y":0.335,"ratio":1.22,"game":"500182711","event":"LEVEL_END_SUCCESS_20","group":"LEVEL_END_SUCCESS","starts":19,"legacy_model":"bhv"},{"x":0.0072,"y":0.0088,"ratio":1.22,"game":"500178023","event":"golden_android_conversion_mid","group":"Other","starts":8664,"legacy_model":"bhv"},{"x":0.6518,"y":0.7982,"ratio":1.22,"game":"500263093","event":"r_done","group":"Other","starts":985,"legacy_model":"bhv"},{"x":0.5844,"y":0.7151,"ratio":1.22,"game":"500235231","event":"","group":"VIP/wildcard-like","starts":258,"legacy_model":"bhv"},{"x":0.2505,"y":0.3035,"ratio":1.21,"game":"500247636","event":"tlevelplayed","group":"tlevelplayed","starts":77,"legacy_model":"bhv"},{"x":0.3028,"y":0.3669,"ratio":1.21,"game":"500093455","event":"castle_lv5","group":"Other","starts":37,"legacy_model":"bhv"},{"x":0.0559,"y":0.0678,"ratio":1.21,"game":"500248843","event":"aj_vip","group":"VIP/wildcard-like","starts":2058,"legacy_model":"bhv"},{"x":0.1438,"y":0.1728,"ratio":1.2,"game":"500136474","event":"ajvip","group":"VIP/wildcard-like","starts":1546,"legacy_model":"bhv"},{"x":0.3487,"y":0.4134,"ratio":1.19,"game":"500256774","event":"active_1days_retention","group":"Retention","starts":10384,"legacy_model":"bhv"},{"x":0.3465,"y":0.4115,"ratio":1.19,"game":"500245702","event":"tlevelplayed","group":"tlevelplayed","starts":49,"legacy_model":"bhv"},{"x":0.2272,"y":0.2688,"ratio":1.18,"game":"500196051","event":"grt_7d_ltv_25p","group":"GRT events","starts":17013,"legacy_model":"bhv"},{"x":0.2163,"y":0.2548,"ratio":1.18,"game":"500230137","event":"LEVEL_END_SUCCESS_40","group":"LEVEL_END_SUCCESS","starts":2,"legacy_model":"bhv"},{"x":0.3018,"y":0.3554,"ratio":1.18,"game":"500093455","event":"advanced_search10","group":"Other","starts":313,"legacy_model":"bhv"},{"x":0.3131,"y":0.37,"ratio":1.18,"game":"500245702","event":"tlevelplayed","group":"tlevelplayed","starts":1135,"legacy_model":"bhv"},{"x":0.2165,"y":0.2564,"ratio":1.18,"game":"500259204","event":"tlevelplayed","group":"tlevelplayed","starts":34,"legacy_model":"bhv"},{"x":0.0675,"y":0.0797,"ratio":1.18,"game":"500248843","event":"aj_vip","group":"VIP/wildcard-like","starts":33,"legacy_model":"bhv"},{"x":0.6882,"y":0.8075,"ratio":1.17,"game":"500208356","event":"af_registration","group":"Other","starts":721,"legacy_model":"bhv"},{"x":0.2624,"y":0.3072,"ratio":1.17,"game":"500060922","event":"LEVEL_END_SUCCESS_30","group":"LEVEL_END_SUCCESS","starts":103,"legacy_model":"bhv"},{"x":0.2909,"y":0.3411,"ratio":1.17,"game":"500025671","event":"af_level_up_15","group":"Level-up","starts":33,"legacy_model":"bhv"},{"x":0.2977,"y":0.3452,"ratio":1.16,"game":"500229380","event":"success_first_ride","group":"Other","starts":959,"legacy_model":"bhv"},{"x":0.5548,"y":0.6409,"ratio":1.16,"game":"500245490","event":"","group":"VIP/wildcard-like","starts":260,"legacy_model":"bhv"},{"x":0.2497,"y":0.2867,"ratio":1.15,"game":"500247636","event":"tlevelplayed","group":"tlevelplayed","starts":58,"legacy_model":"bhv"},{"x":0.4918,"y":0.559,"ratio":1.14,"game":"500219585","event":"","group":"VIP/wildcard-like","starts":2035,"legacy_model":"bhv"},{"x":0.1945,"y":0.2208,"ratio":1.14,"game":"500259204","event":"tlevelplayed","group":"tlevelplayed","starts":748,"legacy_model":"bhv"},{"x":0.3344,"y":0.3773,"ratio":1.13,"game":"500142495","event":"WINCOUNT10","group":"Other","starts":94,"legacy_model":"bhv"},{"x":0.7258,"y":0.8237,"ratio":1.13,"game":"500208356","event":"af_registration","group":"Other","starts":2279,"legacy_model":"bhv"},{"x":0.546,"y":0.6187,"ratio":1.13,"game":"500245490","event":"","group":"VIP/wildcard-like","starts":26,"legacy_model":"bhv"},{"x":0.137,"y":0.1543,"ratio":1.13,"game":"500013078","event":"","group":"VIP/wildcard-like","starts":165,"legacy_model":"bhv"},{"x":0.4841,"y":0.5484,"ratio":1.13,"game":"500245490","event":"","group":"VIP/wildcard-like","starts":2,"legacy_model":"bhv"},{"x":0.1615,"y":0.1811,"ratio":1.12,"game":"500254939","event":"d2_retention","group":"Retention","starts":4388,"legacy_model":"bhv"},{"x":0.2761,"y":0.3079,"ratio":1.12,"game":"500247636","event":"tlevelplayed","group":"tlevelplayed","starts":16,"legacy_model":"bhv"},{"x":0.0973,"y":0.1086,"ratio":1.12,"game":"500177040","event":"af_ftd","group":"FTD/First events","starts":132,"legacy_model":"bhv"},{"x":0.1702,"y":0.1892,"ratio":1.11,"game":"500254939","event":"d2_retention","group":"Retention","starts":1354,"legacy_model":"bhv"},{"x":0.3893,"y":0.4272,"ratio":1.1,"game":"500245702","event":"tlevelplayed","group":"tlevelplayed","starts":49,"legacy_model":"bhv"},{"x":0.3863,"y":0.4254,"ratio":1.1,"game":"500255340","event":"tlevelplayed","group":"tlevelplayed","starts":5,"legacy_model":"bhv"},{"x":0.2636,"y":0.2906,"ratio":1.1,"game":"500259204","event":"tlevelplayed","group":"tlevelplayed","starts":8,"legacy_model":"bhv"},{"x":0.2289,"y":0.2527,"ratio":1.1,"game":"500259204","event":"tlevelplayed","group":"tlevelplayed","starts":466,"legacy_model":"bhv"},{"x":0.2668,"y":0.2941,"ratio":1.1,"game":"500247636","event":"tlevelplayed","group":"tlevelplayed","starts":185,"legacy_model":"bhv"},{"x":0.2002,"y":0.2181,"ratio":1.09,"game":"500114618","event":"LEVEL_END_SUCCESS_30","group":"LEVEL_END_SUCCESS","starts":3,"legacy_model":"bhv"},{"x":0.2762,"y":0.2998,"ratio":1.09,"game":"500247636","event":"tlevelplayed","group":"tlevelplayed","starts":41,"legacy_model":"bhv"},{"x":0.3122,"y":0.3393,"ratio":1.09,"game":"500245702","event":"tlevelplayed","group":"tlevelplayed","starts":211,"legacy_model":"bhv"},{"x":0.4068,"y":0.4425,"ratio":1.09,"game":"500253218","event":"active_1days_retention","group":"Retention","starts":6693,"legacy_model":"bhv"},{"x":0.2274,"y":0.2476,"ratio":1.09,"game":"500259204","event":"tlevelplayed","group":"tlevelplayed","starts":86,"legacy_model":"bhv"},{"x":0.3216,"y":0.3503,"ratio":1.09,"game":"500255418","event":"key_action_avrtlo","group":"Other","starts":200,"legacy_model":"bhv"},{"x":0.0777,"y":0.0843,"ratio":1.08,"game":"500104804","event":"af_level_up_20","group":"Level-up","starts":18888,"legacy_model":"bhv"},{"x":0.273,"y":0.2951,"ratio":1.08,"game":"500257871","event":"recvd_coins_400","group":"Other","starts":83,"legacy_model":"bhv"},{"x":0.3608,"y":0.3892,"ratio":1.08,"game":"500245702","event":"tlevelplayed","group":"tlevelplayed","starts":11,"legacy_model":"bhv"},{"x":0.295,"y":0.3186,"ratio":1.08,"game":"500255340","event":"tlevelplayed","group":"tlevelplayed","starts":492,"legacy_model":"bhv"},{"x":0.1642,"y":0.1776,"ratio":1.08,"game":"500241943","event":"day3_retention","group":"Retention","starts":7,"legacy_model":"bhv"},{"x":0.361,"y":0.3854,"ratio":1.07,"game":"500225643","event":"af_level_end_success_40","group":"LEVEL_END_SUCCESS","starts":158,"legacy_model":"bhv"},{"x":0.2894,"y":0.3103,"ratio":1.07,"game":"500205921","event":"level_end_success_25","group":"LEVEL_END_SUCCESS","starts":149,"legacy_model":"bhv"},{"x":0.4527,"y":0.4827,"ratio":1.07,"game":"500219585","event":"nameofevent","group":"Other","starts":439,"legacy_model":"bhv"},{"x":0.5728,"y":0.6152,"ratio":1.07,"game":"500245262","event":"ow","group":"Other","starts":2553,"legacy_model":"bhv"},{"x":0.5421,"y":0.5821,"ratio":1.07,"game":"500022233","event":"signup","group":"Other","starts":1331,"legacy_model":"bhv"},{"x":0.2208,"y":0.2346,"ratio":1.06,"game":"500201983","event":"eventA","group":"Other","starts":12,"legacy_model":"bhv"},{"x":0.2889,"y":0.3076,"ratio":1.06,"game":"500247636","event":"tlevelplayed","group":"tlevelplayed","starts":49,"legacy_model":"bhv"},{"x":0.2718,"y":0.2887,"ratio":1.06,"game":"500257871","event":"recvd_coins_400","group":"Other","starts":234,"legacy_model":"bhv"},{"x":0.1831,"y":0.1937,"ratio":1.06,"game":"500257871","event":"recvd_coins_400","group":"Other","starts":277,"legacy_model":"bhv"},{"x":0.2787,"y":0.2964,"ratio":1.06,"game":"500247636","event":"tlevelplayed","group":"tlevelplayed","starts":174,"legacy_model":"bhv"},{"x":0.2555,"y":0.27,"ratio":1.06,"game":"500247636","event":"tlevelplayed","group":"tlevelplayed","starts":74,"legacy_model":"bhv"},{"x":0.2841,"y":0.2974,"ratio":1.05,"game":"500114618","event":"LEVEL_END_SUCCESS_30","group":"LEVEL_END_SUCCESS","starts":243,"legacy_model":"bhv"},{"x":0.664,"y":0.6985,"ratio":1.05,"game":"500248744","event":"registration","group":"Other","starts":229,"legacy_model":"bhv"},{"x":0.2461,"y":0.2595,"ratio":1.05,"game":"500093455","event":"character_get_5","group":"Other","starts":7,"legacy_model":"bhv"},{"x":0.5297,"y":0.5547,"ratio":1.05,"game":"500219585","event":"","group":"VIP/wildcard-like","starts":692,"legacy_model":"bhv"},{"x":0.6358,"y":0.6653,"ratio":1.05,"game":"500235231","event":"","group":"VIP/wildcard-like","starts":85,"legacy_model":"bhv"},{"x":0.1947,"y":0.2028,"ratio":1.04,"game":"500199981","event":"grt_7d_ltv_20_15","group":"GRT events","starts":5885,"legacy_model":"bhv"},{"x":0.3893,"y":0.4052,"ratio":1.04,"game":"500245702","event":"tlevelplayed","group":"tlevelplayed","starts":25,"legacy_model":"bhv"},{"x":0.8163,"y":0.8494,"ratio":1.04,"game":"500208356","event":"af_registration","group":"Other","starts":3437,"legacy_model":"bhv"},{"x":0.4561,"y":0.4737,"ratio":1.04,"game":"500235231","event":"","group":"VIP/wildcard-like","starts":819,"legacy_model":"bhv"},{"x":0.3994,"y":0.4138,"ratio":1.04,"game":"133214","event":"aeo_level_30","group":"Other","starts":75,"legacy_model":"bhv"},{"x":0.5851,"y":0.6073,"ratio":1.04,"game":"500261067","event":"","group":"VIP/wildcard-like","starts":177,"legacy_model":"bhv"},{"x":0.4408,"y":0.4572,"ratio":1.04,"game":"500219585","event":"","group":"VIP/wildcard-like","starts":1236,"legacy_model":"bhv"},{"x":0.2777,"y":0.2872,"ratio":1.03,"game":"500255340","event":"tlevelplayed","group":"tlevelplayed","starts":49,"legacy_model":"bhv"},{"x":0.4771,"y":0.49,"ratio":1.03,"game":"500226169","event":"play_short_2","group":"Other","starts":83,"legacy_model":"bhv"},{"x":0.2643,"y":0.27,"ratio":1.02,"game":"500062793","event":"LEVEL_END_SUCCESS_30","group":"LEVEL_END_SUCCESS","starts":56,"legacy_model":"bhv"},{"x":0.2031,"y":0.2081,"ratio":1.02,"game":"500201983","event":"eventA","group":"Other","starts":509,"legacy_model":"bhv"},{"x":0.4012,"y":0.41,"ratio":1.02,"game":"133214","event":"aeo_level_30","group":"Other","starts":234,"legacy_model":"bhv"},{"x":0.3627,"y":0.3667,"ratio":1.01,"game":"500245702","event":"tlevelplayed","group":"tlevelplayed","starts":57,"legacy_model":"bhv"},{"x":0.5696,"y":0.5771,"ratio":1.01,"game":"500219585","event":"","group":"VIP/wildcard-like","starts":43,"legacy_model":"bhv"},{"x":0.4545,"y":0.461,"ratio":1.01,"game":"500235231","event":"","group":"VIP/wildcard-like","starts":10413,"legacy_model":"bhv"},{"x":0.402,"y":0.4053,"ratio":1.01,"game":"500152026","event":"aeo_level_100","group":"Other","starts":1,"legacy_model":"bhv"},{"x":0.2564,"y":0.2566,"ratio":1.0,"game":"500247636","event":"tlevelplayed","group":"tlevelplayed","starts":720,"legacy_model":"bhv"},{"x":0.2349,"y":0.2358,"ratio":1.0,"game":"500247636","event":"tlevelplayed","group":"tlevelplayed","starts":11,"legacy_model":"bhv"},{"x":0.5449,"y":0.5434,"ratio":1.0,"game":"500219585","event":"","group":"VIP/wildcard-like","starts":257,"legacy_model":"bhv"},{"x":0.2073,"y":0.2075,"ratio":1.0,"game":"500259204","event":"tlevelplayed","group":"tlevelplayed","starts":12,"legacy_model":"bhv"},{"x":0.379,"y":0.3793,"ratio":1.0,"game":"500238869","event":"online40min","group":"Other","starts":587,"legacy_model":"bhv"},{"x":0.3656,"y":0.3658,"ratio":1.0,"game":"500245702","event":"tlevelplayed","group":"tlevelplayed","starts":101,"legacy_model":"bhv"},{"x":0.0745,"y":0.0743,"ratio":1.0,"game":"500219389","event":"segment_lambdas_first_offer_reconciled","group":"Other","starts":315,"legacy_model":"bhv"},{"x":0.3193,"y":0.3175,"ratio":0.99,"game":"500143087","event":"","group":"VIP/wildcard-like","starts":79,"legacy_model":"bhv"},{"x":0.3541,"y":0.3501,"ratio":0.99,"game":"500247636","event":"tlevelplayed","group":"tlevelplayed","starts":54,"legacy_model":"bhv"},{"x":0.282,"y":0.2798,"ratio":0.99,"game":"500247636","event":"tlevelplayed","group":"tlevelplayed","starts":10,"legacy_model":"bhv"},{"x":0.4981,"y":0.4888,"ratio":0.98,"game":"500226169","event":"app_feedback_eight","group":"Other","starts":992,"legacy_model":"bhv"},{"x":0.5485,"y":0.5365,"ratio":0.98,"game":"500238377","event":"af_rounds30","group":"Other","starts":86,"legacy_model":"bhv"},{"x":0.2839,"y":0.2758,"ratio":0.97,"game":"500031041","event":"paid_imp_75","group":"Other","starts":210,"legacy_model":"bhv"},{"x":0.349,"y":0.3368,"ratio":0.97,"game":"500196051","event":"grt_7d_level30_notir","group":"GRT events","starts":2561,"legacy_model":"bhv"},{"x":0.3926,"y":0.379,"ratio":0.97,"game":"500196051","event":"grt_7d_level30_notir","group":"GRT events","starts":1675,"legacy_model":"bhv"},{"x":0.1783,"y":0.1728,"ratio":0.97,"game":"500257871","event":"recvd_coins_400","group":"Other","starts":25,"legacy_model":"bhv"},{"x":0.3406,"y":0.3309,"ratio":0.97,"game":"500040932","event":"d2_retention","group":"Retention","starts":211,"legacy_model":"bhv"},{"x":0.4994,"y":0.484,"ratio":0.97,"game":"500226169","event":"app_feedback_five","group":"Other","starts":654,"legacy_model":"bhv"},{"x":0.5082,"y":0.4917,"ratio":0.97,"game":"500226169","event":"app_feedback_eight","group":"Other","starts":139,"legacy_model":"bhv"},{"x":0.5141,"y":0.4998,"ratio":0.97,"game":"500226169","event":"play_short_2","group":"Other","starts":5617,"legacy_model":"bhv"},{"x":0.2545,"y":0.2436,"ratio":0.96,"game":"500104804","event":"","group":"VIP/wildcard-like","starts":1,"legacy_model":"bhv"},{"x":0.2327,"y":0.2235,"ratio":0.96,"game":"110055","event":"herostage1-3_completion","group":"Other","starts":403,"legacy_model":"bhv"},{"x":0.4631,"y":0.4435,"ratio":0.96,"game":"500226169","event":"app_feedback_eight","group":"Other","starts":788,"legacy_model":"bhv"},{"x":0.3585,"y":0.3454,"ratio":0.96,"game":"500257871","event":"recvd_coins_400","group":"Other","starts":268,"legacy_model":"bhv"},{"x":0.5799,"y":0.5591,"ratio":0.96,"game":"500245490","event":"","group":"VIP/wildcard-like","starts":157,"legacy_model":"bhv"},{"x":0.3188,"y":0.3077,"ratio":0.96,"game":"500255340","event":"tlevelplayed","group":"tlevelplayed","starts":53,"legacy_model":"bhv"},{"x":0.661,"y":0.6338,"ratio":0.96,"game":"500261067","event":"","group":"VIP/wildcard-like","starts":1061,"legacy_model":"bhv"},{"x":0.2681,"y":0.2559,"ratio":0.95,"game":"500157082","event":"LEVEL_END_SUCCESS_30","group":"LEVEL_END_SUCCESS","starts":42,"legacy_model":"bhv"},{"x":0.4994,"y":0.4764,"ratio":0.95,"game":"500238377","event":"af_rounds30","group":"Other","starts":253,"legacy_model":"bhv"},{"x":0.346,"y":0.327,"ratio":0.95,"game":"500040932","event":"d2_retention","group":"Retention","starts":18,"legacy_model":"bhv"},{"x":0.5981,"y":0.5675,"ratio":0.95,"game":"500219585","event":"","group":"VIP/wildcard-like","starts":1290,"legacy_model":"bhv"},{"x":0.6248,"y":0.5946,"ratio":0.95,"game":"500219585","event":"","group":"VIP/wildcard-like","starts":368,"legacy_model":"bhv"},{"x":0.2649,"y":0.2524,"ratio":0.95,"game":"500255340","event":"tlevelplayed","group":"tlevelplayed","starts":282,"legacy_model":"bhv"},{"x":0.5968,"y":0.5684,"ratio":0.95,"game":"500219585","event":"","group":"VIP/wildcard-like","starts":666,"legacy_model":"bhv"},{"x":0.1738,"y":0.165,"ratio":0.95,"game":"500249863","event":"cvlink_kabupresent","group":"Other","starts":1567,"legacy_model":"bhv"},{"x":0.4791,"y":0.4548,"ratio":0.95,"game":"500226169","event":"play_short_2","group":"Other","starts":48,"legacy_model":"bhv"},{"x":0.5294,"y":0.5037,"ratio":0.95,"game":"133188","event":"aeo_level_30","group":"Other","starts":71,"legacy_model":"bhv"},{"x":0.2617,"y":0.2486,"ratio":0.95,"game":"500093455","event":"reach_viplv2","group":"VIP/wildcard-like","starts":147,"legacy_model":"bhv"},{"x":0.3445,"y":0.3194,"ratio":0.93,"game":"500035177","event":"40levelsplayed","group":"Other","starts":1841,"legacy_model":"bhv"},{"x":0.3227,"y":0.3011,"ratio":0.93,"game":"500035177","event":"40levelsplayed","group":"Other","starts":453,"legacy_model":"bhv"},{"x":0.3528,"y":0.3275,"ratio":0.93,"game":"500040932","event":"d2_retention","group":"Retention","starts":6,"legacy_model":"bhv"},{"x":0.2893,"y":0.2695,"ratio":0.93,"game":"500060922","event":"LEVEL_END_SUCCESS_30","group":"LEVEL_END_SUCCESS","starts":532,"legacy_model":"bhv"},{"x":0.5099,"y":0.4736,"ratio":0.93,"game":"500244354","event":"level_23","group":"Other","starts":1033,"legacy_model":"bhv"},{"x":0.3369,"y":0.3141,"ratio":0.93,"game":"500256774","event":"onlinetime_60m","group":"Other","starts":2738,"legacy_model":"bhv"},{"x":0.4458,"y":0.4134,"ratio":0.93,"game":"500253218","event":"onlinetime_30m","group":"Other","starts":6476,"legacy_model":"bhv"}],"stats":{"total":356,"median":0.96,"max":11.15,"over2x":14,"over3x":5,"over5x":1,"under1":194,"under08":89},"all_ratios":[0.2,0.37,0.38,0.39,0.39,0.39,0.41,0.42,0.45,0.46,0.47,0.48,0.49,0.49,0.5,0.51,0.51,0.51,0.52,0.53,0.53,0.53,0.53,0.55,0.55,0.55,0.56,0.56,0.56,0.56,0.56,0.57,0.57,0.57,0.58,0.59,0.59,0.6,0.61,0.61,0.62,0.62,0.63,0.63,0.64,0.64,0.64,0.64,0.64,0.64,0.64,0.65,0.65,0.67,0.67,0.67,0.68,0.68,0.68,0.69,0.7,0.7,0.71,0.71,0.71,0.71,0.71,0.72,0.72,0.74,0.74,0.74,0.74,0.74,0.74,0.76,0.76,0.76,0.76,0.76,0.76,0.77,0.77,0.77,0.77,0.77,0.78,0.79,0.79,0.8,0.8,0.8,0.8,0.8,0.81,0.81,0.81,0.81,0.81,0.81,0.82,0.82,0.82,0.82,0.82,0.83,0.83,0.83,0.83,0.83,0.84,0.84,0.85,0.85,0.86,0.86,0.86,0.86,0.86,0.86,0.87,0.87,0.87,0.87,0.87,0.87,0.88,0.88,0.88,0.88,0.88,0.88,0.88,0.88,0.89,0.89,0.89,0.89,0.89,0.89,0.9,0.9,0.9,0.91,0.91,0.91,0.91,0.91,0.91,0.92,0.92,0.92,0.92,0.93,0.93,0.93,0.93,0.93,0.93,0.93,0.93,0.93,0.93,0.95,0.95,0.95,0.95,0.95,0.95,0.95,0.95,0.95,0.95,0.95,0.96,0.96,0.96,0.96,0.96,0.96,0.96,0.97,0.97,0.97,0.97,0.97,0.97,0.97,0.97,0.98,0.98,0.99,0.99,0.99,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.01,1.01,1.01,1.01,1.02,1.02,1.02,1.03,1.03,1.04,1.04,1.04,1.04,1.04,1.04,1.04,1.05,1.05,1.05,1.05,1.05,1.06,1.06,1.06,1.06,1.06,1.06,1.07,1.07,1.07,1.07,1.07,1.08,1.08,1.08,1.08,1.08,1.09,1.09,1.09,1.09,1.09,1.09,1.1,1.1,1.1,1.1,1.1,1.11,1.12,1.12,1.12,1.13,1.13,1.13,1.13,1.13,1.14,1.14,1.15,1.16,1.16,1.17,1.17,1.17,1.18,1.18,1.18,1.18,1.18,1.18,1.19,1.19,1.2,1.21,1.21,1.21,1.22,1.22,1.22,1.22,1.23,1.23,1.24,1.24,1.25,1.26,1.26,1.26,1.26,1.27,1.28,1.29,1.3,1.3,1.31,1.31,1.31,1.32,1.32,1.32,1.32,1.33,1.33,1.34,1.35,1.38,1.4,1.4,1.41,1.42,1.42,1.43,1.43,1.43,1.46,1.48,1.51,1.52,1.52,1.53,1.54,1.57,1.57,1.58,1.58,1.6,1.61,1.62,1.62,1.64,1.65,1.66,1.69,1.7,1.78,1.88,1.89,1.92,1.95,1.98,2.03,2.06,2.08,2.25,2.28,2.6,2.74,2.78,2.95,3.33,3.46,3.78,4.92,11.15]};
+const DATA_CTX = {"buckets":{"<0.5x":8,"0.5-0.8x":82,"0.8-1.0x":111,"1.0-1.2x":63,"1.2-1.5x":50,"1.5-2x":25,"2-3x":9,"3-5x":1,">5x":2},"group_summary":[{"group":"LEVEL_END_SUCCESS","count":38,"avg":1.25,"median":1.15,"max":2.33},{"group":"FTD/First events","count":3,"avg":0.94,"median":1.06,"max":1.26},{"group":"VIP/wildcard-like","count":60,"avg":1.05,"median":1.02,"max":2.34},{"group":"Retention","count":18,"avg":1.14,"median":1.02,"max":1.86},{"group":"Other","count":152,"avg":1.21,"median":0.95,"max":12.71},{"group":"tlevelplayed","count":50,"avg":0.88,"median":0.85,"max":1.28},{"group":"Level-up","count":9,"avg":0.9,"median":0.84,"max":1.4},{"group":"GRT events","count":21,"avg":0.74,"median":0.66,"max":1.52}],"top30":[{"campaign_id":"6a140cc28b532b14d2064755","target_game_id":"500023189","sdk_event_name":"build_3manor","ul_pred":0.1888,"legacy_pred":0.0149,"ul_starts":42227,"legacy_starts":1,"ratio":12.71,"group":"Other","legacy_model":"ctx"},{"campaign_id":"652214aefc636157750229a8","target_game_id":"500186905","sdk_event_name":"star5_hero_received","ul_pred":0.0203,"legacy_pred":0.0021,"ul_starts":20323,"legacy_starts":1,"ratio":9.47,"group":"Other","legacy_model":"ctx"},{"campaign_id":"685e6c8f7dd83b9c85344630","target_game_id":"500201983","sdk_event_name":"eventa","ul_pred":0.485,"legacy_pred":0.0989,"ul_starts":107,"legacy_starts":9,"ratio":4.91,"group":"Other","legacy_model":"ctx"},{"campaign_id":"66417ef602464c49ace985a7","target_game_id":"500101393","sdk_event_name":"log_city_upgrade_6","ul_pred":0.1679,"legacy_pred":0.0592,"ul_starts":33640,"legacy_starts":16697,"ratio":2.84,"group":"Other","legacy_model":"ctx"},{"campaign_id":"69d683f79a836a32675eaad0","target_game_id":"500219388","sdk_event_name":"segment_lambdas_first_offer_reconciled","ul_pred":0.3186,"legacy_pred":0.1344,"ul_starts":476,"legacy_starts":1002,"ratio":2.37,"group":"Other","legacy_model":"ctx"},{"campaign_id":"698c3fb26ae04d3b9aa0167d","target_game_id":"500136474","sdk_event_name":"ajvip","ul_pred":0.2155,"legacy_pred":0.0919,"ul_starts":2418,"legacy_starts":1130,"ratio":2.34,"group":"VIP/wildcard-like","legacy_model":"ctx"},{"campaign_id":"6842ace553ac96803b5c4581","target_game_id":"500205921","sdk_event_name":"LEVEL_END_SUCCESS_50","ul_pred":0.2643,"legacy_pred":0.1133,"ul_starts":296,"legacy_starts":10,"ratio":2.33,"group":"LEVEL_END_SUCCESS","legacy_model":"ctx"},{"campaign_id":"679e18b1f37ec3d15f7186f0","target_game_id":"500201983","sdk_event_name":"eventA","ul_pred":0.2081,"legacy_pred":0.0944,"ul_starts":509,"legacy_starts":3,"ratio":2.21,"group":"Other","legacy_model":"ctx"},{"campaign_id":"66bc6d4744c2e988f37150dc","target_game_id":"500114618","sdk_event_name":"LEVEL_END_SUCCESS_30","ul_pred":0.406,"legacy_pred":0.1855,"ul_starts":2,"legacy_starts":7,"ratio":2.19,"group":"LEVEL_END_SUCCESS","legacy_model":"ctx"},{"campaign_id":"6827176f65ae12f840fa30fe","target_game_id":"500203302","sdk_event_name":"LEVEL_END_SUCCESS_40","ul_pred":0.2891,"legacy_pred":0.1329,"ul_starts":838,"legacy_starts":105,"ratio":2.18,"group":"LEVEL_END_SUCCESS","legacy_model":"ctx"},{"campaign_id":"69380e3b64acb77150ca34cf","target_game_id":"500201983","sdk_event_name":"eventa","ul_pred":0.2807,"legacy_pred":0.1319,"ul_starts":138,"legacy_starts":4,"ratio":2.13,"group":"Other","legacy_model":"ctx"},{"campaign_id":"69d67d2c2761a3ac094babac","target_game_id":"500219388","sdk_event_name":"segment_lambdas_first_offer_reconciled","ul_pred":0.2283,"legacy_pred":0.1069,"ul_starts":774,"legacy_starts":1165,"ratio":2.13,"group":"Other","legacy_model":"ctx"},{"campaign_id":"6a0ac7a1acb56cdcf43daa3a","target_game_id":"500235231","sdk_event_name":"","ul_pred":0.6911,"legacy_pred":0.3534,"ul_starts":1902,"legacy_starts":173,"ratio":1.96,"group":"VIP/wildcard-like","legacy_model":"ctx"},{"campaign_id":"6842abc5dbe1f5f75edbda8f","target_game_id":"500205921","sdk_event_name":"LEVEL_END_SUCCESS_40","ul_pred":0.3237,"legacy_pred":0.1675,"ul_starts":110,"legacy_starts":2,"ratio":1.93,"group":"LEVEL_END_SUCCESS","legacy_model":"ctx"},{"campaign_id":"6836f0fb989a7e70ae0f3fe1","target_game_id":"500071743","sdk_event_name":"ajvaildtodaypay","ul_pred":0.1336,"legacy_pred":0.0695,"ul_starts":704,"legacy_starts":946,"ratio":1.92,"group":"Other","legacy_model":"ctx"},{"campaign_id":"6a06f8a0ca94e637f99fd67f","target_game_id":"500226169","sdk_event_name":"play_short_3","ul_pred":0.548,"legacy_pred":0.2892,"ul_starts":397,"legacy_starts":8,"ratio":1.89,"group":"Other","legacy_model":"ctx"},{"campaign_id":"69fb68379b6f4e8705d4f8e7","target_game_id":"500219388","sdk_event_name":"segment_lambdas_first_offer_reconciled","ul_pred":0.2626,"legacy_pred":0.1394,"ul_starts":32388,"legacy_starts":26906,"ratio":1.88,"group":"Other","legacy_model":"ctx"},{"campaign_id":"6a111ea864784f04c61db083","target_game_id":"500093311","sdk_event_name":"day5_retention","ul_pred":0.1598,"legacy_pred":0.0858,"ul_starts":2304,"legacy_starts":773,"ratio":1.86,"group":"Retention","legacy_model":"ctx"},{"campaign_id":"65bc90670facfd339f72cc59","target_game_id":"500062793","sdk_event_name":"LEVEL_END_SUCCESS_30","ul_pred":0.3346,"legacy_pred":0.1817,"ul_starts":34,"legacy_starts":4,"ratio":1.84,"group":"LEVEL_END_SUCCESS","legacy_model":"ctx"},{"campaign_id":"680f453b4a2a53d52b5b5c9d","target_game_id":"500230137","sdk_event_name":"LEVEL_END_SUCCESS_40","ul_pred":0.345,"legacy_pred":0.1921,"ul_starts":241,"legacy_starts":40,"ratio":1.8,"group":"LEVEL_END_SUCCESS","legacy_model":"ctx"},{"campaign_id":"69eae6280d291c5f22675e19","target_game_id":"500257871","sdk_event_name":"recvd_coins_400","ul_pred":0.1473,"legacy_pred":0.0827,"ul_starts":255,"legacy_starts":230,"ratio":1.78,"group":"Other","legacy_model":"ctx"},{"campaign_id":"6a1121b13ee9873e9ec03181","target_game_id":"500093311","sdk_event_name":"day5_retention","ul_pred":0.1474,"legacy_pred":0.0834,"ul_starts":1143,"legacy_starts":558,"ratio":1.77,"group":"Retention","legacy_model":"ctx"},{"campaign_id":"6846a9a3a1dabd6672f5f0af","target_game_id":"500182711","sdk_event_name":"level_end_success_20","ul_pred":0.3523,"legacy_pred":0.2015,"ul_starts":465,"legacy_starts":262,"ratio":1.75,"group":"LEVEL_END_SUCCESS","legacy_model":"ctx"},{"campaign_id":"69c4447a75bdf4ae2c38cc0d","target_game_id":"500042705","sdk_event_name":"pc_t2_d60_ios_custom","ul_pred":0.0336,"legacy_pred":0.0194,"ul_starts":9993,"legacy_starts":3515,"ratio":1.73,"group":"Other","legacy_model":"ctx"},{"campaign_id":"69d574184e28da44850be3b8","target_game_id":"500219388","sdk_event_name":"segment_lambdas_first_offer_reconciled","ul_pred":0.2041,"legacy_pred":0.1197,"ul_starts":998,"legacy_starts":2471,"ratio":1.71,"group":"Other","legacy_model":"ctx"},{"campaign_id":"697824943df2549fb005bc07","target_game_id":"500201983","sdk_event_name":"eventa2","ul_pred":0.2197,"legacy_pred":0.129,"ul_starts":858,"legacy_starts":555,"ratio":1.7,"group":"Other","legacy_model":"ctx"},{"campaign_id":"67949bfe3918c956c12b0b80","target_game_id":"500201983","sdk_event_name":"eventA2","ul_pred":0.3968,"legacy_pred":0.2347,"ul_starts":5438,"legacy_starts":420,"ratio":1.69,"group":"Other","legacy_model":"ctx"},{"campaign_id":"69fc0c08670047872db52fff","target_game_id":"500238377","sdk_event_name":"af_xinhuciliu","ul_pred":0.3978,"legacy_pred":0.2408,"ul_starts":955,"legacy_starts":341,"ratio":1.65,"group":"Other","legacy_model":"ctx"},{"campaign_id":"68a5a28e9b8b5cbd8023e5c0","target_game_id":"500225643","sdk_event_name":"af_level_end_success_40","ul_pred":0.3854,"legacy_pred":0.2384,"ul_starts":158,"legacy_starts":5,"ratio":1.62,"group":"LEVEL_END_SUCCESS","legacy_model":"ctx"},{"campaign_id":"69d565f713f4a720d1097ebe","target_game_id":"500219388","sdk_event_name":"segment_lambdas_first_offer_reconciled","ul_pred":0.2243,"legacy_pred":0.1404,"ul_starts":500,"legacy_starts":1761,"ratio":1.6,"group":"Other","legacy_model":"ctx"}],"scatter":[{"x":0.0149,"y":0.1888,"ratio":12.71,"game":"500023189","event":"build_3manor","group":"Other","starts":42227,"legacy_model":"ctx"},{"x":0.0021,"y":0.0203,"ratio":9.47,"game":"500186905","event":"star5_hero_received","group":"Other","starts":20323,"legacy_model":"ctx"},{"x":0.0989,"y":0.485,"ratio":4.91,"game":"500201983","event":"eventa","group":"Other","starts":107,"legacy_model":"ctx"},{"x":0.0592,"y":0.1679,"ratio":2.84,"game":"500101393","event":"log_city_upgrade_6","group":"Other","starts":33640,"legacy_model":"ctx"},{"x":0.1344,"y":0.3186,"ratio":2.37,"game":"500219388","event":"segment_lambdas_first_offer_reconciled","group":"Other","starts":476,"legacy_model":"ctx"},{"x":0.0919,"y":0.2155,"ratio":2.34,"game":"500136474","event":"ajvip","group":"VIP/wildcard-like","starts":2418,"legacy_model":"ctx"},{"x":0.1133,"y":0.2643,"ratio":2.33,"game":"500205921","event":"LEVEL_END_SUCCESS_50","group":"LEVEL_END_SUCCESS","starts":296,"legacy_model":"ctx"},{"x":0.0944,"y":0.2081,"ratio":2.21,"game":"500201983","event":"eventA","group":"Other","starts":509,"legacy_model":"ctx"},{"x":0.1855,"y":0.406,"ratio":2.19,"game":"500114618","event":"LEVEL_END_SUCCESS_30","group":"LEVEL_END_SUCCESS","starts":2,"legacy_model":"ctx"},{"x":0.1329,"y":0.2891,"ratio":2.18,"game":"500203302","event":"LEVEL_END_SUCCESS_40","group":"LEVEL_END_SUCCESS","starts":838,"legacy_model":"ctx"},{"x":0.1319,"y":0.2807,"ratio":2.13,"game":"500201983","event":"eventa","group":"Other","starts":138,"legacy_model":"ctx"},{"x":0.1069,"y":0.2283,"ratio":2.13,"game":"500219388","event":"segment_lambdas_first_offer_reconciled","group":"Other","starts":774,"legacy_model":"ctx"},{"x":0.3534,"y":0.6911,"ratio":1.96,"game":"500235231","event":"","group":"VIP/wildcard-like","starts":1902,"legacy_model":"ctx"},{"x":0.1675,"y":0.3237,"ratio":1.93,"game":"500205921","event":"LEVEL_END_SUCCESS_40","group":"LEVEL_END_SUCCESS","starts":110,"legacy_model":"ctx"},{"x":0.0695,"y":0.1336,"ratio":1.92,"game":"500071743","event":"ajvaildtodaypay","group":"Other","starts":704,"legacy_model":"ctx"},{"x":0.2892,"y":0.548,"ratio":1.89,"game":"500226169","event":"play_short_3","group":"Other","starts":397,"legacy_model":"ctx"},{"x":0.1394,"y":0.2626,"ratio":1.88,"game":"500219388","event":"segment_lambdas_first_offer_reconciled","group":"Other","starts":32388,"legacy_model":"ctx"},{"x":0.0858,"y":0.1598,"ratio":1.86,"game":"500093311","event":"day5_retention","group":"Retention","starts":2304,"legacy_model":"ctx"},{"x":0.1817,"y":0.3346,"ratio":1.84,"game":"500062793","event":"LEVEL_END_SUCCESS_30","group":"LEVEL_END_SUCCESS","starts":34,"legacy_model":"ctx"},{"x":0.1921,"y":0.345,"ratio":1.8,"game":"500230137","event":"LEVEL_END_SUCCESS_40","group":"LEVEL_END_SUCCESS","starts":241,"legacy_model":"ctx"},{"x":0.0827,"y":0.1473,"ratio":1.78,"game":"500257871","event":"recvd_coins_400","group":"Other","starts":255,"legacy_model":"ctx"},{"x":0.0834,"y":0.1474,"ratio":1.77,"game":"500093311","event":"day5_retention","group":"Retention","starts":1143,"legacy_model":"ctx"},{"x":0.2015,"y":0.3523,"ratio":1.75,"game":"500182711","event":"level_end_success_20","group":"LEVEL_END_SUCCESS","starts":465,"legacy_model":"ctx"},{"x":0.0194,"y":0.0336,"ratio":1.73,"game":"500042705","event":"pc_t2_d60_ios_custom","group":"Other","starts":9993,"legacy_model":"ctx"},{"x":0.1197,"y":0.2041,"ratio":1.71,"game":"500219388","event":"segment_lambdas_first_offer_reconciled","group":"Other","starts":998,"legacy_model":"ctx"},{"x":0.129,"y":0.2197,"ratio":1.7,"game":"500201983","event":"eventa2","group":"Other","starts":858,"legacy_model":"ctx"},{"x":0.2347,"y":0.3968,"ratio":1.69,"game":"500201983","event":"eventA2","group":"Other","starts":5438,"legacy_model":"ctx"},{"x":0.2408,"y":0.3978,"ratio":1.65,"game":"500238377","event":"af_xinhuciliu","group":"Other","starts":955,"legacy_model":"ctx"},{"x":0.2384,"y":0.3854,"ratio":1.62,"game":"500225643","event":"af_level_end_success_40","group":"LEVEL_END_SUCCESS","starts":158,"legacy_model":"ctx"},{"x":0.1404,"y":0.2243,"ratio":1.6,"game":"500219388","event":"segment_lambdas_first_offer_reconciled","group":"Other","starts":500,"legacy_model":"ctx"},{"x":0.0904,"y":0.1436,"ratio":1.59,"game":"500093311","event":"day5_retention","group":"Retention","starts":9257,"legacy_model":"ctx"},{"x":0.2449,"y":0.3839,"ratio":1.57,"game":"500240987","event":"level_end_success_30","group":"LEVEL_END_SUCCESS","starts":3272,"legacy_model":"ctx"},{"x":0.0955,"y":0.1477,"ratio":1.55,"game":"500093311","event":"day5_retention","group":"Retention","starts":9098,"legacy_model":"ctx"},{"x":0.1116,"y":0.1715,"ratio":1.54,"game":"500219388","event":"segment_lambdas_first_offer_reconciled","group":"Other","starts":4106,"legacy_model":"ctx"},{"x":0.1489,"y":0.2269,"ratio":1.52,"game":"500206220","event":"grt_24h_inter_15","group":"GRT events","starts":5781,"legacy_model":"ctx"},{"x":0.3211,"y":0.4827,"ratio":1.5,"game":"500219585","event":"nameofevent","group":"Other","starts":439,"legacy_model":"ctx"},{"x":0.1923,"y":0.2887,"ratio":1.5,"game":"500257871","event":"recvd_coins_400","group":"Other","starts":234,"legacy_model":"ctx"},{"x":0.0916,"y":0.1362,"ratio":1.49,"game":"500093311","event":"day5_retention","group":"Retention","starts":7403,"legacy_model":"ctx"},{"x":0.2091,"y":0.3103,"ratio":1.48,"game":"500205921","event":"level_end_success_25","group":"LEVEL_END_SUCCESS","starts":149,"legacy_model":"ctx"},{"x":0.5812,"y":0.8608,"ratio":1.48,"game":"500219585","event":"","group":"VIP/wildcard-like","starts":2207,"legacy_model":"ctx"},{"x":0.1407,"y":0.2076,"ratio":1.48,"game":"500023189","event":"dawnsworm_10","group":"Other","starts":5853,"legacy_model":"ctx"},{"x":0.4712,"y":0.6917,"ratio":1.47,"game":"500235231","event":"","group":"VIP/wildcard-like","starts":579,"legacy_model":"ctx"},{"x":0.1986,"y":0.2891,"ratio":1.46,"game":"500205921","event":"level_end_success_30","group":"LEVEL_END_SUCCESS","starts":285,"legacy_model":"ctx"},{"x":0.2369,"y":0.3452,"ratio":1.46,"game":"500229380","event":"success_first_ride","group":"Other","starts":959,"legacy_model":"ctx"},{"x":0.2605,"y":0.3773,"ratio":1.45,"game":"500142495","event":"WINCOUNT10","group":"Other","starts":94,"legacy_model":"ctx"},{"x":0.1868,"y":0.2708,"ratio":1.45,"game":"500205921","event":"LEVEL_END_SUCCESS_35","group":"LEVEL_END_SUCCESS","starts":407,"legacy_model":"ctx"},{"x":0.2702,"y":0.3906,"ratio":1.45,"game":"500093455","event":"kill_zombie_lv1","group":"Other","starts":337,"legacy_model":"ctx"},{"x":0.2247,"y":0.3167,"ratio":1.41,"game":"500203302","event":"LEVEL_END_SUCCESS_35","group":"LEVEL_END_SUCCESS","starts":33,"legacy_model":"ctx"},{"x":0.327,"y":0.461,"ratio":1.41,"game":"500235231","event":"","group":"VIP/wildcard-like","starts":10413,"legacy_model":"ctx"},{"x":0.2462,"y":0.3445,"ratio":1.4,"game":"500157082","event":"LEVEL_END_SUCCESS_30","group":"LEVEL_END_SUCCESS","starts":436,"legacy_model":"ctx"},{"x":0.2435,"y":0.3411,"ratio":1.4,"game":"500025671","event":"af_level_up_15","group":"Level-up","starts":33,"legacy_model":"ctx"},{"x":0.1747,"y":0.2422,"ratio":1.39,"game":"500201983","event":"eventa2","group":"Other","starts":632,"legacy_model":"ctx"},{"x":0.073,"y":0.1017,"ratio":1.39,"game":"500071743","event":"ajvip","group":"VIP/wildcard-like","starts":35,"legacy_model":"ctx"},{"x":0.1253,"y":0.1728,"ratio":1.38,"game":"500136474","event":"ajvip","group":"VIP/wildcard-like","starts":1546,"legacy_model":"ctx"},{"x":0.0064,"y":0.0088,"ratio":1.38,"game":"500178023","event":"golden_android_conversion_mid","group":"Other","starts":8664,"legacy_model":"ctx"},{"x":0.4828,"y":0.6653,"ratio":1.38,"game":"500235231","event":"","group":"VIP/wildcard-like","starts":85,"legacy_model":"ctx"},{"x":0.132,"y":0.1811,"ratio":1.37,"game":"500254939","event":"d2_retention","group":"Retention","starts":4388,"legacy_model":"ctx"},{"x":0.5231,"y":0.7151,"ratio":1.37,"game":"500235231","event":"","group":"VIP/wildcard-like","starts":258,"legacy_model":"ctx"},{"x":0.1877,"y":0.2548,"ratio":1.36,"game":"500230137","event":"LEVEL_END_SUCCESS_40","group":"LEVEL_END_SUCCESS","starts":2,"legacy_model":"ctx"},{"x":0.2276,"y":0.3077,"ratio":1.35,"game":"500240987","event":"level_end_success_40","group":"LEVEL_END_SUCCESS","starts":633,"legacy_model":"ctx"},{"x":0.3823,"y":0.5146,"ratio":1.35,"game":"500219585","event":"","group":"VIP/wildcard-like","starts":3209,"legacy_model":"ctx"},{"x":0.1434,"y":0.1937,"ratio":1.35,"game":"500257871","event":"recvd_coins_400","group":"Other","starts":277,"legacy_model":"ctx"},{"x":0.098,"y":0.1312,"ratio":1.34,"game":"500133901","event":"d7_puzzle60_hint5","group":"Other","starts":1371,"legacy_model":"ctx"},{"x":0.0698,"y":0.0936,"ratio":1.34,"game":"500126376","event":"3rdparcelpurchased","group":"Other","starts":435,"legacy_model":"ctx"},{"x":0.0608,"y":0.0815,"ratio":1.34,"game":"500248843","event":"aj_vip","group":"VIP/wildcard-like","starts":2331,"legacy_model":"ctx"},{"x":0.2946,"y":0.3913,"ratio":1.33,"game":"500229380","event":"success_first_ride","group":"Other","starts":10,"legacy_model":"ctx"},{"x":0.345,"y":0.4572,"ratio":1.33,"game":"500219585","event":"","group":"VIP/wildcard-like","starts":1236,"legacy_model":"ctx"},{"x":0.427,"y":0.559,"ratio":1.31,"game":"500219585","event":"","group":"VIP/wildcard-like","starts":2035,"legacy_model":"ctx"},{"x":0.034,"y":0.0445,"ratio":1.31,"game":"500253565","event":"trial_started","group":"Other","starts":106,"legacy_model":"ctx"},{"x":0.0572,"y":0.0743,"ratio":1.3,"game":"500219389","event":"segment_lambdas_first_offer_reconciled","group":"Other","starts":315,"legacy_model":"ctx"},{"x":0.0521,"y":0.0678,"ratio":1.3,"game":"500248843","event":"aj_vip","group":"VIP/wildcard-like","starts":2058,"legacy_model":"ctx"},{"x":0.1382,"y":0.1781,"ratio":1.29,"game":"500201983","event":"eventA","group":"Other","starts":42,"legacy_model":"ctx"},{"x":0.1481,"y":0.1908,"ratio":1.29,"game":"500025671","event":"af_level_up_20","group":"Level-up","starts":17781,"legacy_model":"ctx"},{"x":0.1197,"y":0.1543,"ratio":1.29,"game":"500013078","event":"","group":"VIP/wildcard-like","starts":165,"legacy_model":"ctx"},{"x":0.2622,"y":0.335,"ratio":1.28,"game":"500182711","event":"LEVEL_END_SUCCESS_20","group":"LEVEL_END_SUCCESS","starts":19,"legacy_model":"ctx"},{"x":0.3427,"y":0.4374,"ratio":1.28,"game":"500226169","event":"app_second_start","group":"Other","starts":771,"legacy_model":"ctx"},{"x":0.3798,"y":0.4847,"ratio":1.28,"game":"500255340","event":"tlevelplayed","group":"tlevelplayed","starts":13,"legacy_model":"ctx"},{"x":0.6417,"y":0.8075,"ratio":1.26,"game":"500208356","event":"af_registration","group":"Other","starts":721,"legacy_model":"ctx"},{"x":0.0185,"y":0.0234,"ratio":1.26,"game":"500226181","event":"ftd","group":"FTD/First events","starts":267,"legacy_model":"ctx"},{"x":0.3882,"y":0.484,"ratio":1.25,"game":"500226169","event":"app_second_start","group":"Other","starts":2244,"legacy_model":"ctx"},{"x":0.3428,"y":0.4272,"ratio":1.25,"game":"500245702","event":"tlevelplayed","group":"tlevelplayed","starts":49,"legacy_model":"ctx"},{"x":0.514,"y":0.6409,"ratio":1.25,"game":"500245490","event":"","group":"VIP/wildcard-like","starts":260,"legacy_model":"ctx"},{"x":0.2174,"y":0.2695,"ratio":1.24,"game":"500060922","event":"LEVEL_END_SUCCESS_30","group":"LEVEL_END_SUCCESS","starts":532,"legacy_model":"ctx"},{"x":0.3831,"y":0.4737,"ratio":1.24,"game":"500235231","event":"","group":"VIP/wildcard-like","starts":819,"legacy_model":"ctx"},{"x":0.2401,"y":0.2951,"ratio":1.23,"game":"500257871","event":"recvd_coins_400","group":"Other","starts":83,"legacy_model":"ctx"},{"x":0.1449,"y":0.1776,"ratio":1.23,"game":"500241943","event":"day3_retention","group":"Retention","starts":7,"legacy_model":"ctx"},{"x":0.2863,"y":0.3503,"ratio":1.22,"game":"500255418","event":"key_action_avrtlo","group":"Other","starts":200,"legacy_model":"ctx"},{"x":0.2619,"y":0.3115,"ratio":1.19,"game":"500041093","event":"games_won_75","group":"Other","starts":1597,"legacy_model":"ctx"},{"x":0.6931,"y":0.8237,"ratio":1.19,"game":"500208356","event":"af_registration","group":"Other","starts":2279,"legacy_model":"ctx"},{"x":0.1878,"y":0.2226,"ratio":1.19,"game":"500023189","event":"hire_heroes3","group":"Other","starts":328,"legacy_model":"ctx"},{"x":0.1229,"y":0.1449,"ratio":1.18,"game":"500201983","event":"eventA2","group":"Other","starts":2,"legacy_model":"ctx"},{"x":0.3185,"y":0.3723,"ratio":1.17,"game":"500205921","event":"LEVEL_END_SUCCESS_15","group":"LEVEL_END_SUCCESS","starts":3,"legacy_model":"ctx"},{"x":0.494,"y":0.5793,"ratio":1.17,"game":"500245490","event":"","group":"VIP/wildcard-like","starts":157,"legacy_model":"ctx"},{"x":0.0651,"y":0.0762,"ratio":1.17,"game":"500248843","event":"aj_vip","group":"VIP/wildcard-like","starts":2348,"legacy_model":"ctx"},{"x":0.1235,"y":0.143,"ratio":1.16,"game":"500201983","event":"eventa","group":"Other","starts":32,"legacy_model":"ctx"},{"x":0.5245,"y":0.6073,"ratio":1.16,"game":"500261067","event":"","group":"VIP/wildcard-like","starts":177,"legacy_model":"ctx"},{"x":0.3705,"y":0.4254,"ratio":1.15,"game":"500255340","event":"tlevelplayed","group":"tlevelplayed","starts":5,"legacy_model":"ctx"},{"x":0.5387,"y":0.6152,"ratio":1.14,"game":"500245262","event":"ow","group":"Other","starts":2553,"legacy_model":"ctx"},{"x":0.4304,"y":0.4914,"ratio":1.14,"game":"500245702","event":"tlevelplayed","group":"tlevelplayed","starts":33,"legacy_model":"ctx"},{"x":0.4304,"y":0.49,"ratio":1.14,"game":"500226169","event":"play_short_2","group":"Other","starts":83,"legacy_model":"ctx"},{"x":0.264,"y":0.2974,"ratio":1.13,"game":"500114618","event":"LEVEL_END_SUCCESS_30","group":"LEVEL_END_SUCCESS","starts":243,"legacy_model":"ctx"},{"x":0.227,"y":0.2559,"ratio":1.13,"game":"500157082","event":"LEVEL_END_SUCCESS_30","group":"LEVEL_END_SUCCESS","starts":42,"legacy_model":"ctx"},{"x":0.6241,"y":0.6985,"ratio":1.12,"game":"500248744","event":"registration","group":"Other","starts":229,"legacy_model":"ctx"},{"x":0.487,"y":0.5434,"ratio":1.12,"game":"500219585","event":"","group":"VIP/wildcard-like","starts":257,"legacy_model":"ctx"},{"x":0.1692,"y":0.1892,"ratio":1.12,"game":"500254939","event":"d2_retention","group":"Retention","starts":1354,"legacy_model":"ctx"},{"x":0.0711,"y":0.0797,"ratio":1.12,"game":"500248843","event":"aj_vip","group":"VIP/wildcard-like","starts":33,"legacy_model":"ctx"},{"x":0.1468,"y":0.1624,"ratio":1.11,"game":"500182711","event":"LEVEL_END_SUCCESS_20","group":"LEVEL_END_SUCCESS","starts":85,"legacy_model":"ctx"},{"x":0.39,"y":0.4324,"ratio":1.11,"game":"500219585","event":"","group":"VIP/wildcard-like","starts":503,"legacy_model":"ctx"},{"x":0.3417,"y":0.3793,"ratio":1.11,"game":"500238869","event":"online40min","group":"Other","starts":587,"legacy_model":"ctx"},{"x":0.331,"y":0.3669,"ratio":1.11,"game":"500093455","event":"castle_lv5","group":"Other","starts":37,"legacy_model":"ctx"},{"x":0.5156,"y":0.5684,"ratio":1.1,"game":"500219585","event":"","group":"VIP/wildcard-like","starts":666,"legacy_model":"ctx"},{"x":0.2948,"y":0.3221,"ratio":1.09,"game":"500190914","event":"","group":"VIP/wildcard-like","starts":56,"legacy_model":"ctx"},{"x":0.2467,"y":0.2688,"ratio":1.09,"game":"500196051","event":"grt_7d_ltv_25p","group":"GRT events","starts":17013,"legacy_model":"ctx"},{"x":0.5352,"y":0.5821,"ratio":1.09,"game":"500022233","event":"signup","group":"Other","starts":1331,"legacy_model":"ctx"},{"x":0.5792,"y":0.6338,"ratio":1.09,"game":"500261067","event":"","group":"VIP/wildcard-like","starts":1061,"legacy_model":"ctx"},{"x":0.126,"y":0.1366,"ratio":1.08,"game":"500133901","event":"d7_puzzle60_hint5","group":"Other","starts":1135,"legacy_model":"ctx"},{"x":0.2861,"y":0.3094,"ratio":1.08,"game":"500259204","event":"tlevelplayed","group":"tlevelplayed","starts":15,"legacy_model":"ctx"},{"x":0.4414,"y":0.4707,"ratio":1.07,"game":"500181807","event":"LEVEL_END_SUCCESS_2","group":"LEVEL_END_SUCCESS","starts":3715,"legacy_model":"ctx"},{"x":0.1617,"y":0.1728,"ratio":1.07,"game":"500257871","event":"recvd_coins_400","group":"Other","starts":25,"legacy_model":"ctx"},{"x":0.5444,"y":0.5771,"ratio":1.06,"game":"500219585","event":"","group":"VIP/wildcard-like","starts":43,"legacy_model":"ctx"},{"x":0.5252,"y":0.5547,"ratio":1.06,"game":"500219585","event":"","group":"VIP/wildcard-like","starts":692,"legacy_model":"ctx"},{"x":0.8018,"y":0.8494,"ratio":1.06,"game":"500208356","event":"af_registration","group":"Other","starts":3437,"legacy_model":"ctx"},{"x":0.1024,"y":0.1086,"ratio":1.06,"game":"500177040","event":"af_ftd","group":"FTD/First events","starts":132,"legacy_model":"ctx"},{"x":0.5535,"y":0.5891,"ratio":1.06,"game":"500261067","event":"","group":"VIP/wildcard-like","starts":369,"legacy_model":"ctx"},{"x":0.3921,"y":0.4148,"ratio":1.06,"game":"500226169","event":"play_short_2","group":"Other","starts":134,"legacy_model":"ctx"},{"x":0.4718,"y":0.4998,"ratio":1.06,"game":"500226169","event":"play_short_2","group":"Other","starts":5617,"legacy_model":"ctx"},{"x":0.1493,"y":0.156,"ratio":1.05,"game":"500201983","event":"eventa","group":"Other","starts":19,"legacy_model":"ctx"},{"x":0.4211,"y":0.4425,"ratio":1.05,"game":"500253218","event":"active_1days_retention","group":"Retention","starts":6693,"legacy_model":"ctx"},{"x":0.2959,"y":0.3072,"ratio":1.04,"game":"500060922","event":"LEVEL_END_SUCCESS_30","group":"LEVEL_END_SUCCESS","starts":103,"legacy_model":"ctx"},{"x":0.1033,"y":0.1064,"ratio":1.03,"game":"500201983","event":"eventa","group":"Other","starts":1,"legacy_model":"ctx"},{"x":0.3351,"y":0.3454,"ratio":1.03,"game":"500257871","event":"recvd_coins_400","group":"Other","starts":268,"legacy_model":"ctx"},{"x":0.5771,"y":0.5946,"ratio":1.03,"game":"500219585","event":"","group":"VIP/wildcard-like","starts":368,"legacy_model":"ctx"},{"x":0.3658,"y":0.3751,"ratio":1.03,"game":"500245702","event":"tlevelplayed","group":"tlevelplayed","starts":169,"legacy_model":"ctx"},{"x":0.3931,"y":0.4043,"ratio":1.03,"game":"500245702","event":"tlevelplayed","group":"tlevelplayed","starts":187,"legacy_model":"ctx"},{"x":0.0484,"y":0.0497,"ratio":1.03,"game":"500257910","event":"leanappautologinsuccess","group":"Other","starts":3,"legacy_model":"ctx"},{"x":0.3963,"y":0.41,"ratio":1.03,"game":"133214","event":"aeo_level_30","group":"Other","starts":234,"legacy_model":"ctx"},{"x":0.1559,"y":0.1593,"ratio":1.02,"game":"500062793","event":"LEVEL_END_SUCCESS_30","group":"LEVEL_END_SUCCESS","starts":2,"legacy_model":"ctx"},{"x":0.2947,"y":0.3011,"ratio":1.02,"game":"500035177","event":"40levelsplayed","group":"Other","starts":453,"legacy_model":"ctx"},{"x":0.0749,"y":0.0761,"ratio":1.02,"game":"500071743","event":"ajvip","group":"VIP/wildcard-like","starts":328,"legacy_model":"ctx"},{"x":0.1618,"y":0.1644,"ratio":1.02,"game":"500225868","event":"af_level_100","group":"Level-up","starts":93,"legacy_model":"ctx"},{"x":0.405,"y":0.4138,"ratio":1.02,"game":"133214","event":"aeo_level_30","group":"Other","starts":75,"legacy_model":"ctx"},{"x":0.2005,"y":0.2028,"ratio":1.01,"game":"500199981","event":"grt_7d_ltv_20_15","group":"GRT events","starts":5885,"legacy_model":"ctx"},{"x":0.3227,"y":0.3253,"ratio":1.01,"game":"500243840","event":"registration_successful","group":"Other","starts":1149,"legacy_model":"ctx"},{"x":0.2922,"y":0.2965,"ratio":1.01,"game":"500247636","event":"tlevelplayed","group":"tlevelplayed","starts":48,"legacy_model":"ctx"},{"x":0.5644,"y":0.5675,"ratio":1.01,"game":"500219585","event":"","group":"VIP/wildcard-like","starts":1290,"legacy_model":"ctx"},{"x":0.2452,"y":0.2486,"ratio":1.01,"game":"500093455","event":"reach_viplv2","group":"VIP/wildcard-like","starts":147,"legacy_model":"ctx"},{"x":0.1425,"y":0.1436,"ratio":1.01,"game":"500093311","event":"reach_viplv2","group":"VIP/wildcard-like","starts":988,"legacy_model":"ctx"},{"x":0.2258,"y":0.2254,"ratio":1.0,"game":"500219681","event":"level_end_success_50","group":"LEVEL_END_SUCCESS","starts":266,"legacy_model":"ctx"},{"x":0.4122,"y":0.4134,"ratio":1.0,"game":"500256774","event":"active_1days_retention","group":"Retention","starts":10384,"legacy_model":"ctx"},{"x":0.1759,"y":0.1765,"ratio":1.0,"game":"500241943","event":"castle_lv5","group":"Other","starts":181,"legacy_model":"ctx"},{"x":0.2795,"y":0.2758,"ratio":0.99,"game":"500031041","event":"paid_imp_75","group":"Other","starts":210,"legacy_model":"ctx"},{"x":0.3533,"y":0.3499,"ratio":0.99,"game":"500157082","event":"LEVEL_END_SUCCESS_20","group":"LEVEL_END_SUCCESS","starts":2,"legacy_model":"ctx"},{"x":0.1231,"y":0.122,"ratio":0.99,"game":"500201983","event":"eventa","group":"Other","starts":21,"legacy_model":"ctx"},{"x":0.4984,"y":0.4951,"ratio":0.99,"game":"500219585","event":"","group":"VIP/wildcard-like","starts":1128,"legacy_model":"ctx"},{"x":0.2941,"y":0.2906,"ratio":0.99,"game":"500259204","event":"tlevelplayed","group":"tlevelplayed","starts":8,"legacy_model":"ctx"},{"x":0.2942,"y":0.2922,"ratio":0.99,"game":"500150797","event":"continue_1_coin","group":"Other","starts":204,"legacy_model":"ctx"},{"x":0.4975,"y":0.4888,"ratio":0.98,"game":"500226169","event":"app_feedback_eight","group":"Other","starts":992,"legacy_model":"ctx"},{"x":0.1427,"y":0.1397,"ratio":0.98,"game":"500193586","event":"adjustiosrevenuereachedmin4","group":"Other","starts":77,"legacy_model":"ctx"},{"x":0.3619,"y":0.3554,"ratio":0.98,"game":"500093455","event":"advanced_search10","group":"Other","starts":313,"legacy_model":"ctx"},{"x":0.8174,"y":0.7982,"ratio":0.98,"game":"500263093","event":"r_done","group":"Other","starts":985,"legacy_model":"ctx"},{"x":0.1445,"y":0.1405,"ratio":0.97,"game":"500133901","event":"d7_puzzle60_hint5","group":"Other","starts":431,"legacy_model":"ctx"},{"x":0.558,"y":0.5431,"ratio":0.97,"game":"500248744","event":"registration","group":"Other","starts":239,"legacy_model":"ctx"},{"x":0.4378,"y":0.4251,"ratio":0.97,"game":"500235231","event":"","group":"VIP/wildcard-like","starts":327,"legacy_model":"ctx"},{"x":0.6116,"y":0.5936,"ratio":0.97,"game":"500235231","event":"","group":"VIP/wildcard-like","starts":40,"legacy_model":"ctx"},{"x":0.3356,"y":0.3236,"ratio":0.96,"game":"500090657","event":"Registration-S2S","group":"Other","starts":267,"legacy_model":"ctx"},{"x":0.342,"y":0.327,"ratio":0.96,"game":"500040932","event":"d2_retention","group":"Retention","starts":18,"legacy_model":"ctx"},{"x":0.3215,"y":0.3076,"ratio":0.96,"game":"500247636","event":"tlevelplayed","group":"tlevelplayed","starts":49,"legacy_model":"ctx"},{"x":0.1373,"y":0.1324,"ratio":0.96,"game":"500253575","event":"trial_started","group":"Other","starts":254,"legacy_model":"ctx"},{"x":0.3034,"y":0.2909,"ratio":0.96,"game":"500225139","event":"sng_level_achieved","group":"Other","starts":1202,"legacy_model":"ctx"},{"x":0.3349,"y":0.3175,"ratio":0.95,"game":"500143087","event":"","group":"VIP/wildcard-like","starts":79,"legacy_model":"ctx"},{"x":0.2917,"y":0.2762,"ratio":0.95,"game":"500212481","event":"level_end_success_30","group":"LEVEL_END_SUCCESS","starts":342,"legacy_model":"ctx"},{"x":0.4959,"y":0.4729,"ratio":0.95,"game":"500237264","event":"ow","group":"Other","starts":381,"legacy_model":"ctx"},{"x":0.4353,"y":0.4115,"ratio":0.95,"game":"500245702","event":"tlevelplayed","group":"tlevelplayed","starts":49,"legacy_model":"ctx"},{"x":0.3869,"y":0.3658,"ratio":0.95,"game":"500245702","event":"tlevelplayed","group":"tlevelplayed","starts":101,"legacy_model":"ctx"},{"x":0.5278,"y":0.5037,"ratio":0.95,"game":"133188","event":"aeo_level_30","group":"Other","starts":71,"legacy_model":"ctx"},{"x":0.4027,"y":0.3822,"ratio":0.95,"game":"500226169","event":"play_short_2","group":"Other","starts":150,"legacy_model":"ctx"},{"x":0.3899,"y":0.3667,"ratio":0.94,"game":"500245702","event":"tlevelplayed","group":"tlevelplayed","starts":57,"legacy_model":"ctx"},{"x":0.3589,"y":0.3385,"ratio":0.94,"game":"500196051","event":"grt_7d_level30_notir","group":"GRT events","starts":5118,"legacy_model":"ctx"},{"x":0.3752,"y":0.3543,"ratio":0.94,"game":"500219585","event":"","group":"VIP/wildcard-like","starts":512,"legacy_model":"ctx"},{"x":0.3242,"y":0.3035,"ratio":0.94,"game":"500247636","event":"tlevelplayed","group":"tlevelplayed","starts":77,"legacy_model":"ctx"},{"x":0.4367,"y":0.4052,"ratio":0.93,"game":"500245702","event":"tlevelplayed","group":"tlevelplayed","starts":25,"legacy_model":"ctx"},{"x":0.476,"y":0.4435,"ratio":0.93,"game":"500226169","event":"app_feedback_eight","group":"Other","starts":788,"legacy_model":"ctx"},{"x":0.3575,"y":0.3309,"ratio":0.93,"game":"500040932","event":"d2_retention","group":"Retention","starts":211,"legacy_model":"ctx"},{"x":0.4358,"y":0.4053,"ratio":0.93,"game":"500152026","event":"aeo_level_100","group":"Other","starts":1,"legacy_model":"ctx"},{"x":0.4873,"y":0.4548,"ratio":0.93,"game":"500226169","event":"play_short_2","group":"Other","starts":48,"legacy_model":"ctx"},{"x":0.3459,"y":0.3194,"ratio":0.92,"game":"500035177","event":"40levelsplayed","group":"Other","starts":1841,"legacy_model":"ctx"},{"x":0.3451,"y":0.3186,"ratio":0.92,"game":"500245519","event":"player_level_05","group":"Other","starts":51,"legacy_model":"ctx"},{"x":0.3067,"y":0.2837,"ratio":0.92,"game":"500259204","event":"tlevelplayed","group":"tlevelplayed","starts":286,"legacy_model":"ctx"},{"x":0.5196,"y":0.4781,"ratio":0.92,"game":"500235231","event":"","group":"VIP/wildcard-like","starts":1,"legacy_model":"ctx"},{"x":0.6082,"y":0.5591,"ratio":0.92,"game":"500245490","event":"","group":"VIP/wildcard-like","starts":157,"legacy_model":"ctx"},{"x":0.2467,"y":0.2235,"ratio":0.91,"game":"110055","event":"herostage1-3_completion","group":"Other","starts":403,"legacy_model":"ctx"},{"x":0.3855,"y":0.3501,"ratio":0.91,"game":"500247636","event":"tlevelplayed","group":"tlevelplayed","starts":54,"legacy_model":"ctx"},{"x":0.4443,"y":0.4062,"ratio":0.91,"game":"500235231","event":"","group":"VIP/wildcard-like","starts":43,"legacy_model":"ctx"},{"x":0.6783,"y":0.6187,"ratio":0.91,"game":"500245490","event":"","group":"VIP/wildcard-like","starts":26,"legacy_model":"ctx"},{"x":0.4068,"y":0.37,"ratio":0.91,"game":"500245702","event":"tlevelplayed","group":"tlevelplayed","starts":1135,"legacy_model":"ctx"},{"x":0.2343,"y":0.2122,"ratio":0.91,"game":"500023189","event":"reach_characterlv5","group":"Other","starts":1379,"legacy_model":"ctx"},{"x":0.5628,"y":0.5101,"ratio":0.91,"game":"500226169","event":"app_feedback_eight","group":"Other","starts":3429,"legacy_model":"ctx"},{"x":0.3641,"y":0.3275,"ratio":0.9,"game":"500040932","event":"d2_retention","group":"Retention","starts":6,"legacy_model":"ctx"},{"x":0.2888,"y":0.2595,"ratio":0.9,"game":"500093455","event":"character_get_5","group":"Other","starts":7,"legacy_model":"ctx"},{"x":0.376,"y":0.3393,"ratio":0.9,"game":"500245702","event":"tlevelplayed","group":"tlevelplayed","starts":211,"legacy_model":"ctx"}],"stats":{"total":351,"median":0.95,"max":12.71,"over2x":12,"over3x":3,"over5x":2,"under1":201,"under08":90},"all_ratios":[0.25,0.31,0.35,0.39,0.42,0.47,0.48,0.48,0.5,0.52,0.52,0.54,0.54,0.56,0.57,0.57,0.59,0.59,0.59,0.59,0.6,0.6,0.6,0.6,0.61,0.61,0.62,0.62,0.62,0.63,0.64,0.64,0.65,0.65,0.65,0.65,0.66,0.66,0.66,0.67,0.67,0.67,0.68,0.68,0.69,0.7,0.7,0.7,0.7,0.71,0.72,0.72,0.72,0.72,0.72,0.72,0.72,0.73,0.73,0.73,0.74,0.74,0.74,0.74,0.74,0.74,0.75,0.75,0.75,0.75,0.75,0.76,0.76,0.77,0.77,0.77,0.77,0.77,0.78,0.78,0.78,0.78,0.78,0.78,0.79,0.79,0.79,0.79,0.79,0.79,0.8,0.8,0.8,0.8,0.8,0.8,0.81,0.81,0.81,0.81,0.82,0.82,0.82,0.82,0.83,0.83,0.83,0.83,0.83,0.84,0.84,0.84,0.84,0.84,0.84,0.84,0.84,0.85,0.85,0.85,0.85,0.85,0.85,0.85,0.85,0.86,0.86,0.86,0.87,0.87,0.87,0.87,0.87,0.88,0.88,0.88,0.88,0.88,0.89,0.89,0.89,0.89,0.89,0.89,0.89,0.89,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.91,0.91,0.91,0.91,0.91,0.91,0.91,0.92,0.92,0.92,0.92,0.92,0.93,0.93,0.93,0.93,0.93,0.94,0.94,0.94,0.94,0.95,0.95,0.95,0.95,0.95,0.95,0.95,0.96,0.96,0.96,0.96,0.96,0.97,0.97,0.97,0.97,0.98,0.98,0.98,0.98,0.99,0.99,0.99,0.99,0.99,0.99,1.0,1.0,1.0,1.01,1.01,1.01,1.01,1.01,1.01,1.02,1.02,1.02,1.02,1.02,1.03,1.03,1.03,1.03,1.03,1.03,1.03,1.04,1.05,1.05,1.06,1.06,1.06,1.06,1.06,1.06,1.06,1.07,1.07,1.08,1.08,1.09,1.09,1.09,1.09,1.1,1.11,1.11,1.11,1.11,1.12,1.12,1.12,1.12,1.13,1.13,1.14,1.14,1.14,1.15,1.16,1.16,1.17,1.17,1.17,1.18,1.19,1.19,1.19,1.22,1.23,1.23,1.24,1.24,1.25,1.25,1.25,1.26,1.26,1.28,1.28,1.28,1.29,1.29,1.29,1.3,1.3,1.31,1.31,1.33,1.33,1.34,1.34,1.34,1.35,1.35,1.35,1.36,1.37,1.37,1.38,1.38,1.38,1.39,1.39,1.4,1.4,1.41,1.41,1.45,1.45,1.45,1.46,1.46,1.47,1.48,1.48,1.48,1.49,1.5,1.5,1.52,1.54,1.55,1.57,1.59,1.6,1.62,1.65,1.69,1.7,1.71,1.73,1.75,1.77,1.78,1.8,1.84,1.86,1.88,1.89,1.92,1.93,1.96,2.13,2.13,2.18,2.19,2.21,2.33,2.34,2.37,2.84,4.91,9.47,12.71]};
+const SHADOW_0522 = {"all_ratios":[0.42,0.44,0.47,0.48,0.51,0.53,0.54,0.54,0.55,0.56,0.56,0.57,0.57,0.58,0.59,0.59,0.6,0.61,0.63,0.64,0.65,0.66,0.66,0.66,0.66,0.67,0.69,0.7,0.71,0.72,0.74,0.76,0.76,0.8,0.81,0.82,0.82,0.82,0.84,0.84,0.85,0.85,0.85,0.85,0.86,0.87,0.87,0.88,0.89,0.89,0.9,0.91,0.92,0.92,0.93,0.93,0.95,0.95,0.99,1.0,1.0,1.02,1.02,1.02,1.02,1.03,1.03,1.03,1.04,1.04,1.05,1.05,1.05,1.05,1.06,1.07,1.07,1.08,1.08,1.09,1.09,1.11,1.11,1.13,1.14,1.14,1.15,1.15,1.16,1.16,1.16,1.18,1.2,1.2,1.21,1.22,1.25,1.27,1.28,1.3,1.3,1.33,1.33,1.34,1.36,1.36,1.37,1.37,1.38,1.44,1.49,1.49,1.52,1.54,1.55,1.56,1.58,1.69,1.69,1.71,1.77,1.77,1.79,1.81,1.9,1.94,2.01,2.1,2.13,2.2,2.24,2.38,2.47,2.72,3.06,3.07,3.85,8.42],"median":1.04};
+
+const layout_base = {
+  paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
+  font: { color: '#c0cce8', family: '-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif', size: 12 },
+  margin: { l: 50, r: 20, t: 40, b: 50 },
+  xaxis: { gridcolor: '#1e2840', zerolinecolor: '#2e3f6a' },
+  yaxis: { gridcolor: '#1e2840', zerolinecolor: '#2e3f6a' },
+  legend: { bgcolor: 'rgba(0,0,0,0.3)', bordercolor: '#2e3f6a', borderwidth: 1 },
+};
+const cfg = { displayModeBar: true, responsive: true, modeBarButtonsToRemove: ['lasso2d','select2d'] };
+const colorMap = {
+  'FTD/First events': '#ff4444', 'LEVEL_END_SUCCESS': '#ff8c42',
+  'Level-up': '#ffd166', 'Retention': '#a8dadc', 'Other': '#7b8ec8',
+  'tlevelplayed': '#48cae4', 'VIP/wildcard-like': '#b5838d', 'GRT events': '#52b788',
+};
+
+function makeHistogram(data, divId, title) {
+  const b = data.buckets;
+  const labels = Object.keys(b); const vals = Object.values(b);
+  const colors = ['#48cae4','#52b788','#7b8ec8','#90c8a0','#ffd166','#ff8c42','#ff5555','#cc2222','#aa1111'];
+  Plotly.newPlot(divId, [{
+    type:'bar', x:labels, y:vals, marker:{color:colors, line:{color:'#0f1117',width:1.5}},
+    text:vals.map(v=>`${v}`), textposition:'outside',
+    hovertemplate:'<b>%{x}</b><br>%{y} combos<extra></extra>',
+  }], {
+    ...layout_base,
+    title:{text:title, font:{size:13,color:'#d0dcff'}},
+    xaxis:{...layout_base.xaxis, title:'UL / Legacy ratio bucket'},
+    yaxis:{...layout_base.yaxis, title:'Number of combos'}, bargap:0.25,
+  }, cfg);
+}
+
+function makeGroupBar(data, divId, title) {
+  const gs = data.group_summary.slice().sort((a,b)=>b.avg-a.avg);
+  Plotly.newPlot(divId, [
+    { type:'bar', orientation:'h', x:gs.map(g=>g.avg), y:gs.map(g=>`${g.group} (n=${g.count})`),
+       name:'Avg ratio', marker:{color:gs.map(g=>colorMap[g.group]||'#7b8ec8')},
+       text:gs.map(g=>`${g.avg.toFixed(2)}x`), textposition:'outside',
+       hovertemplate:'<b>%{y}</b><br>Avg: %{x:.2f}x<extra></extra>' },
+    { type:'bar', orientation:'h', x:gs.map(g=>g.median), y:gs.map(g=>`${g.group} (n=${g.count})`),
+       name:'Median ratio', marker:{color:gs.map(g=>colorMap[g.group]||'#7b8ec8'), opacity:0.45},
+       text:gs.map(g=>`${g.median.toFixed(2)}x`), textposition:'outside',
+       hovertemplate:'<b>%{y}</b><br>Median: %{x:.2f}x<extra></extra>' },
+    { type:'scatter', mode:'lines', name:'1x (parity)', x:[0,14], y:[1,1],
+       line:{color:'#ffffff',dash:'dot',width:1.5} },
+  ], {
+    ...layout_base, barmode:'group',
+    title:{text:title, font:{size:13,color:'#d0dcff'}},
+    xaxis:{...layout_base.xaxis, title:'UL / Legacy ratio', range:[0,14]},
+    yaxis:{...layout_base.yaxis, automargin:true},
+    margin:{l:220,r:80,t:40,b:50}, height:380,
+  }, cfg);
+}
+
+function makeScatter(data, divId, title) {
+  const groups = [...new Set(data.scatter.map(d=>d.group))];
+  const traces = groups.map(grp => {
+    const pts = data.scatter.filter(d=>d.group===grp);
+    return {
+      type:'scatter', mode:'markers', name:grp,
+      x:pts.map(d=>d.x), y:pts.map(d=>d.y),
+      marker:{ color:colorMap[grp]||'#7b8ec8',
+        size:pts.map(d=>Math.max(6,Math.min(20,4+Math.sqrt(d.starts||1)*0.5))),
+        opacity:0.8, line:{color:'rgba(0,0,0,0.3)',width:1} },
+      customdata:pts.map(d=>[d.game,d.event,d.ratio,d.starts]),
+      hovertemplate:'<b>%{customdata[1]}</b><br>game: %{customdata[0]}<br>'+
+        'Legacy: %{x:.4f}<br>UL: %{y:.4f}<br>Ratio: <b>%{customdata[2]:.2f}x</b><br>UL starts: %{customdata[3]}<extra></extra>',
+    };
+  });
+  const maxV = Math.max(...data.scatter.map(d=>Math.max(d.x,d.y)));
+  traces.push({type:'scatter',mode:'lines',name:'y=x (parity)',x:[0,maxV*1.05],y:[0,maxV*1.05],line:{color:'#ffffff',width:1.5,dash:'dot'},hoverinfo:'none'});
+  traces.push({type:'scatter',mode:'lines',name:'y=2x (2x over-bid)',x:[0,maxV*1.05],y:[0,maxV*2.1],line:{color:'#ff8c42',width:1,dash:'dash'},hoverinfo:'none'});
+  traces.push({type:'scatter',mode:'lines',name:'y=0.5x (2x under-bid)',x:[0,maxV*1.05],y:[0,maxV*0.525],line:{color:'#48cae4',width:1,dash:'dash'},hoverinfo:'none'});
+  Plotly.newPlot(divId, traces, {
+    ...layout_base, title:{text:title,font:{size:13,color:'#d0dcff'}},
+    xaxis:{...layout_base.xaxis,title:'Legacy avg_pred',rangemode:'tozero'},
+    yaxis:{...layout_base.yaxis,title:'UL avg_pred',rangemode:'tozero'}, height:560,
+  }, cfg);
+}
+
+function makeTable(data, divId) {
+  const rows = data.top30;
+  const maxRatio = Math.max(...rows.map(r=>r.ratio));
+  const badgeClass = r => {
+    if(r>=5) return 'badge badge-red';
+    if(r>=3) return 'badge badge-orange';
+    if(r>=2) return 'badge badge-yellow';
+    if(r>=1) return 'badge badge-green';
+    return 'badge badge-teal';
+  };
+  let html = `<table><thead><tr>
+    <th>#</th><th>Campaign ID</th><th>Game ID</th><th>SDK Event</th>
+    <th>UL Pred</th><th>Legacy Pred</th><th>Ratio</th><th>UL Starts</th><th>Legacy Starts</th><th>Group</th>
+  </tr></thead><tbody>`;
+  rows.forEach((r,i) => {
+    const barW = Math.round((r.ratio/maxRatio)*100);
+    const startsColor = r.ul_starts>=1000?'#6bffaa':r.ul_starts<10?'#ff6b6b':'#e8eaf0';
+    html += `<tr>
+      <td>${i+1}</td>
+      <td style="font-family:monospace;font-size:0.75rem;color:#8ba0c4">${r.campaign_id.slice(-8)}</td>
+      <td>${r.target_game_id}</td>
+      <td style="font-family:monospace;font-size:0.78rem">${r.sdk_event_name||'<em style="color:#555">(empty)</em>'}</td>
+      <td>${r.ul_pred.toFixed(4)}</td>
+      <td style="color:#8ba0c4">${r.legacy_pred.toFixed(4)}</td>
+      <td><span class="${badgeClass(r.ratio)}">${r.ratio.toFixed(2)}x</span><span class="ratio-bar" style="width:${barW}px"></span></td>
+      <td style="color:${startsColor}">${r.ul_starts.toLocaleString()}</td>
+      <td style="color:#6a7a9a">${r.legacy_starts.toLocaleString()}</td>
+      <td><span style="color:#90b4ff;font-size:0.78rem">${r.group}</span></td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  document.getElementById(divId).innerHTML = html;
+}
+
+function makeGroupDetail(data, divId) {
+  const gs = data.group_summary.slice().sort((a,b)=>b.avg-a.avg);
+  const scatter = data.scatter;
+  const traces = gs.map(g => {
+    const pts = scatter.filter(d=>d.group===g.group);
+    return { type:'box', name:g.group, y:pts.map(d=>d.ratio),
+      marker:{color:colorMap[g.group]||'#7b8ec8',size:4},
+      line:{color:colorMap[g.group]||'#7b8ec8'},
+      fillcolor:(colorMap[g.group]||'#7b8ec8')+'33', boxmean:'sd',
+      hovertemplate:'%{y:.2f}x<extra>%{fullData.name}</extra>' };
+  });
+  Plotly.newPlot(divId, [
+    ...traces,
+    { type:'scatter',mode:'lines',name:'y=1x (parity)',showlegend:true,
+       x:[gs[0].group,gs[gs.length-1].group],y:[1,1],line:{color:'#ffffff',width:1.5,dash:'dot'} },
+    { type:'scatter',mode:'lines',name:'y=2x threshold',showlegend:true,
+       x:[gs[0].group,gs[gs.length-1].group],y:[2,2],line:{color:'#ff8c42',width:1.5,dash:'dash'} },
+  ], {
+    ...layout_base, height:480, showlegend:true,
+    title:{text:'UL/Legacy Ratio per Event Group (box=IQR, dot=mean±sd)',font:{size:13,color:'#d0dcff'}},
+    xaxis:{...layout_base.xaxis,title:'Event Group'},
+    yaxis:{...layout_base.yaxis,title:'UL / Legacy ratio',rangemode:'tozero'},
+  }, cfg);
+}
+
+// Render BHV charts
+makeHistogram(DATA_BHV, 'chart-histogram-bhv', `UL / BHV Ratio Distribution (${DATA_BHV.stats.total} combos, live 10% traffic)`);
+makeGroupBar(DATA_BHV, 'chart-group-bar-bhv', 'Avg & Median Ratio by Event Group — vs BHV');
+makeScatter(DATA_BHV, 'chart-scatter-bhv', 'UL Prediction vs BHV Prediction — bubble size = UL start count');
+makeTable(DATA_BHV, 'table-top30-bhv');
+makeGroupDetail(DATA_BHV, 'chart-group-detail-bhv');
+
+// Render CTX charts
+makeHistogram(DATA_CTX, 'chart-histogram-ctx', `UL / CTX Ratio Distribution (${DATA_CTX.stats.total} combos, live 10% traffic)`);
+makeGroupBar(DATA_CTX, 'chart-group-bar-ctx', 'Avg & Median Ratio by Event Group — vs CTX');
+makeScatter(DATA_CTX, 'chart-scatter-ctx', 'UL Prediction vs CTX Prediction — bubble size = UL start count');
+makeTable(DATA_CTX, 'table-top30-ctx');
+
+// Shadow vs Live comparison
+Plotly.newPlot('chart-compare', [
+  { type:'histogram', name:'Shadow 2026-05-22 (gating+calib, offline)',
+     x:SHADOW_0522.all_ratios, xbins:{start:0,end:14,size:0.25},
+     marker:{color:'#ff8c42',opacity:0.6},
+     hovertemplate:'Ratio: %{x:.2f}x<br>Count: %{y}<extra>Shadow 05-22</extra>' },
+  { type:'histogram', name:'Live 10% 2026-05-27 vs BHV',
+     x:DATA_BHV.all_ratios, xbins:{start:0,end:14,size:0.25},
+     marker:{color:'#52b788',opacity:0.7},
+     hovertemplate:'Ratio: %{x:.2f}x<br>Count: %{y}<extra>Live BHV 05-27</extra>' },
+  { type:'histogram', name:'Live 10% 2026-05-27 vs CTX',
+     x:DATA_CTX.all_ratios, xbins:{start:0,end:14,size:0.25},
+     marker:{color:'#48cae4',opacity:0.5},
+     hovertemplate:'Ratio: %{x:.2f}x<br>Count: %{y}<extra>Live CTX 05-27</extra>' },
+  { type:'scatter',mode:'lines',name:'1x (parity)',x:[1,1],y:[0,120],line:{color:'#ffffff',width:1.5,dash:'dot'} },
+  { type:'scatter',mode:'lines',name:'2x threshold',x:[2,2],y:[0,120],line:{color:'#ff4444',width:1,dash:'dash'} },
+], {
+  ...layout_base, barmode:'overlay', height:480,
+  title:{text:'Shadow vs Live: UL/Legacy Ratio Distribution — live traffic tighter around 1x',font:{size:13,color:'#d0dcff'}},
+  xaxis:{...layout_base.xaxis,title:'UL / Legacy ratio',range:[0,8]},
+  yaxis:{...layout_base.yaxis,title:'Number of combos'},
+  annotations:[
+    {x:1.04,y:90,text:'Shadow median: 1.04x',showarrow:true,arrowhead:2,ax:60,ay:-20,font:{color:'#ff8c42',size:11},arrowcolor:'#ff8c42'},
+    {x:0.96,y:100,text:'Live BHV median: 0.96x',showarrow:true,arrowhead:2,ax:-60,ay:-20,font:{color:'#52b788',size:11},arrowcolor:'#52b788'},
+    {x:0.95,y:85,text:'Live CTX median: 0.95x',showarrow:true,arrowhead:2,ax:-80,ay:20,font:{color:'#48cae4',size:11},arrowcolor:'#48cae4'},
+  ]
+}, cfg);
+
+
+// ═══════════════════════════════════════════════════════════
+// TOP SPENDER ANALYSIS
+// ═══════════════════════════════════════════════════════════
+const TS_BHV = [{"rank":1,"campaign_id":"682ef0af34b7755c2c42ebc0","game_id":"500201983","event":"eventA","group":"Other","ul_pred":0.1386,"legacy_pred":0.2912,"ratio":0.48,"ul_starts":1476,"legacy_starts":116044,"legacy_model":"BHV"},{"rank":2,"campaign_id":"69fb68379b6f4e8705d4f8e7","game_id":"500219388","event":"segment_lambdas_first_offer_reconciled","group":"Other","ul_pred":0.2626,"legacy_pred":0.1605,"ratio":1.64,"ul_starts":32388,"legacy_starts":8239,"legacy_model":"BHV"},{"rank":3,"campaign_id":"69ad297bcfcb2d990be2cb13","game_id":"500253218","event":"onlinetime_30m","group":"Other","ul_pred":0.4134,"legacy_pred":0.4458,"ratio":0.93,"ul_starts":6476,"legacy_starts":34925,"legacy_model":"BHV"},{"rank":4,"campaign_id":"66e02f7521f1ca90e54c43b4","game_id":"500199981","event":"","group":"VIP/wildcard-like","ul_pred":0.2262,"legacy_pred":0.3676,"ratio":0.62,"ul_starts":17420,"legacy_starts":191098,"legacy_model":"BHV"},{"rank":5,"campaign_id":"69c247694880b3feea8a4cf1","game_id":"500256774","event":"active_1days_retention","group":"Retention","ul_pred":0.4134,"legacy_pred":0.3487,"ratio":1.19,"ul_starts":10384,"legacy_starts":3469,"legacy_model":"BHV"},{"rank":6,"campaign_id":"6975afe7b80b8bc88b874cd0","game_id":"500199981","event":"grt_7d_level40_notir","group":"GRT events","ul_pred":0.1946,"legacy_pred":0.2727,"ratio":0.71,"ul_starts":4391,"legacy_starts":27299,"legacy_model":"BHV"},{"rank":7,"campaign_id":"69c6634edb31b7a2f84b8b7b","game_id":"500201983","event":"eventa2","group":"Other","ul_pred":0.1207,"legacy_pred":0.1873,"ratio":0.64,"ul_starts":324,"legacy_starts":26740,"legacy_model":"BHV"},{"rank":8,"campaign_id":"69df7f207345a664d3ab7330","game_id":"500253218","event":"active_1days_retention","group":"Retention","ul_pred":0.4425,"legacy_pred":0.4068,"ratio":1.09,"ul_starts":6693,"legacy_starts":18092,"legacy_model":"BHV"},{"rank":9,"campaign_id":"6940075904e1d9fbadb48202","game_id":"500193586","event":"adjustiosrevenuereachedmin4","group":"Other","ul_pred":0.1397,"legacy_pred":0.1838,"ratio":0.76,"ul_starts":77,"legacy_starts":6535,"legacy_model":"BHV"},{"rank":10,"campaign_id":"69f1b477b1c1fe2e1f15b144","game_id":"500255340","event":"tlevelplayed","group":"tlevelplayed","ul_pred":0.3186,"legacy_pred":0.295,"ratio":1.08,"ul_starts":492,"legacy_starts":2290,"legacy_model":"BHV"},{"rank":11,"campaign_id":"6a02e080704a2f8120251f81","game_id":"500257910","event":"leanappautologinsuccess","group":"Other","ul_pred":0.0497,"legacy_pred":0.0898,"ratio":0.55,"ul_starts":3,"legacy_starts":2412,"legacy_model":"BHV"},{"rank":12,"campaign_id":"6931b61dcfdfa2a45e56ba43","game_id":"500219388","event":"segment_lambdas_first_offer_reconciled","group":"Other","ul_pred":0.1715,"legacy_pred":0.1132,"ratio":1.51,"ul_starts":4106,"legacy_starts":2696,"legacy_model":"BHV"},{"rank":14,"campaign_id":"692fca70efecbd1ee241f0d0","game_id":"500093311","event":"reach_viplv2","group":"VIP/wildcard-like","ul_pred":0.1351,"legacy_pred":0.1743,"ratio":0.77,"ul_starts":13,"legacy_starts":17102,"legacy_model":"BHV"},{"rank":15,"campaign_id":"6a0701e9e7b672dabeffc3a4","game_id":"500201983","event":"eventa2","group":"Other","ul_pred":0.1065,"legacy_pred":0.2107,"ratio":0.51,"ul_starts":42,"legacy_starts":31437,"legacy_model":"BHV"},{"rank":16,"campaign_id":"689456f2931b475d53e44285","game_id":"500022328","event":"purchase_ftu","group":"Other","ul_pred":0.1003,"legacy_pred":0.1896,"ratio":0.53,"ul_starts":907,"legacy_starts":1646,"legacy_model":"BHV"},{"rank":17,"campaign_id":"67c0180663814b4513a40b82","game_id":"500196051","event":"grt_7d_ltv_25p","group":"GRT events","ul_pred":0.2688,"legacy_pred":0.2272,"ratio":1.18,"ul_starts":17013,"legacy_starts":6481,"legacy_model":"BHV"},{"rank":18,"campaign_id":"698ea8c634c26735da93b4f4","game_id":"500247636","event":"tlevelplayed","group":"tlevelplayed","ul_pred":0.2566,"legacy_pred":0.2564,"ratio":1.0,"ul_starts":720,"legacy_starts":1974,"legacy_model":"BHV"},{"rank":20,"campaign_id":"699e79568ee292cc89bf2a8a","game_id":"500256774","event":"onlinetime_60m","group":"Other","ul_pred":0.3141,"legacy_pred":0.3369,"ratio":0.93,"ul_starts":2738,"legacy_starts":2872,"legacy_model":"BHV"}];
+const TS_CTX = [{"rank":1,"campaign_id":"682ef0af34b7755c2c42ebc0","game_id":"500201983","event":"eventA","group":"Other","ul_pred":0.1386,"legacy_pred":0.1563,"ratio":0.89,"ul_starts":1476,"legacy_starts":18218,"legacy_model":"CTX"},{"rank":2,"campaign_id":"69fb68379b6f4e8705d4f8e7","game_id":"500219388","event":"segment_lambdas_first_offer_reconciled","group":"Other","ul_pred":0.2626,"legacy_pred":0.1394,"ratio":1.88,"ul_starts":32388,"legacy_starts":26906,"legacy_model":"CTX"},{"rank":3,"campaign_id":"69ad297bcfcb2d990be2cb13","game_id":"500253218","event":"onlinetime_30m","group":"Other","ul_pred":0.4134,"legacy_pred":0.4623,"ratio":0.89,"ul_starts":6476,"legacy_starts":9792,"legacy_model":"CTX"},{"rank":4,"campaign_id":"66e02f7521f1ca90e54c43b4","game_id":"500199981","event":"","group":"VIP/wildcard-like","ul_pred":0.2262,"legacy_pred":0.3844,"ratio":0.59,"ul_starts":17420,"legacy_starts":70083,"legacy_model":"CTX"},{"rank":5,"campaign_id":"69c247694880b3feea8a4cf1","game_id":"500256774","event":"active_1days_retention","group":"Retention","ul_pred":0.4134,"legacy_pred":0.4122,"ratio":1.0,"ul_starts":10384,"legacy_starts":14522,"legacy_model":"CTX"},{"rank":6,"campaign_id":"6975afe7b80b8bc88b874cd0","game_id":"500199981","event":"grt_7d_level40_notir","group":"GRT events","ul_pred":0.1946,"legacy_pred":0.2798,"ratio":0.7,"ul_starts":4391,"legacy_starts":12552,"legacy_model":"CTX"},{"rank":7,"campaign_id":"69c6634edb31b7a2f84b8b7b","game_id":"500201983","event":"eventa2","group":"Other","ul_pred":0.1207,"legacy_pred":0.1473,"ratio":0.82,"ul_starts":324,"legacy_starts":7792,"legacy_model":"CTX"},{"rank":8,"campaign_id":"69df7f207345a664d3ab7330","game_id":"500253218","event":"active_1days_retention","group":"Retention","ul_pred":0.4425,"legacy_pred":0.4211,"ratio":1.05,"ul_starts":6693,"legacy_starts":5113,"legacy_model":"CTX"},{"rank":9,"campaign_id":"6940075904e1d9fbadb48202","game_id":"500193586","event":"adjustiosrevenuereachedmin4","group":"Other","ul_pred":0.1397,"legacy_pred":0.1427,"ratio":0.98,"ul_starts":77,"legacy_starts":2637,"legacy_model":"CTX"},{"rank":10,"campaign_id":"69f1b477b1c1fe2e1f15b144","game_id":"500255340","event":"tlevelplayed","group":"tlevelplayed","ul_pred":0.3186,"legacy_pred":0.3891,"ratio":0.82,"ul_starts":492,"legacy_starts":11822,"legacy_model":"CTX"},{"rank":11,"campaign_id":"6a02e080704a2f8120251f81","game_id":"500257910","event":"leanappautologinsuccess","group":"Other","ul_pred":0.0497,"legacy_pred":0.0484,"ratio":1.03,"ul_starts":3,"legacy_starts":9,"legacy_model":"CTX"},{"rank":12,"campaign_id":"6931b61dcfdfa2a45e56ba43","game_id":"500219388","event":"segment_lambdas_first_offer_reconciled","group":"Other","ul_pred":0.1715,"legacy_pred":0.1116,"ratio":1.54,"ul_starts":4106,"legacy_starts":10812,"legacy_model":"CTX"},{"rank":14,"campaign_id":"692fca70efecbd1ee241f0d0","game_id":"500093311","event":"reach_viplv2","group":"VIP/wildcard-like","ul_pred":0.1351,"legacy_pred":0.1816,"ratio":0.74,"ul_starts":13,"legacy_starts":7589,"legacy_model":"CTX"},{"rank":15,"campaign_id":"6a0701e9e7b672dabeffc3a4","game_id":"500201983","event":"eventa2","group":"Other","ul_pred":0.1065,"legacy_pred":0.1426,"ratio":0.75,"ul_starts":42,"legacy_starts":12594,"legacy_model":"CTX"},{"rank":16,"campaign_id":"689456f2931b475d53e44285","game_id":"500022328","event":"purchase_ftu","group":"Other","ul_pred":0.1003,"legacy_pred":0.17,"ratio":0.59,"ul_starts":907,"legacy_starts":6735,"legacy_model":"CTX"},{"rank":17,"campaign_id":"67c0180663814b4513a40b82","game_id":"500196051","event":"grt_7d_ltv_25p","group":"GRT events","ul_pred":0.2688,"legacy_pred":0.2467,"ratio":1.09,"ul_starts":17013,"legacy_starts":9836,"legacy_model":"CTX"},{"rank":18,"campaign_id":"698ea8c634c26735da93b4f4","game_id":"500247636","event":"tlevelplayed","group":"tlevelplayed","ul_pred":0.2566,"legacy_pred":0.3505,"ratio":0.73,"ul_starts":720,"legacy_starts":9357,"legacy_model":"CTX"},{"rank":20,"campaign_id":"699e79568ee292cc89bf2a8a","game_id":"500256774","event":"onlinetime_60m","group":"Other","ul_pred":0.3141,"legacy_pred":0.3794,"ratio":0.83,"ul_starts":2738,"legacy_starts":10400,"legacy_model":"CTX"}];
+const TS_SCATTER_BHV = [{"x":0.2912,"y":0.1386,"ratio":0.48,"game":"500201983","event":"eventA","group":"Other","starts":1476,"rank":1,"campaign_id":"682ef0af34b7755c2c42ebc0","legacy_model":"BHV"},{"x":0.1605,"y":0.2626,"ratio":1.64,"game":"500219388","event":"segment_lambdas_first_offer_reconciled","group":"Other","starts":32388,"rank":2,"campaign_id":"69fb68379b6f4e8705d4f8e7","legacy_model":"BHV"},{"x":0.4458,"y":0.4134,"ratio":0.93,"game":"500253218","event":"onlinetime_30m","group":"Other","starts":6476,"rank":3,"campaign_id":"69ad297bcfcb2d990be2cb13","legacy_model":"BHV"},{"x":0.3676,"y":0.2262,"ratio":0.62,"game":"500199981","event":"","group":"VIP/wildcard-like","starts":17420,"rank":4,"campaign_id":"66e02f7521f1ca90e54c43b4","legacy_model":"BHV"},{"x":0.3487,"y":0.4134,"ratio":1.19,"game":"500256774","event":"active_1days_retention","group":"Retention","starts":10384,"rank":5,"campaign_id":"69c247694880b3feea8a4cf1","legacy_model":"BHV"},{"x":0.2727,"y":0.1946,"ratio":0.71,"game":"500199981","event":"grt_7d_level40_notir","group":"GRT events","starts":4391,"rank":6,"campaign_id":"6975afe7b80b8bc88b874cd0","legacy_model":"BHV"},{"x":0.1873,"y":0.1207,"ratio":0.64,"game":"500201983","event":"eventa2","group":"Other","starts":324,"rank":7,"campaign_id":"69c6634edb31b7a2f84b8b7b","legacy_model":"BHV"},{"x":0.4068,"y":0.4425,"ratio":1.09,"game":"500253218","event":"active_1days_retention","group":"Retention","starts":6693,"rank":8,"campaign_id":"69df7f207345a664d3ab7330","legacy_model":"BHV"},{"x":0.1838,"y":0.1397,"ratio":0.76,"game":"500193586","event":"adjustiosrevenuereachedmin4","group":"Other","starts":77,"rank":9,"campaign_id":"6940075904e1d9fbadb48202","legacy_model":"BHV"},{"x":0.295,"y":0.3186,"ratio":1.08,"game":"500255340","event":"tlevelplayed","group":"tlevelplayed","starts":492,"rank":10,"campaign_id":"69f1b477b1c1fe2e1f15b144","legacy_model":"BHV"},{"x":0.0898,"y":0.0497,"ratio":0.55,"game":"500257910","event":"leanappautologinsuccess","group":"Other","starts":3,"rank":11,"campaign_id":"6a02e080704a2f8120251f81","legacy_model":"BHV"},{"x":0.1132,"y":0.1715,"ratio":1.51,"game":"500219388","event":"segment_lambdas_first_offer_reconciled","group":"Other","starts":4106,"rank":12,"campaign_id":"6931b61dcfdfa2a45e56ba43","legacy_model":"BHV"},{"x":0.1743,"y":0.1351,"ratio":0.77,"game":"500093311","event":"reach_viplv2","group":"VIP/wildcard-like","starts":13,"rank":14,"campaign_id":"692fca70efecbd1ee241f0d0","legacy_model":"BHV"},{"x":0.2107,"y":0.1065,"ratio":0.51,"game":"500201983","event":"eventa2","group":"Other","starts":42,"rank":15,"campaign_id":"6a0701e9e7b672dabeffc3a4","legacy_model":"BHV"},{"x":0.1896,"y":0.1003,"ratio":0.53,"game":"500022328","event":"purchase_ftu","group":"Other","starts":907,"rank":16,"campaign_id":"689456f2931b475d53e44285","legacy_model":"BHV"},{"x":0.2272,"y":0.2688,"ratio":1.18,"game":"500196051","event":"grt_7d_ltv_25p","group":"GRT events","starts":17013,"rank":17,"campaign_id":"67c0180663814b4513a40b82","legacy_model":"BHV"},{"x":0.2564,"y":0.2566,"ratio":1.0,"game":"500247636","event":"tlevelplayed","group":"tlevelplayed","starts":720,"rank":18,"campaign_id":"698ea8c634c26735da93b4f4","legacy_model":"BHV"},{"x":0.3369,"y":0.3141,"ratio":0.93,"game":"500256774","event":"onlinetime_60m","group":"Other","starts":2738,"rank":20,"campaign_id":"699e79568ee292cc89bf2a8a","legacy_model":"BHV"}];
+const TS_RATIOS_BHV = [0.48,0.51,0.53,0.55,0.62,0.64,0.71,0.76,0.77,0.93,0.93,1.0,1.08,1.09,1.18,1.19,1.51,1.64];
+const TS_RATIOS_CTX = [0.59,0.59,0.7,0.73,0.74,0.75,0.82,0.82,0.83,0.89,0.89,0.98,1.0,1.03,1.05,1.09,1.54,1.88];
+
+// Scatter: UL pred vs BHV pred
+(function() {
+  const colorByRatio = r => {
+    if (r >= 2)   return '#ff4444';
+    if (r >= 1.5) return '#ff8c42';
+    if (r >= 1.2) return '#ffd166';
+    if (r >= 0.8) return '#6bffaa';
+    if (r >= 0.5) return '#48cae4';
+    return '#b5838d';
+  };
+  const pts = TS_SCATTER_BHV;
+  const maxV = Math.max(...pts.map(d => Math.max(d.x, d.y))) * 1.15;
+  Plotly.newPlot('chart-ts-scatter-bhv', [
+    {
+      type: 'scatter', mode: 'markers', name: 'Top spender combos',
+      x: pts.map(d => d.x), y: pts.map(d => d.y),
+      marker: {
+        color: pts.map(d => colorByRatio(d.ratio)),
+        size: pts.map(d => Math.max(8, Math.min(22, 5 + Math.sqrt(d.starts || 1) * 0.3))),
+        opacity: 0.85, line: {color: 'rgba(0,0,0,0.4)', width: 1},
+      },
+      customdata: pts.map(d => [d.rank, d.game, d.event, d.ratio, d.starts]),
+      hovertemplate: '<b>#%{customdata[0]} %{customdata[2]}</b><br>' +
+        'game: %{customdata[1]}<br>' +
+        'BHV: %{x:.4f}<br>UL: %{y:.4f}<br>' +
+        'Ratio: <b>%{customdata[3]:.2f}x</b><br>UL starts: %{customdata[4]}<extra></extra>',
+    },
+    {type:'scatter',mode:'lines',name:'y=x (parity)',x:[0,maxV],y:[0,maxV],line:{color:'#ffffff',width:1.5,dash:'dot'},hoverinfo:'none'},
+    {type:'scatter',mode:'lines',name:'y=1.5x',x:[0,maxV],y:[0,maxV*1.5],line:{color:'#ffd166',width:1,dash:'dash'},hoverinfo:'none'},
+    {type:'scatter',mode:'lines',name:'y=0.5x',x:[0,maxV],y:[0,maxV*0.5],line:{color:'#48cae4',width:1,dash:'dash'},hoverinfo:'none'},
+  ], {
+    ...layout_base,
+    title: {text: 'Top Spenders: UL vs BHV Prediction — bubble=UL starts, color=ratio zone', font: {size: 13, color: '#d0dcff'}},
+    xaxis: {...layout_base.xaxis, title: 'BHV avg_pred', rangemode: 'tozero'},
+    yaxis: {...layout_base.yaxis, title: 'UL avg_pred', rangemode: 'tozero'},
+    height: 460,
+  }, cfg);
+})();
+
+// Ratio bar chart for top spenders (BHV + CTX side-by-side)
+(function() {
+  const ranks = TS_BHV.map(r => '#' + r.rank + ' ' + (r.event || '(empty)').slice(0,20));
+  const ratioColor = v => v >= 1.5 ? '#ff8c42' : v >= 1.2 ? '#ffd166' : v >= 0.8 ? '#6bffaa' : '#48cae4';
+  const ctxMap = {};
+  TS_CTX.forEach(r => { ctxMap[r.rank] = r.ratio; });
+  Plotly.newPlot('chart-ts-hist', [
+    {
+      type: 'bar', orientation: 'h', name: 'vs BHV',
+      x: TS_BHV.map(r => r.ratio),
+      y: ranks,
+      marker: { color: TS_BHV.map(r => ratioColor(r.ratio)) },
+      text: TS_BHV.map(r => r.ratio.toFixed(2) + 'x'),
+      textposition: 'outside',
+      hovertemplate: '#%{y}<br>BHV ratio: <b>%{x:.2f}x</b><extra></extra>',
+    },
+    {
+      type: 'bar', orientation: 'h', name: 'vs CTX',
+      x: TS_CTX.map(r => r.ratio),
+      y: TS_CTX.map(r => '#' + r.rank + ' ' + (r.event || '(empty)').slice(0,20)),
+      marker: { color: TS_CTX.map(r => ratioColor(r.ratio)), opacity: 0.5 },
+      text: TS_CTX.map(r => r.ratio.toFixed(2) + 'x'),
+      textposition: 'outside',
+      hovertemplate: '#%{y}<br>CTX ratio: <b>%{x:.2f}x</b><extra></extra>',
+    },
+    {type:'scatter',mode:'lines',name:'1x parity',x:[1,1],y:[ranks[0],ranks[ranks.length-1]],line:{color:'#ffffff',dash:'dot',width:1.5}},
+    {type:'scatter',mode:'lines',name:'2x threshold',x:[2,2],y:[ranks[0],ranks[ranks.length-1]],line:{color:'#ff4444',dash:'dash',width:1}},
+  ], {
+    ...layout_base, barmode: 'group', height: 560,
+    title: {text: 'Top Spenders: UL/Legacy Ratio (sorted by spend rank)', font: {size: 13, color: '#d0dcff'}},
+    xaxis: {...layout_base.xaxis, title: 'UL / Legacy ratio', range: [0, 2.2]},
+    yaxis: {...layout_base.yaxis, automargin: true},
+    margin: {l: 220, r: 80, t: 40, b: 50},
+  }, cfg);
+})();
+
+// Top spender table BHV
+(function() {
+  const badgeClass = r => {
+    if (r >= 2)   return 'badge badge-red';
+    if (r >= 1.5) return 'badge badge-orange';
+    if (r >= 1.2) return 'badge badge-yellow';
+    if (r >= 0.8) return 'badge badge-green';
+    return 'badge badge-teal';
+  };
+  const ratioNote = r => {
+    if (r >= 1.5) return '<span style="color:#ff8c42;font-size:0.75rem">over-bid</span>';
+    if (r >= 1.2) return '<span style="color:#ffd166;font-size:0.75rem">slight over</span>';
+    if (r >= 0.8) return '<span style="color:#6bffaa;font-size:0.75rem">near parity</span>';
+    if (r >= 0.5) return '<span style="color:#48cae4;font-size:0.75rem">under-bid</span>';
+    return '<span style="color:#b5838d;font-size:0.75rem">strong under</span>';
+  };
+  let html = `<table><thead><tr>
+    <th>Spend Rank</th><th>Campaign ID</th><th>Game ID</th><th>SDK Event</th>
+    <th>Group</th><th>UL Pred</th><th>BHV Pred</th><th>Ratio</th>
+    <th>Assessment</th><th>UL Starts</th><th>BHV Starts</th>
+  </tr></thead><tbody>`;
+  TS_BHV.forEach(r => {
+    const startsColor = r.ul_starts >= 1000 ? '#6bffaa' : r.ul_starts < 20 ? '#ff6b6b' : '#ffcc6b';
+    html += `<tr>
+      <td style="font-weight:700;color:#e040fb">#${r.rank}</td>
+      <td style="font-family:monospace;font-size:0.75rem;color:#8ba0c4">${r.campaign_id.slice(-8)}</td>
+      <td>${r.game_id}</td>
+      <td style="font-family:monospace;font-size:0.78rem">${r.event || '<em style="color:#555">(empty)</em>'}</td>
+      <td><span style="color:#90b4ff;font-size:0.78rem">${r.group}</span></td>
+      <td>${r.ul_pred.toFixed(4)}</td>
+      <td style="color:#8ba0c4">${r.legacy_pred.toFixed(4)}</td>
+      <td><span class="${badgeClass(r.ratio)}">${r.ratio.toFixed(2)}x</span></td>
+      <td>${ratioNote(r.ratio)}</td>
+      <td style="color:${startsColor}">${r.ul_starts.toLocaleString()}</td>
+      <td style="color:#6a7a9a">${r.legacy_starts.toLocaleString()}</td>
+    </tr>`;
+  });
+  ['696b7b871e4b898ea5ddbdb0','69d613e7b27c8de436b59094'].forEach((cid, i) => {
+    const rank = [13, 19][i];
+    html += `<tr style="opacity:0.45">
+      <td style="font-weight:700;color:#e040fb">#${rank}</td>
+      <td style="font-family:monospace;font-size:0.75rem;color:#555">${cid.slice(-8)}</td>
+      <td colspan="9" style="color:#555;font-style:italic">No UL traffic in 10% slice — campaign may be gated or pending ramp-up</td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  document.getElementById('table-ts-bhv').innerHTML = html;
+})();
+
+// Top spender table CTX
+(function() {
+  const badgeClass = r => {
+    if (r >= 2)   return 'badge badge-red';
+    if (r >= 1.5) return 'badge badge-orange';
+    if (r >= 1.2) return 'badge badge-yellow';
+    if (r >= 0.8) return 'badge badge-green';
+    return 'badge badge-teal';
+  };
+  let html = `<table><thead><tr>
+    <th>Spend Rank</th><th>Campaign ID</th><th>Game ID</th><th>SDK Event</th>
+    <th>Group</th><th>UL Pred</th><th>CTX Pred</th><th>Ratio vs CTX</th>
+    <th>UL Starts</th><th>CTX Starts</th>
+  </tr></thead><tbody>`;
+  TS_CTX.forEach(r => {
+    const startsColor = r.ul_starts >= 1000 ? '#6bffaa' : r.ul_starts < 20 ? '#ff6b6b' : '#ffcc6b';
+    html += `<tr>
+      <td style="font-weight:700;color:#e040fb">#${r.rank}</td>
+      <td style="font-family:monospace;font-size:0.75rem;color:#8ba0c4">${r.campaign_id.slice(-8)}</td>
+      <td>${r.game_id}</td>
+      <td style="font-family:monospace;font-size:0.78rem">${r.event || '<em style="color:#555">(empty)</em>'}</td>
+      <td><span style="color:#90b4ff;font-size:0.78rem">${r.group}</span></td>
+      <td>${r.ul_pred.toFixed(4)}</td>
+      <td style="color:#8ba0c4">${r.legacy_pred.toFixed(4)}</td>
+      <td><span class="${badgeClass(r.ratio)}">${r.ratio.toFixed(2)}x</span></td>
+      <td style="color:${startsColor}">${r.ul_starts.toLocaleString()}</td>
+      <td style="color:#6a7a9a">${r.legacy_starts.toLocaleString()}</td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  document.getElementById('table-ts-ctx').innerHTML = html;
+})();
+
+</script>
+</body>
+</html>
