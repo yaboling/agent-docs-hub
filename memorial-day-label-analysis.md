@@ -14,6 +14,10 @@
 
 > Baseline: May 11–24 | Focus: May 25 (Memorial Day) | Daily installs: 10.72M avg → 10.10M (−5.8%)
 
+**Executive Summary:** **IAP Rate** shows a consistent +5–6% uplift on Memorial Day (D1 and D3). While the **AdRev Rate** and **Retention Rate** remained flat, the **average AdRev amount** increased by 8.0–8.9%. This indicates that holiday leisure drives longer, higher-value sessions among engaged users rather than changing the baseline ad-engagement rate.
+
+**Model Impact & Action:** These label shifts reflect real, recurring seasonal user behavior — not data corruption or pipeline errors. The model is expected to naturally absorb and generalize this pattern over time as Memorial Day cohorts accumulate in training data. **No data filtering, blocking, or manual intervention is needed.** The corrupted row on May 10 (game 500227161, $8.74M IAP) is a separate issue and is documented in the anomaly investigation. **Recommended action: closely monitor** post-Memorial Day cohort performance in the next training cycle to confirm the model is correctly weighting the seasonal signal without overfitting to it.
+
 ---
 
 ### IAP
