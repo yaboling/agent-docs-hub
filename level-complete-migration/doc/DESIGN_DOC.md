@@ -53,8 +53,8 @@ Two labels are produced per row:
 
 | Label | Definition | Positive Rate |
 |---|---|---|
-| `prob_sdk_event_name_label` | `1.0` if user fired the specific campaign-targeted SDK event AND `app_event_w1 > 0`, else `0.0`. **Primary training target and bidding signal.** | ~7% (post-fix dataset) |
 | `label` | `app_event_w1 > 0` — any level complete within 7 days. Present in parquet but not used as a training target (LC auxiliary task removed). | ~38% (post-quality-filter) |
+| `prob_sdk_event_name_label` | `1.0` if user fired the specific campaign-targeted SDK event AND `app_event_w1 > 0`, else `0.0`. **Primary training target and bidding signal.** | ~7% (post-fix dataset) |
 
 **Joint distribution** (504M row dataset):
 
