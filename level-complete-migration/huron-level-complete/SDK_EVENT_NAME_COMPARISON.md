@@ -1,9 +1,92 @@
 # SDK Event Name Comparison: Huron vs Legacy
 
-**Date**: 2026-06-03
+**Date**: 2026-06-03 (updated 2026-06-05 — added campaigns_v3 three-way comparison)
 **Author**: Yabo Ling
 **Huron table**: `unity-data-prd.attribution_l2.mmp_primary_conversion_custom_outcome_join_v1alpha14_single_table_test`
 **Legacy table**: `unity-ads-dd-ds-dev-prd.yabo.ioj_v2_lc_d7_2026_03_11`
+**Campaign table**: `unity-data-ads-core-prd.ads_dimension_data.campaigns_v3`
+
+---
+
+## 0. Three-Table Processing Summary
+
+This section provides a side-by-side comparison of how each table handles `sdk_event_name` — the most critical thing to understand before joining them.
+
+| Property | Huron (`sdk_event_name_first_seen_arr_lc`) | Legacy IOJ (`sdk_event_name_array`) | campaigns_v3 (`sdk_event_names`) |
+|---|---|---|---|
+| **Role** | Observed MMP events post-install (label source) | Observed MMP events post-install (label source) | Targeted events set by advertiser (join key) |
+| **Casing** | **Original MMP casing** — no LOWER() applied | **LOWERCASED** — IOJ ETL applies `LOWER()` to all event names | **Original advertiser input** — no LOWER() applied |
+| **Trimming** | Unknown — not documented; assume no trim | Unknown — not documented | Unknown — not documented |
+| **Field type** | `REPEATED RECORD {sdk_event_name STRING, first_seen_at TIMESTAMP}` | `STRUCT<list ARRAY<STRUCT<element STRING>>>` (Parquet) | `ARRAY<STRING>` |
+| **Unnest syntax** | `UNNEST(sdk_event_name_first_seen_arr_lc) AS lc → lc.sdk_event_name` | `CROSS JOIN UNNEST(sdk_event_name_array.list) AS item → item.element` | Direct array field |
+| **Scope** | LC-classified events only (`_lc` suffix = Huron's LC taxonomy) | All targeted LC events for install | All `LEVEL_COMPLETE` campaign targets (with `archived_at IS NULL`) |
+| **Placeholder** | `_no_sdk_event_name` | `_no_sdk_event_name` | No placeholder — empty array means 0-event campaign (→ wildcard `"*"`) |
+| **Timestamp** | `first_seen_at` per event | None | None |
+| **Multi-event handling** | Array — all LC events fired | Array — all targeted events | Array — but pipeline collapses `size > 1` OR `size == 0` to wildcard `"*"` |
+
+### Concrete Examples: Same Game Across Three Tables
+
+These examples use confirmed event names from §4 (Huron vs Legacy casing audit) and the DESIGN_DOC prediction inflation analysis. They illustrate what you would see for the same `(game_id, sdk_event_name)` pair across all three systems.
+
+**Scenario A — Mixed-case event (JOIN BREAKS without normalization)**
+
+Assume game `500029823` has a campaign targeting `1stChatConnected`:
+
+| Table | Field | Raw value stored | After LOWER() |
+|---|---|---|---|
+| `campaigns_v3` | `sdk_event_names` | `["1stChatConnected"]` | `["1stchatconnected"]` |
+| Legacy IOJ | `sdk_event_name_array` | `["1stchatconnected"]` | `["1stchatconnected"]` ← already lowercased |
+| Huron | `sdk_event_name_first_seen_arr_lc` | `{sdk_event_name: "1stChatConnected", first_seen_at: ...}` | `"1stchatconnected"` |
+
+**Result of `array_contains(ioj_array, campaigns_v3_event)` without normalization**: `array_contains(["1stchatconnected"], "1stChatConnected")` → **FALSE** → label silently set to 0 even though the event fired.
+
+---
+
+**Scenario B — Already-lowercase event (JOIN works fine without normalization)**
+
+Assume game `500180883` has a campaign targeting `af_level_achieved`:
+
+| Table | Field | Raw value stored | After LOWER() |
+|---|---|---|---|
+| `campaigns_v3` | `sdk_event_names` | `["af_level_achieved"]` | `["af_level_achieved"]` |
+| Legacy IOJ | `sdk_event_name_array` | `["af_level_achieved"]` | `["af_level_achieved"]` |
+| Huron | `sdk_event_name_first_seen_arr_lc` | `{sdk_event_name: "af_level_achieved", first_seen_at: ...}` | `"af_level_achieved"` |
+
+**Result**: All three match case-insensitively AND case-sensitively — no issue. This is why the current pipeline "works" for the ~74% of events that are already all-lowercase.
+
+---
+
+**Scenario C — Multi-event campaign → wildcard (campaigns_v3 specifics matter)**
+
+Assume game `500247161` has one campaign targeting `["level_5", "level_10"]` (two events):
+
+| Table | Field | Raw value stored |
+|---|---|---|
+| `campaigns_v3` | `sdk_event_names` | `["level_5", "level_10"]` |
+| Datagen (after Stage 2 collapse) | `sdk_event_targeted` | `"*"` (because `size > 1`) |
+| Legacy IOJ | `sdk_event_name_array` | `["level_5", "level_10"]` (both stored) |
+| Huron | `sdk_event_name_first_seen_arr_lc` | `{sdk_event_name: "level_5", ...}, {sdk_event_name: "level_10", ...}` (both stored separately) |
+
+**Result**: The datagen wildcard collapse loses the distinction between `level_5` and `level_10` — the model trains as if any LC event counts for this game. The Huron and Legacy tables preserve both events individually, so a per-event label is constructable from those tables directly.
+
+---
+
+**Scenario D — Mixed-case campaign event (two campaigns, different advertisers)**
+
+From DESIGN_DOC.md A.3 (real production data):
+
+| Campaign ID | `campaigns_v3.sdk_event_names` | What appears as `prob_sdk_event_name` in training |
+|---|---|---|
+| `6825d515...` | `["eventW"]` | `"eventW"` |
+| `685e7277...` | `["eventw"]` | `"eventw"` |
+
+These are two different advertisers using the same base event name with different casing. The model treats them as **two different embedding lookup keys**: `{game_id}_eventW` vs `{game_id}_eventw`. Without LOWER() normalization, if a user fires `eventW` in Huron but the campaign targets `eventw`, the label join misses. And in the IOJ (which stores `eventw` after LOWER()), the `array_contains` against campaigns_v3 `"eventW"` would also fail.
+
+---
+
+### Casing Evidence for campaigns_v3
+
+campaigns_v3 is **not documented** as applying any normalization. The strongest evidence it preserves original case: in the UL model's online prediction logs (DESIGN_DOC.md A.3), `eventW` (campaign `6825d515...`) and `eventw` (campaign `685e7277...`) appear as **two distinct SDK event strings** for two different campaigns. These strings ultimately derive from `campaigns_v3.sdk_event_names`, meaning the pipeline did not lowercase them before embedding them as model features.
 
 ---
 
@@ -179,7 +262,99 @@ The debug table reveals the MMP event → Unity canonical event mapping:
 
 ---
 
-## 8. Implications for UL Model Training
+## 8. Three-Way Join Risk Analysis
+
+### 8.0 Pairwise Casing Compatibility
+
+| Join | Left | Right | Casing compatible? | Risk |
+|---|---|---|---|---|
+| campaigns_v3 → Huron | original case | original case | **Yes** (both original MMP) | Low — same source string if advertiser copied from MMP correctly |
+| campaigns_v3 → LC source data (current datagen) | original case (raw) | lowercased (raw) | **Yes — fixed in code** | `unified_cpe_datagen.py` lowercases campaigns_v3 events at Stage 2 AND lowercases the source array at Stage 3 before `array_contains` |
+| Huron → Legacy IOJ | original case | lowercased | **No** | HIGH — ~26% of events fail (already documented in §3–4) |
+
+### 8.1 Current UL Pipeline Behavior (campaigns_v3 → LC source data) — ALREADY CORRECT
+
+**The current production code (`unified_cpe_datagen.py`) already applies `LOWER()` on both sides of the join.** No fix is needed for the current `campaigns_v3` → LC data pipeline.
+
+**Stage 2** (line 653 in `unified_cpe_datagen.py`) — campaigns_v3 event names are lowercased:
+```python
+F.expr("transform(sdk_event_name_set, e -> lower(e))")
+```
+
+**Stage 3** (line 679–681) — the LC source `sdk_event_name_array` is also lowercased before `array_contains`:
+```python
+df = df.withColumn(
+    "sdk_event_name_array",
+    F.expr("transform(sdk_event_name_array, e -> lower(e))"),
+)
+```
+
+The `array_contains(sdk_event_name_array, sdk_event)` comparison at Stage 3 is therefore **case-safe**: both sides are lowercase before the check. Events like `1stChatConnected` from campaigns_v3 are lowercased to `1stchatconnected` before matching against the `sdk_event_name_array` which is also lowercased.
+
+**Additional correction**: the old `SDK_EVENT_NAME_MIGRATION.md` documented that multi-event campaigns (size > 1) collapse to wildcard `"*"`. The current code does NOT do this — it explodes each event as a separate entry (Path B):
+
+| Campaign size | Old documented behavior | Actual current behavior |
+|---|---|---|
+| 0 events | `"*"` | `"*"` |
+| 1 event | event name | event name |
+| >1 events | `"*"` (collapse) | each event becomes a separate array entry (explode) |
+
+**The casing risk remains for the Huron migration** (see §8.2 below), since Huron stores original-case events and the Huron pipeline is separate from `unified_cpe_datagen.py`.
+
+### 8.2 Proposed Join Strategy for Huron-Based Training
+
+When joining Huron events (original case) against campaigns_v3 targets (original case), normalization strategy:
+
+**Option A — Normalize everything to lowercase at join time** (recommended):
+
+```sql
+-- Step 1: Build campaign target vocab (lowercase)
+SELECT
+  CAST(game_id AS STRING) AS target_game_id,
+  campaignset_id,
+  ARRAY(SELECT LOWER(e) FROM UNNEST(sdk_event_names) AS e) AS sdk_event_name_set_lc
+FROM `unity-data-ads-core-prd.ads_dimension_data.campaigns_v3`
+WHERE app_event_conversion_type = 'LEVEL_COMPLETE'
+  AND archived_at IS NULL
+
+-- Step 2: Join Huron events (lowercased at join time)
+SELECT
+  h.*,
+  LOWER(lc.sdk_event_name) AS sdk_event_name_lc,
+  lc.first_seen_at
+FROM huron_table h,
+  UNNEST(sdk_event_name_first_seen_arr_lc) AS lc
+-- Then: LOWER(lc.sdk_event_name) IN UNNEST(sdk_event_name_set_lc) for label
+```
+
+**Option B — Normalize everything to lowercase at source** (alternative):
+
+Apply `LOWER()` in the datagen BQ query on both the campaigns_v3 `sdk_event_names` array and the Huron `sdk_event_name` field before any join. This makes the normalization explicit and permanent in the parquet output.
+
+**Option C — Use original case throughout** (not recommended):
+
+Requires that advertiser inputs in campaigns_v3 exactly match the MMP-reported strings in Huron. In practice there will be mismatches (typos, different MMP SDKs, advertiser-side vs server-side naming). This is fragile.
+
+### 8.3 Legacy IOJ ↔ campaigns_v3 Recommended Fix
+
+If continuing to use legacy IOJ for training labels and joining against campaigns_v3:
+
+```python
+# In datagen Stage 3 (unified_cpe_datagen.py):
+# Apply LOWER() to sdk_event_name_set before array_contains
+sdk_event_lc = F.lower(F.col("sdk_event"))
+sdk_event_array_lc = F.col("sdk_event_name_array")  # already lowercased in IOJ
+
+label_col = F.when(
+    (F.array_contains(sdk_event_array_lc, sdk_event_lc) | (sdk_event_lc == "*") | (sdk_event_lc == ""))
+    & (F.col("label") == 1),
+    1.0
+).otherwise(0.0)
+```
+
+---
+
+## 9. Implications for UL Model Training (updated)
 
 ### 8.1 Case Normalization Required
 
@@ -215,11 +390,14 @@ The `_lc` array is the correct field to use for LC model label construction:
 
 ---
 
-## 9. Open Questions
+## 10. Open Questions
 
 | Question | Priority | Owner |
 |---|---|---|
-| Does the UL training pipeline apply `LOWER()` when matching Huron event names to campaign targets? | Critical | Modeling team |
+| Does `campaigns_v3.sdk_event_names` apply any `LOWER()` or `TRIM()` normalization internally, or does it store raw advertiser input? | **Critical** | Data/Campaign team |
+| ~~Does the current UL datagen pipeline apply `LOWER()` when matching campaigns_v3 event names against LC source data?~~ **RESOLVED** — `unified_cpe_datagen.py` lowercases both campaigns_v3 (Stage 2, line 653) and the source array (Stage 3, line 679). Join is case-safe. | ~~Critical~~ CLOSED | — |
+| Does the Huron migration pipeline apply `LOWER()` when matching Huron event names (original case) to campaign targets from campaigns_v3? | Critical | Modeling team |
+| Are there leading/trailing spaces in `campaigns_v3.sdk_event_names` entries? (Advertiser UI inputs are prone to whitespace bugs) | High | Data/Campaign team |
 | Will the bridge table (`mmp_primary_conversion_outcome_join_v1`) be extended to cover Apr–May 2026? | High | Data/Attribution team |
 | Is the `_lc` classification in Huron equivalent to the legacy LC event taxonomy? Are there events legacy considers LC that Huron doesn't, or vice versa? | High | Huron/Attribution team |
 | What causes 273 legacy events to be absent from Huron even case-insensitively — are these from churned campaigns or events that Huron classifies differently? | Medium | Attribution team |
@@ -228,7 +406,45 @@ The `_lc` array is the correct field to use for LC model label construction:
 
 ---
 
-## 10. Query Reference
+## 11. Query Reference
+
+### campaigns_v3 — Active LC Campaigns with Normalized Event Names
+
+```sql
+-- Raw (original casing, as stored)
+SELECT
+  CAST(game_id AS STRING) AS target_game_id,
+  campaignset_id,
+  sdk_event_names AS sdk_event_name_set
+FROM `unity-data-ads-core-prd.ads_dimension_data.campaigns_v3`
+WHERE app_event_conversion_type = 'LEVEL_COMPLETE'
+  AND archived_at IS NULL
+
+-- Normalized (lowercase + trim — recommended for joins)
+SELECT
+  CAST(game_id AS STRING) AS target_game_id,
+  campaignset_id,
+  ARRAY(SELECT TRIM(LOWER(e)) FROM UNNEST(sdk_event_names) AS e WHERE e IS NOT NULL) AS sdk_event_name_set_lc
+FROM `unity-data-ads-core-prd.ads_dimension_data.campaigns_v3`
+WHERE app_event_conversion_type = 'LEVEL_COMPLETE'
+  AND archived_at IS NULL
+
+-- Check whether campaigns_v3 has case variation (run to confirm casing assumption)
+SELECT
+  e AS raw,
+  LOWER(e) AS lower,
+  e != LOWER(e) AS is_mixed_case,
+  COUNT(*) AS campaign_count
+FROM `unity-data-ads-core-prd.ads_dimension_data.campaigns_v3`,
+  UNNEST(sdk_event_names) AS e
+WHERE app_event_conversion_type = 'LEVEL_COMPLETE'
+  AND archived_at IS NULL
+  AND e IS NOT NULL
+GROUP BY 1, 2, 3
+HAVING is_mixed_case
+ORDER BY campaign_count DESC
+LIMIT 50
+```
 
 ### Correct UNNEST Syntax
 
@@ -243,6 +459,43 @@ WHERE partition_date = "2026-05-20"
 SELECT item.element AS sdk_event_name
 FROM `unity-ads-dd-ds-dev-prd.yabo.ioj_v2_lc_d7_2026_03_11`
 CROSS JOIN UNNEST(sdk_event_name_array.list) AS item
+```
+
+### Three-Way Vocabulary Comparison (Huron + Legacy + campaigns_v3)
+
+```sql
+WITH huron_vocab AS (
+  SELECT DISTINCT LOWER(TRIM(lc.sdk_event_name)) AS event_name_lc
+  FROM `unity-data-prd.attribution_l2.mmp_primary_conversion_custom_outcome_join_v1alpha14_single_table_test`,
+    UNNEST(sdk_event_name_first_seen_arr_lc) AS lc
+  WHERE partition_date BETWEEN "2026-04-25" AND "2026-05-23"
+    AND is_attributed = true
+    AND lc.sdk_event_name != "_no_sdk_event_name"
+),
+legacy_vocab AS (
+  SELECT DISTINCT LOWER(TRIM(item.element)) AS event_name_lc
+  FROM `unity-ads-dd-ds-dev-prd.yabo.ioj_v2_lc_d7_2026_03_11`
+  CROSS JOIN UNNEST(sdk_event_name_array.list) AS item
+  WHERE item.element != "_no_sdk_event_name"
+),
+campaign_vocab AS (
+  SELECT DISTINCT LOWER(TRIM(e)) AS event_name_lc
+  FROM `unity-data-ads-core-prd.ads_dimension_data.campaigns_v3`,
+    UNNEST(sdk_event_names) AS e
+  WHERE app_event_conversion_type = 'LEVEL_COMPLETE'
+    AND archived_at IS NULL
+    AND e IS NOT NULL
+    AND e != ''
+)
+SELECT
+  COALESCE(h.event_name_lc, l.event_name_lc, c.event_name_lc) AS event_name_lc,
+  h.event_name_lc IS NOT NULL AS in_huron,
+  l.event_name_lc IS NOT NULL AS in_legacy,
+  c.event_name_lc IS NOT NULL AS in_campaigns
+FROM huron_vocab h
+FULL OUTER JOIN legacy_vocab l ON h.event_name_lc = l.event_name_lc
+FULL OUTER JOIN campaign_vocab c ON COALESCE(h.event_name_lc, l.event_name_lc) = c.event_name_lc
+ORDER BY in_campaigns DESC, in_huron DESC, in_legacy DESC
 ```
 
 ### Case-Insensitive Vocabulary Comparison

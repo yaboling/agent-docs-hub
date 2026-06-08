@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UV Predictions — Campaign 6a0445d3f2dee4cf49f6aeb4</title>
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f1117; color: #e8eaf0; margin: 0; padding: 0; }
+  .container { max-width: 1400px; margin: 0 auto; padding: 24px; }
+  h1 { font-size: 1.8rem; color: #f0f4ff; border-bottom: 2px solid #3a4a7a; padding-bottom: 12px; margin-bottom: 4px; }
+  .meta { color: #7a8aaa; font-size: 0.9rem; margin-bottom: 28px; }
+  h2 { font-size: 1.2rem; color: #aac4ff; margin-top: 36px; border-left: 4px solid #4a6fa5; padding-left: 12px; }
+  h3 { font-size: 1rem; color: #8bb4e8; margin-top: 20px; }
+  .plot-wrap { background: #1a1f2e; border: 1px solid #2a3550; border-radius: 10px; padding: 12px; margin: 16px 0; }
+  .empty-plot { color: #7a8aaa; font-size: 0.9rem; padding: 20px; font-style: italic; }
+  .card { background: #1a1f2e; border: 1px solid #2a3550; border-radius: 10px; padding: 20px; margin: 16px 0; }
+  pre { background: #12172a; border: 1px solid #2a3550; border-radius: 8px; padding: 16px; overflow-x: auto; margin: 8px 0 0; }
+  code { font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 0.82em; color: #a8c7fa; white-space: pre; }
+</style>
+</head>
+<body>
+<div class="container">
+<h1>UV Model Prediction Report</h1>
+<div class="meta">
+  Campaign: <strong>6a0445d3f2dee4cf49f6aeb4</strong> &nbsp;|&nbsp;
+  Game: <strong>500263451</strong> &nbsp;|&nbsp;
+  Date range: <strong>2026-05-13 → 2026-05-30</strong>
+</div>
+
+<h2>1. IAP — Predicted Probability (dep_p)</h2>
+<div class="plot-wrap"><div id="plot_iap_dep_pred" style="height:460px"></div></div>
+
+<h2>2. IAP — Predicted Value (dep_value)</h2>
+<div class="plot-wrap"><div id="plot_iap_dep_value" style="height:460px"></div></div>
+
+<h2>3. AdRev — Predicted Value (adrev_value)</h2>
+<div class="plot-wrap"><div id="plot_adrev_value" style="height:460px"></div></div>
+
+<h2>4. Avg Cost (dCPI price)</h2>
+<div class="plot-wrap"><div id="plot_avg_cost" style="height:460px"></div></div>
+
+<h2>5. CPE — Level Complete Probability <span style="color:#7a8aaa;font-size:0.85rem">(no data)</span></h2>
+<div class="plot-wrap empty-plot">No data for this campaign type.</div>
+
+<h2>6. CPE — Purchase Probability <span style="color:#7a8aaa;font-size:0.85rem">(no data)</span></h2>
+<div class="plot-wrap empty-plot">No data for this campaign type.</div>
+
+<h2>7. CPE — Retention Probability <span style="color:#7a8aaa;font-size:0.85rem">(no data)</span></h2>
+<div class="plot-wrap empty-plot">No data for this campaign type.</div>
+
+
+<h2>SQL Queries</h2>
+<div class="card">
+<h3>Query A — IAP &amp; AdRev</h3>
+<pre><code>SELECT
+  submit_date,
+  body.dep_version,
+  MAX(body.target_game_id)      AS target_game_id,
+  COUNT(*)                      AS start_count,
+  AVG(body.dep_p)               AS avg_dep_pred,
+  AVG(body.dep_adj)             AS avg_dep_adj,
+  AVG(body.dep_value)           AS avg_dep_value,
+  AVG(body.adrev_p)             AS avg_adrev_pred,
+  AVG(body.adrev_adj)           AS avg_adrev_adj,
+  AVG(body.adrev_value)         AS avg_adrev_value,
+  AVG(body.cst)                 AS avg_cost,
+  AVG(body.max_cost)            AS avg_max_cost,
+  AVG(body.actual_max_cost)     AS avg_actual_max_cst
+FROM `unity-ai-data-prd.mz_dcpi_raw.mz_dcpi_prediction_v1`
+WHERE submit_date BETWEEN "2026-05-13" AND "2026-05-30"
+  AND body.ar_ts >= "2026-05-13 00:00:00"
+  AND body.dep_p > 0
+  AND body.campaign_id = "6a0445d3f2dee4cf49f6aeb4"
+GROUP BY submit_date, body.dep_version
+ORDER BY submit_date</code></pre>
+<h3>Query B — CPE (level_complete / purchase / retention)</h3>
+<pre><code>SELECT
+  submit_date,
+  body.app_event_type,
+  body.app_event_model_version  AS model_version,
+  MAX(body.target_game_id)      AS target_game_id,
+  COUNT(*)                      AS start_count,
+  AVG(body.app_event_p)         AS avg_cpe_pred,
+  AVG(body.app_event_adj)       AS avg_cpe_adj
+FROM `unity-ai-data-prd.mz_dcpi_raw.mz_dcpi_prediction_v1`
+WHERE submit_date BETWEEN "2026-05-13" AND "2026-05-30"
+  AND body.ar_ts >= "2026-05-13 00:00:00"
+  AND body.app_event_type IN ("level_complete", "purchase", "retention")
+  AND body.app_event_p > 0
+  AND body.campaign_id = "6a0445d3f2dee4cf49f6aeb4"
+GROUP BY submit_date, body.app_event_type, body.app_event_model_version
+ORDER BY submit_date</code></pre>
+</div>
+</div>
+<script>
+Plotly.newPlot('plot_iap_dep_pred', [{"type": "scatter", "mode": "lines+markers", "name": "(no dep_version)", "x": ["2026-05-13", "2026-05-14", "2026-05-15", "2026-05-16", "2026-05-17", "2026-05-18", "2026-05-19", "2026-05-20", "2026-05-21", "2026-05-22", "2026-05-23", "2026-05-24", "2026-05-25", "2026-05-26", "2026-05-27", "2026-05-28", "2026-05-29", "2026-05-30"], "y": [0.022128265214078815, 0.021811722054825122, 0.019105208684919328, 0.019374895531157437, 0.020455107141325746, 0.021734290495437982, 0.02007293490153966, 0.02289624451629184, 0.022418491171077082, 0.02341219739206994, 0.01755677916540135, 0.01798361747915436, 0.022667568219052817, 0.020873101731276458, 0.01924631958321939, 0.019131609587829685, 0.026006589797330674, 0.05387080855499011], "text": ["(no dep_version)<br>Date: 2026-05-13<br>Avg dep_p (IAP prob D7): 0.0221283", "(no dep_version)<br>Date: 2026-05-14<br>Avg dep_p (IAP prob D7): 0.0218117", "(no dep_version)<br>Date: 2026-05-15<br>Avg dep_p (IAP prob D7): 0.0191052", "(no dep_version)<br>Date: 2026-05-16<br>Avg dep_p (IAP prob D7): 0.0193749", "(no dep_version)<br>Date: 2026-05-17<br>Avg dep_p (IAP prob D7): 0.0204551", "(no dep_version)<br>Date: 2026-05-18<br>Avg dep_p (IAP prob D7): 0.0217343", "(no dep_version)<br>Date: 2026-05-19<br>Avg dep_p (IAP prob D7): 0.0200729", "(no dep_version)<br>Date: 2026-05-20<br>Avg dep_p (IAP prob D7): 0.0228962", "(no dep_version)<br>Date: 2026-05-21<br>Avg dep_p (IAP prob D7): 0.0224185", "(no dep_version)<br>Date: 2026-05-22<br>Avg dep_p (IAP prob D7): 0.0234122", "(no dep_version)<br>Date: 2026-05-23<br>Avg dep_p (IAP prob D7): 0.0175568", "(no dep_version)<br>Date: 2026-05-24<br>Avg dep_p (IAP prob D7): 0.0179836", "(no dep_version)<br>Date: 2026-05-25<br>Avg dep_p (IAP prob D7): 0.0226676", "(no dep_version)<br>Date: 2026-05-26<br>Avg dep_p (IAP prob D7): 0.0208731", "(no dep_version)<br>Date: 2026-05-27<br>Avg dep_p (IAP prob D7): 0.0192463", "(no dep_version)<br>Date: 2026-05-28<br>Avg dep_p (IAP prob D7): 0.0191316", "(no dep_version)<br>Date: 2026-05-29<br>Avg dep_p (IAP prob D7): 0.0260066", "(no dep_version)<br>Date: 2026-05-30<br>Avg dep_p (IAP prob D7): 0.0538708"], "hovertemplate": "%{text}<extra></extra>", "line": {"color": "#636EFA", "width": 2}, "marker": {"size": 7, "color": "#636EFA"}}], {"title": {"text": "1. IAP \u2014 Predicted Probability (dep_p)", "font": {"color": "#e8eaf0", "size": 14}}, "paper_bgcolor": "#1a1f2e", "plot_bgcolor": "#12172a", "font": {"color": "#e8eaf0", "size": 12}, "xaxis": {"title": "Submit Date", "type": "date", "tickformat": "%b %d", "tickangle": -40, "gridcolor": "#2a3550", "zerolinecolor": "#3a4a7a"}, "yaxis": {"title": "Avg dep_p (IAP prob D7)", "tickformat": ".5f", "gridcolor": "#2a3550", "zerolinecolor": "#3a4a7a"}, "margin": {"t": 50, "b": 70, "l": 90, "r": 30}, "hovermode": "closest", "legend": {"bgcolor": "#1a1f2e", "bordercolor": "#2a3550", "borderwidth": 1, "font": {"size": 10}}, "showlegend": true}, {responsive:true});
+Plotly.newPlot('plot_iap_dep_value', [{"type": "scatter", "mode": "lines+markers", "name": "(no dep_version)", "x": ["2026-05-13", "2026-05-14", "2026-05-15", "2026-05-16", "2026-05-17", "2026-05-18", "2026-05-19", "2026-05-20", "2026-05-21", "2026-05-22", "2026-05-23", "2026-05-24", "2026-05-25", "2026-05-26", "2026-05-27", "2026-05-28", "2026-05-29", "2026-05-30"], "y": [2.7872417060027495, 2.7757167188433947, 2.7711085824633512, 2.6476883124676958, 2.7642771252010254, 2.7191722046007474, 2.8667190946604033, 2.8920203190833114, 2.842123218371645, 2.816163461134222, 2.823615691478592, 2.8021824946150864, 2.7925097629847797, 2.7880284357852667, 2.7572164718962067, 2.7642427172245356, 2.7624219184540495, 2.9795208962546775], "text": ["(no dep_version)<br>Date: 2026-05-13<br>Avg dep_value (IAP value D7): 2.78724", "(no dep_version)<br>Date: 2026-05-14<br>Avg dep_value (IAP value D7): 2.77572", "(no dep_version)<br>Date: 2026-05-15<br>Avg dep_value (IAP value D7): 2.77111", "(no dep_version)<br>Date: 2026-05-16<br>Avg dep_value (IAP value D7): 2.64769", "(no dep_version)<br>Date: 2026-05-17<br>Avg dep_value (IAP value D7): 2.76428", "(no dep_version)<br>Date: 2026-05-18<br>Avg dep_value (IAP value D7): 2.71917", "(no dep_version)<br>Date: 2026-05-19<br>Avg dep_value (IAP value D7): 2.86672", "(no dep_version)<br>Date: 2026-05-20<br>Avg dep_value (IAP value D7): 2.89202", "(no dep_version)<br>Date: 2026-05-21<br>Avg dep_value (IAP value D7): 2.84212", "(no dep_version)<br>Date: 2026-05-22<br>Avg dep_value (IAP value D7): 2.81616", "(no dep_version)<br>Date: 2026-05-23<br>Avg dep_value (IAP value D7): 2.82362", "(no dep_version)<br>Date: 2026-05-24<br>Avg dep_value (IAP value D7): 2.80218", "(no dep_version)<br>Date: 2026-05-25<br>Avg dep_value (IAP value D7): 2.79251", "(no dep_version)<br>Date: 2026-05-26<br>Avg dep_value (IAP value D7): 2.78803", "(no dep_version)<br>Date: 2026-05-27<br>Avg dep_value (IAP value D7): 2.75722", "(no dep_version)<br>Date: 2026-05-28<br>Avg dep_value (IAP value D7): 2.76424", "(no dep_version)<br>Date: 2026-05-29<br>Avg dep_value (IAP value D7): 2.76242", "(no dep_version)<br>Date: 2026-05-30<br>Avg dep_value (IAP value D7): 2.97952"], "hovertemplate": "%{text}<extra></extra>", "line": {"color": "#636EFA", "width": 2}, "marker": {"size": 7, "color": "#636EFA"}}], {"title": {"text": "2. IAP \u2014 Predicted Value (dep_value)", "font": {"color": "#e8eaf0", "size": 14}}, "paper_bgcolor": "#1a1f2e", "plot_bgcolor": "#12172a", "font": {"color": "#e8eaf0", "size": 12}, "xaxis": {"title": "Submit Date", "type": "date", "tickformat": "%b %d", "tickangle": -40, "gridcolor": "#2a3550", "zerolinecolor": "#3a4a7a"}, "yaxis": {"title": "Avg dep_value (IAP value D7)", "tickformat": ",.4f", "gridcolor": "#2a3550", "zerolinecolor": "#3a4a7a"}, "margin": {"t": 50, "b": 70, "l": 90, "r": 30}, "hovermode": "closest", "legend": {"bgcolor": "#1a1f2e", "bordercolor": "#2a3550", "borderwidth": 1, "font": {"size": 10}}, "showlegend": true}, {responsive:true});
+Plotly.newPlot('plot_adrev_value', [{"type": "scatter", "mode": "lines+markers", "name": "(no dep_version)", "x": ["2026-05-13", "2026-05-14", "2026-05-15", "2026-05-16", "2026-05-17", "2026-05-18", "2026-05-19", "2026-05-20", "2026-05-21", "2026-05-22", "2026-05-23", "2026-05-24", "2026-05-25", "2026-05-26", "2026-05-27", "2026-05-28", "2026-05-29", "2026-05-30"], "y": [0.8200865615493669, 0.8150033760210942, 0.7969990948024965, 0.9965822771063766, 1.0008400537037785, 0.9202979029458935, 0.7920458949528767, 0.8465662237315652, 0.8606371007556344, 0.9776679301148067, 0.8887463979678032, 0.8757970384927365, 0.9491364468052284, 0.8951611352121004, 0.8764019923194484, 0.8712048340733107, 0.964285366546214, 0.8419993324375552], "text": ["(no dep_version)<br>Date: 2026-05-13<br>Avg adrev_value (AdRev D7): 0.820087", "(no dep_version)<br>Date: 2026-05-14<br>Avg adrev_value (AdRev D7): 0.815003", "(no dep_version)<br>Date: 2026-05-15<br>Avg adrev_value (AdRev D7): 0.796999", "(no dep_version)<br>Date: 2026-05-16<br>Avg adrev_value (AdRev D7): 0.996582", "(no dep_version)<br>Date: 2026-05-17<br>Avg adrev_value (AdRev D7): 1.00084", "(no dep_version)<br>Date: 2026-05-18<br>Avg adrev_value (AdRev D7): 0.920298", "(no dep_version)<br>Date: 2026-05-19<br>Avg adrev_value (AdRev D7): 0.792046", "(no dep_version)<br>Date: 2026-05-20<br>Avg adrev_value (AdRev D7): 0.846566", "(no dep_version)<br>Date: 2026-05-21<br>Avg adrev_value (AdRev D7): 0.860637", "(no dep_version)<br>Date: 2026-05-22<br>Avg adrev_value (AdRev D7): 0.977668", "(no dep_version)<br>Date: 2026-05-23<br>Avg adrev_value (AdRev D7): 0.888746", "(no dep_version)<br>Date: 2026-05-24<br>Avg adrev_value (AdRev D7): 0.875797", "(no dep_version)<br>Date: 2026-05-25<br>Avg adrev_value (AdRev D7): 0.949136", "(no dep_version)<br>Date: 2026-05-26<br>Avg adrev_value (AdRev D7): 0.895161", "(no dep_version)<br>Date: 2026-05-27<br>Avg adrev_value (AdRev D7): 0.876402", "(no dep_version)<br>Date: 2026-05-28<br>Avg adrev_value (AdRev D7): 0.871205", "(no dep_version)<br>Date: 2026-05-29<br>Avg adrev_value (AdRev D7): 0.964285", "(no dep_version)<br>Date: 2026-05-30<br>Avg adrev_value (AdRev D7): 0.841999"], "hovertemplate": "%{text}<extra></extra>", "line": {"color": "#636EFA", "width": 2}, "marker": {"size": 7, "color": "#636EFA"}}], {"title": {"text": "3. AdRev \u2014 Predicted Value (adrev_value)", "font": {"color": "#e8eaf0", "size": 14}}, "paper_bgcolor": "#1a1f2e", "plot_bgcolor": "#12172a", "font": {"color": "#e8eaf0", "size": 12}, "xaxis": {"title": "Submit Date", "type": "date", "tickformat": "%b %d", "tickangle": -40, "gridcolor": "#2a3550", "zerolinecolor": "#3a4a7a"}, "yaxis": {"title": "Avg adrev_value (AdRev D7)", "tickformat": ",.4f", "gridcolor": "#2a3550", "zerolinecolor": "#3a4a7a"}, "margin": {"t": 50, "b": 70, "l": 90, "r": 30}, "hovermode": "closest", "legend": {"bgcolor": "#1a1f2e", "bordercolor": "#2a3550", "borderwidth": 1, "font": {"size": 10}}, "showlegend": true}, {responsive:true});
+Plotly.newPlot('plot_avg_cost', [{"type": "scatter", "mode": "lines+markers", "name": "(no dep_version)", "x": ["2026-05-13", "2026-05-14", "2026-05-15", "2026-05-16", "2026-05-17", "2026-05-18", "2026-05-19", "2026-05-20", "2026-05-21", "2026-05-22", "2026-05-23", "2026-05-24", "2026-05-25", "2026-05-26", "2026-05-27", "2026-05-28", "2026-05-29", "2026-05-30"], "y": [1103875.9392570565, 1137287.068116776, 1163082.0398020889, 1317957.461100358, 1305316.5674130362, 1302082.1468639965, 1208367.4589981807, 1300505.411527488, 1628822.0206596886, 1867398.2709477206, 1560076.8099409263, 1556638.2239877174, 1888652.590497714, 1927209.4739513868, 1853826.3048334522, 1840331.6288817087, 2212062.6658429303, 3641569.386108276], "text": ["(no dep_version)<br>Date: 2026-05-13<br>Avg Cost: 1.10388e+06", "(no dep_version)<br>Date: 2026-05-14<br>Avg Cost: 1.13729e+06", "(no dep_version)<br>Date: 2026-05-15<br>Avg Cost: 1.16308e+06", "(no dep_version)<br>Date: 2026-05-16<br>Avg Cost: 1.31796e+06", "(no dep_version)<br>Date: 2026-05-17<br>Avg Cost: 1.30532e+06", "(no dep_version)<br>Date: 2026-05-18<br>Avg Cost: 1.30208e+06", "(no dep_version)<br>Date: 2026-05-19<br>Avg Cost: 1.20837e+06", "(no dep_version)<br>Date: 2026-05-20<br>Avg Cost: 1.30051e+06", "(no dep_version)<br>Date: 2026-05-21<br>Avg Cost: 1.62882e+06", "(no dep_version)<br>Date: 2026-05-22<br>Avg Cost: 1.8674e+06", "(no dep_version)<br>Date: 2026-05-23<br>Avg Cost: 1.56008e+06", "(no dep_version)<br>Date: 2026-05-24<br>Avg Cost: 1.55664e+06", "(no dep_version)<br>Date: 2026-05-25<br>Avg Cost: 1.88865e+06", "(no dep_version)<br>Date: 2026-05-26<br>Avg Cost: 1.92721e+06", "(no dep_version)<br>Date: 2026-05-27<br>Avg Cost: 1.85383e+06", "(no dep_version)<br>Date: 2026-05-28<br>Avg Cost: 1.84033e+06", "(no dep_version)<br>Date: 2026-05-29<br>Avg Cost: 2.21206e+06", "(no dep_version)<br>Date: 2026-05-30<br>Avg Cost: 3.64157e+06"], "hovertemplate": "%{text}<extra></extra>", "line": {"color": "#636EFA", "width": 2}, "marker": {"size": 7, "color": "#636EFA"}}], {"title": {"text": "4. Avg Cost (dCPI price)", "font": {"color": "#e8eaf0", "size": 14}}, "paper_bgcolor": "#1a1f2e", "plot_bgcolor": "#12172a", "font": {"color": "#e8eaf0", "size": 12}, "xaxis": {"title": "Submit Date", "type": "date", "tickformat": "%b %d", "tickangle": -40, "gridcolor": "#2a3550", "zerolinecolor": "#3a4a7a"}, "yaxis": {"title": "Avg Cost", "tickformat": ",.0f", "gridcolor": "#2a3550", "zerolinecolor": "#3a4a7a"}, "margin": {"t": 50, "b": 70, "l": 90, "r": 30}, "hovermode": "closest", "legend": {"bgcolor": "#1a1f2e", "bordercolor": "#2a3550", "borderwidth": 1, "font": {"size": 10}}, "showlegend": true}, {responsive:true});
+
+</script>
+</body>
+</html>
