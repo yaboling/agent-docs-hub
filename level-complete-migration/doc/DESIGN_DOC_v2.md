@@ -166,7 +166,76 @@ Session counters (9 columns), privacy/identity signals (9 columns), `gamer_id_sc
 
 `filter_min_dates_by_game_and_event` (removes rows predating the first positive conversion per `(game, event)` pair) is commented out. Minor impact for a 60-day window. Re-enable post-E2E stabilization.
 
-### 2.4 Game-Level Quality Gate
+### 2.4 Online Bidding Gate — Eligibility Requirement
+
+**Before a game can run a Level Complete campaign, it must have sent us level complete events.** The model only bids on `(target_game_id, sdk_event_name)` combinations it was trained on with at least one positive PSN label. Combinations never seen in training produce a zero bid.
+
+#### How the gate works
+
+```
+Training time (update_mappings step in workflow)
+───────────────────────────────────────────────────────────────────────
+  For every (target_game_id, sdk_event_name) pair in the preprocessed
+  parquet that has >= 1 row with psn_label=1:
+    → write "{target_game_id}_{sdk_event_name}": 1.0
+      to trained_game_sdk_combo.json (GCS)
+
+Serving time (DeployModel.forward)
+───────────────────────────────────────────────────────────────────────
+  _gate_tensor[target_game_id_idx, sdk_event_name_idx]
+    = 1.0  if combo seen in training with a positive PSN label
+    = 0.0  otherwise  →  cost = 0  (no bid placed)
+
+  cost = max_cost × discount_factor × p × gate
+                                          ^^^^
+                                    zeroes out unseen combos
+───────────────────────────────────────────────────────────────────────
+```
+
+This mirrors **Mechanism 1** of the legacy `LevelCompleteCostWrapper` (`trained_game_sdk_combo_multipliers`).
+
+#### Implication for advertisers and campaign setup
+
+```
+Game eligibility lifecycle
+───────────────────────────────────────────────────────────────────────
+  Step 1 — SDK integration
+           Game integrates Unity Ads SDK and fires level complete events
+           (e.g. "level_5", "level_10") back to Unity.
+
+  Step 2 — Data accumulation
+           Level complete events flow into the LC data pipeline:
+           gs://.../app-events/.../level_complete/d7/
+
+  Step 3 — Training window coverage
+           The game must appear in the 60-day training window with
+           >= 1 install that fired the targeted SDK event (psn_label=1).
+           Games with only 0-positive rows are gated out at serving time.
+
+  Step 4 — Quality gate (Section 2.5)
+           Additionally requires >= 50 installs with cum_app_event_count_d7 > 0
+           to be included in training data at all.
+
+  Step 5 — Gate tensor baked into model artifact
+           After each daily training run, trained_game_sdk_combo.json
+           is refreshed and the new gate tensor is deployed with the model.
+           New eligible games become biddable within ~24 hours of the
+           next successful workflow run.
+───────────────────────────────────────────────────────────────────────
+```
+
+**Wildcard campaigns** (`sdk_event_name = ""`): The Go serving layer sends an empty string for campaigns that target any level complete event. The preprocessor maps `""` → `UNKNOWN_INT` (5). `DeployModel` remaps index-5 → the `"*"` vocab entry so that wildcard campaigns correctly hit the gate and embedding for `"*"`, rather than being silently zeroed out.
+
+| Combo type | Example | Gate behaviour |
+|---|---|---|
+| Specific, seen in training | `(game_A, "level_5")` with psn_label=1 rows | gate = 1.0 → bids normally |
+| Specific, never seen | `(game_B, "star5_hero")` absent from training data | gate = 0.0 → zero bid |
+| Wildcard, game has any LC events | `(game_A, "")` → remapped to `(game_A, "*")` | gate = 1.0 if `"*"` row exists |
+| Wildcard, game has no LC data | `(game_C, "")` | gate = 0.0 → zero bid |
+
+> **Operational note:** If a game's LC campaign is unexpectedly getting zero bids, the first thing to check is whether `(target_game_id, sdk_event_name)` appears in `trained_game_sdk_combo.json`. If it is absent, the game either has no positive LC events in the 60-day training window, or it failed the quality gate (< 50 converting installs). The fix is to wait for sufficient event data to accumulate and for the next daily workflow to complete.
+
+### 2.5 Game-Level Quality Gate
 
 Mirrors the legacy `ads-audience-pinpointer` eligibility filter:
 
@@ -180,7 +249,53 @@ eligible_game_ids = (
 )
 ```
 
-> **Note:** Post-filter PSN positive rate (~15%) is higher than pre-filter (~7.5%) due to survivorship bias — only high-converting games are kept. Matches legacy model behavior. Online calibration must be monitored post-launch.
+#### Label Distributions
+
+**Plot 1 — Joint distribution of `label` × `psn_label` (504M rows, post-fix dataset, pre-quality-gate)**
+
+```
+Row composition by label combination
+───────────────────────────────────────────────────────────────────────
+                                    0%          25%         50%         75%        100%
+                                    │           │           │           │           │
+ label=0, psn=0  (non-converters)   ████████████████████████████████████████  80.4%
+ label=1, psn=0  (LC but wrong SDK) ██████  12.5%
+ label=1, psn=1  (target event hit) ███  7.1%
+───────────────────────────────────────────────────────────────────────
+  label positive rate  = 19.6%   (any level complete within 7d)
+  psn_label positive rate =  7.1%   (specific targeted SDK event fired)
+```
+
+**Plot 2 — `label` vs `psn_label` positive rates (pre-quality-gate)**
+
+```
+Positive label rate comparison (pre-quality-gate)
+───────────────────────────────────────────────────────────────────────
+  label       19.6%  ████████████████████
+  psn_label    7.1%  ███████
+               0%    5%   10%   15%   20%   25%
+───────────────────────────────────────────────────────────────────────
+  Gap: label is 2.8× higher than psn_label.
+  A user can "level complete" any event (label=1) but fail to fire
+  the specific SDK event the campaign is targeting (psn=0).
+```
+
+**Plot 3 — `psn_label` positive rate: pre-filter vs post-filter**
+
+```
+psn_label positive rate — effect of game quality gate (>= 50 installs with LC event)
+───────────────────────────────────────────────────────────────────────
+  Pre-filter   ~7.5%  ███████
+  Post-filter  ~15%   ██████████████
+                0%    5%   10%   15%   20%
+───────────────────────────────────────────────────────────────────────
+  +7.5 pp lift  (+100%)
+  Cause: survivorship bias — games with <50 converting installs are
+  dropped, leaving only high-converting games in the training set.
+  This inflates the observed positive rate vs. the true population rate.
+```
+
+> **Implication for online monitoring:** The training data positive rate (~15%) is 2× higher than the true population rate (~7.5%). The model will be calibrated to a higher base rate than it sees in production. **Online calibration must be monitored post-launch** — model bias should be tracked per campaign and compared to observed conversion rates in `mz_dcpi_prediction_v1`.
 
 ---
 
