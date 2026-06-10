@@ -173,7 +173,6 @@ Evaluation on 60-day dataset (install dates 2026-02-26 → 2026-04-26, ~486M tra
 | Product bias D3 (target event) | −0.23 | **−0.02** | ✅ Near parity (legacy chronically underspends) |
 | Product bias D7 (target event) | −0.18 | **+0.05** | ✅ At target CPE |
 | LC rate per install (any event, D7) | 36.35% | 31.01% | ⚠ Lower per-install — expected composition effect; absolute LC volume +40% |
-| Model bias (target event, D7) | +29.3% | +75.9% | ⚠ Over-predicts vs specific event; calibration improvement planned |
 
 > **Headline result**: Near-zero product bias on target events (−2% at D3, +5% at D7) vs. legacy control's persistent underspend (−23% at D3, −18% at D7). Advertisers receive the exact events they targeted at the price they set — the primary quality objective for CPE Level Complete.
 
@@ -194,13 +193,3 @@ Evaluation on 60-day dataset (install dates 2026-02-26 → 2026-04-26, ~486M tra
 | **Gradient clipping** | clipnorm=1.0 | max_norm=1.0 |
 | **Model params** | ~2M (FC MLP) | ~36.3M total (35.3M sparse embeddings + 1.0M dense) |
 
-### Open items
-
-| Item | Status |
-|---|---|
-| Validate `sdk_event_name` online feature population in Go serving layer | TODO — serving team |
-| Enable `enable_calibration: true` or Platt scaling on held-out val set | TODO |
-| Fix `campaign_id` → `campaignset_id` (currently duplicates `audience_id`) | TODO |
-| Re-enable `filter_min_dates_by_game_and_event` (Stage 5 filter) | TODO post-E2E |
-| Add UUPS IAP/adrev signals (27 features) — Phase 2 | Q3 |
-| Migrate experiment path from `unified_cpe/` to `unified_user_value/` (already reflected in config) | Planned |

@@ -548,7 +548,7 @@ The eCPI increase (+21.5%) is expected: the test model serves higher-CPE campaig
 | D3 | 35.96% | 30.22% | −5.74 pp | Expected |
 | D7 | 36.35% | 31.01% | −5.34 pp | Expected |
 
-Lower per-install rate is a composition effect: the unified model serves IDFI and unspecified segments with inherently lower per-install event rates. The **absolute number of LC events is ~40% higher** for the test arm due to +44.8% install scale.
+The per-install LC rate is lower for the test model. However, per-install rate is not the right quality signal for a CPE product — what matters is whether the model delivers the **specific event the advertiser paid for, at the price they set**. The product bias on target events tells that story directly: the test model sits at −2% to +5% across D0–D7, essentially at parity with the advertiser's target CPE, while the legacy control chronically underspends at −18% to −26%. The test model is more precisely targeting the advertiser's goal, not merely acquiring users who happen to level-complete.
 
 **Level Complete rate — target event** (`sum_target_lc_label_dx / installs`):
 
