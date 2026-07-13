@@ -1,0 +1,63 @@
+feature_name,type,dtype,preprocessor,is_serving_feature,is_campaign_feature,disabled,train_only,load_to_network,max_clip,preprocess_fn,notes
+label,label,string,,,,,,,,,
+gamer_profile_meta,array,string,None,true,false,false,,false,,,"array_size=2"
+installed_store_ids_channel,array,string,None,true,false,false,,false,,,"array_size=variable"
+counters_source,categorical,string,CountersSourcePreprocessor,false,false,false,,,,,used for gamer counter imputation control
+audience_id,categorical,string,CategoricalPreprocessor,true,true,false,,,,,
+device_connection_type,categorical,string,CategoricalPreprocessor,true,false,false,,,,,
+device_type,categorical,string,CategoricalPreprocessor,true,false,false,,,,,
+gamer_creation_delay,scalar,float,GamerAgePreprocessor,false,false,false,,,,normalize,enabled (was disabled in BHV)
+ad_request_timestamp,raw-int,int,None,true,false,false,,false,,,enabled (was disabled in BHV)
+gamer_creation_timestamp,raw-int,int,None,true,false,false,,false,,,enabled (was disabled in BHV)
+geolocation_country,categorical,string,CategoricalPreprocessor,true,false,false,,,,,
+platform,categorical,string,CategoricalPreprocessor,true,false,false,,,,,
+publisher_is_coppa_targeted,raw-int,int,None,true,false,false,,false,,,
+coppa,int_embedding,string,IntEmbeddingPreprocessor,,false,false,,,,,"base_feature=publisher_is_coppa_targeted"
+gamer_limited_tracking,raw-int,int,None,true,false,false,,false,,,
+limited,int_embedding,string,IntEmbeddingPreprocessor,,false,false,,,,,"base_feature=gamer_limited_tracking"
+gamer_has_opted_out,raw-int,int,None,true,false,false,,false,,,
+opt_out_enabled,int_embedding,string,IntEmbeddingPreprocessor,,false,false,,,,,"base_feature=gamer_has_opted_out"
+publisher_developer_id,categorical,string,CategoricalPreprocessor,true,false,false,,,,,
+publisher_game_id,categorical,string,CategoricalPreprocessor,true,false,false,,,,,
+publisher_store_id,categorical,string,CategoricalPreprocessor,true,false,false,,,,,
+target_game_id,categorical,string,CategoricalPreprocessor,true,true,false,,,,,
+target_store_id,categorical,string,CategoricalPreprocessor,true,true,false,,,,,
+hardware_stats_cpu_count,enriched-scalar,float,EnrichedScalarPreprocessor,,false,false,,,16,normalize,"base_feature=device_type; source=hardware_stats"
+hardware_stats_ram,enriched-scalar,float,EnrichedScalarPreprocessor,,false,false,,,16384,normalize,"base_feature=device_type; source=hardware_stats"
+hardware_stats_dpi,enriched-scalar,float,EnrichedScalarPreprocessor,,false,false,,,640,normalize,"base_feature=device_type; source=hardware_stats"
+hardware_stats_cpu,enriched-categorical,float,EnrichedCategoricalPreprocessor,,false,false,,,,,"base_feature=device_type; source=hardware_stats"
+hardware_stats_gpu,enriched-categorical,float,EnrichedCategoricalPreprocessor,,false,false,,,,,"base_feature=device_type; source=hardware_stats"
+hardware_stats_res,enriched-categorical,float,EnrichedCategoricalPreprocessor,,false,false,,,,,"base_feature=device_type; source=hardware_stats"
+gamer_click_count,scalar,float,ScalarPreprocessor,true,false,false,,,1000,log1p_normalize,impute_if: counters_source=null
+gamer_install_count,scalar,float,ScalarPreprocessor,true,false,false,,,100,log1p_normalize,impute_if: counters_source=null
+gamer_view_count,scalar,float,ScalarPreprocessor,true,false,false,,,6000,log1p_normalize,impute_if: counters_source=null
+gamer_start_count,scalar,float,ScalarPreprocessor,true,false,false,,,6000,log1p_normalize,impute_if: counters_source=null
+gamer_start_count_in_last_24_hours,scalar,float,ScalarPreprocessor,true,false,false,,,100,log1p_normalize,impute_if: counters_source=null
+gamer_start_count_in_last_7_days,scalar,float,ScalarPreprocessor,true,false,false,,,400,log1p_normalize,impute_if: counters_source=null
+gamer_session_counters_adrequests,scalar,float,ScalarPreprocessor,true,false,true,,,,normalize,disabled
+gamer_session_counters_performance_starts_count,scalar,float,ScalarPreprocessor,true,false,true,,,,normalize,disabled
+gamer_session_counters_performance_views_count,scalar,float,ScalarPreprocessor,true,false,true,,,,normalize,disabled
+gamer_session_counters_brand_views_count,scalar,float,ScalarPreprocessor,true,false,true,,,,normalize,disabled
+gamer_session_counters_brand_starts_count,scalar,float,ScalarPreprocessor,true,false,true,,,,normalize,disabled
+ad_req_project_id,ibt,string,None,true,false,false,,false,,,
+ad_req_counts,ibt,int,None,true,false,false,,false,,,
+ibt_embedding,tf_embedding,float,TFEmbeddingPreprocessor,,false,false,,,,,"embedding_size=128"
+tgtg_sdk_set,categorical,string,SdkSetPreprocessor,false,true,false,,,,,
+sdk_event_name,categorical,string,None,true,true,false,,false,,,
+prob_sdk_event_name_array,sdk_event_name,string,None,,true,false,true,false,,,
+prob_sdk_event_name_labels,sdk_event_name,float,None,,true,false,true,false,,,
+installed_store_ids,ibt,string,None,true,false,false,,false,,,
+installed_store_ids_latest_start_ts,ibt,int,None,true,false,false,,false,,,
+install_ibt_embedding,tf_embedding,float,TFEmbeddingPreprocessor,,false,false,,,,,"embedding_size=80"
+apptopia_storeinfo_source_category,enriched-categorical,float,EnrichedCategoricalPreprocessor,,false,false,,,,,"base_feature=publisher_store_id; source=apptopia_storeinfo_source"
+apptopia_storeinfo_source_subcategory,enriched-categorical,float,EnrichedCategoricalPreprocessor,,false,false,,,,,"base_feature=publisher_store_id; source=apptopia_storeinfo_source"
+apptopia_storeinfo_source_iap,enriched-categorical,float,EnrichedCategoricalPreprocessor,,false,false,,,,,"base_feature=publisher_store_id; source=apptopia_storeinfo_source"
+apptopia_storeinfo_target_category,enriched-categorical,float,EnrichedCategoricalPreprocessor,,true,false,,,,,"base_feature=target_store_id; source=apptopia_storeinfo_target"
+apptopia_storeinfo_target_subcategory,enriched-categorical,float,EnrichedCategoricalPreprocessor,,true,false,,,,,"base_feature=target_store_id; source=apptopia_storeinfo_target"
+apptopia_storeinfo_target_iap,enriched-categorical,float,EnrichedCategoricalPreprocessor,,true,false,,,,,"base_feature=target_store_id; source=apptopia_storeinfo_target"
+apptopia_storeinfo_source_price,enriched-scalar,float,EnrichedScalarPreprocessor,,false,false,,,1000,normalize,"base_feature=publisher_store_id; source=apptopia_storeinfo_source"
+apptopia_storeinfo_source_size,enriched-scalar,float,EnrichedScalarPreprocessor,,false,false,,,1000000000,normalize,"base_feature=publisher_store_id; source=apptopia_storeinfo_source"
+apptopia_storeinfo_source_rating,enriched-scalar,float,EnrichedScalarPreprocessor,,false,false,,,5.0,normalize,"base_feature=publisher_store_id; source=apptopia_storeinfo_source"
+apptopia_storeinfo_target_price,enriched-scalar,float,EnrichedScalarPreprocessor,,true,false,,,1000,normalize,"base_feature=target_store_id; source=apptopia_storeinfo_target"
+apptopia_storeinfo_target_size,enriched-scalar,float,EnrichedScalarPreprocessor,,true,false,,,1000000000,normalize,"base_feature=target_store_id; source=apptopia_storeinfo_target"
+apptopia_storeinfo_target_rating,enriched-scalar,float,EnrichedScalarPreprocessor,,true,false,,,5.0,normalize,"base_feature=target_store_id; source=apptopia_storeinfo_target"

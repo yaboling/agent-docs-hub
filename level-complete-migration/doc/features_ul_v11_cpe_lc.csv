@@ -1,0 +1,42 @@
+feature_name,feature_set,feature_set_type,role,source_module,hash_size,list_len,agg_mode,repeat,transform,soft_clip_cap,source_col,notes
+label,labels,OFFLINE_ONLY,label,label_features,,,,,identity,,app_event_w1 > 0 → 1 else 0,binary app_event_w1
+prob_sdk_event_name_label,labels,OFFLINE_ONLY,label,label_features,,,,,identity,,derived: Stage 6 sampled from prob_sdk_event_name_labels array,per-event SDK label; multi-task training
+bucket,offline_only_features,OFFLINE_ONLY,offline,utility_features,,,,,,,"abs(hash(mediation_auction_id or auctionId or gamer_id)) % 100 / 100.0",train/val split column
+prob_sdk_event_name,offline_only_features,OFFLINE_ONLY,sparse,oecpm_features,1000000,1,mean,1,,,derived: Stage 6 sampled token from prob_sdk_event_name_array; format {target_game_id}_{event_name},Go serving does not populate; {target_game_id}_{event_name} full token
+model_name,offline_only_features,OFFLINE_ONLY,sparse,oecpm_features,1000,1,mean,1,,,modelName → coalesce 'none',Go serving does not populate initTritonFeatureMappings
+gamer_creation_delay,dense_lc_features,ONLINE_AND_OFFLINE,dense,oecpm_features,,,,,log1p,1.5e8,"derived: LEAST(GREATEST(ad_request_timestamp - gamer_creation_timestamp, 0), 150_000_000) cast long","derived from adRequestTimestamp and gamerCreationTimestamp; pre-computed in datagen; preprocessor_v2 re-derives at training time"
+gamer_click_count,dense_agc_features,ONLINE_AND_OFFLINE,dense,agc_features,,,,,log1p,10.0,gamerCounters.total.clickCount → coalesce 0.0 cast double,gamer-level total click count
+gamer_install_count,dense_agc_features,ONLINE_AND_OFFLINE,dense,agc_features,,,,,log1p,10.0,gamerCounters.total.installCount → coalesce 0.0 cast double,gamer-level total install count
+gamer_start_count,dense_agc_features,ONLINE_AND_OFFLINE,dense,agc_features,,,,,log1p,20.0,gamerCounters.total.startCount → coalesce 0.0 cast double,gamer-level total start count
+gamer_start_count_in_last_24_hours,dense_agc_features,ONLINE_AND_OFFLINE,dense,agc_features,,,,,log1p,10.0,gamerCounters.total.startCount1d → coalesce 0.0 cast double,gamer-level starts in last 24h
+gamer_start_count_in_last_7_days,dense_agc_features,ONLINE_AND_OFFLINE,dense,agc_features,,,,,log1p,10.0,gamerCounters.total.startCount7d → coalesce 0.0 cast double,gamer-level starts in last 7d
+gamer_view_count,dense_agc_features,ONLINE_AND_OFFLINE,dense,agc_features,,,,,log1p,10.0,gamerCounters.total.viewCount → coalesce 0.0 cast double,gamer-level total view count
+target_game_click_count,dense_agc_features,ONLINE_AND_OFFLINE,dense,agc_features,,,,,log1p,10.0,gamerCounters.targetGame.clickCount → coalesce 0.0 cast double,target-game click count (all time)
+target_game_start_count,dense_agc_features,ONLINE_AND_OFFLINE,dense,agc_features,,,,,log1p,10.0,"gamerCounters.targetGame.startCount → coalesce 0.0; cap=50, cast double",target-game start count (all time)
+target_game_start_count_in_last_7_days,dense_agc_features,ONLINE_AND_OFFLINE,dense,agc_features,,,,,log1p,10.0,"gamerCounters.targetGame.startCount7d → coalesce 0.0; cap=20, cast double",target-game starts last 7d
+target_game_view_count,dense_agc_features,ONLINE_AND_OFFLINE,dense,agc_features,,,,,log1p,10.0,"gamerCounters.targetGame.viewCount → coalesce 0.0; cap=50, cast double",target-game view count (all time)
+target_game_view_count_in_last_7_days,dense_agc_features,ONLINE_AND_OFFLINE,dense,agc_features,,,,,log1p,10.0,"gamerCounters.targetGame.viewCount7d → coalesce 0.0; cap=20, cast double",target-game views last 7d
+target_game_click_count_in_last_24_hours,dense_agc_features,ONLINE_AND_OFFLINE,dense,agc_features,,,,,log1p,10.0,"gamerCounters.targetGame.clickCount1d → coalesce 0.0; cap=2, cast double",target-game clicks last 24h
+target_game_click_count_in_last_7_days,dense_agc_features,ONLINE_AND_OFFLINE,dense,agc_features,,,,,log1p,10.0,gamerCounters.targetGame.clickCount7d → coalesce 0.0 cast double,target-game clicks last 7d
+target_game_start_count_in_last_24_hours,dense_agc_features,ONLINE_AND_OFFLINE,dense,agc_features,,,,,log1p,10.0,"gamerCounters.targetGame.startCount1d → coalesce 0.0; cap=10, cast double",target-game starts last 24h
+target_game_view_count_in_last_24_hours,dense_agc_features,ONLINE_AND_OFFLINE,dense,agc_features,,,,,log1p,10.0,"gamerCounters.targetGame.viewCount1d → coalesce 0.0; cap=10, cast double",target-game views last 24h
+ad_format,individual_sparse_features,ONLINE_AND_OFFLINE,sparse,oecpm_features,11,1,mean,1,,,adFormat,
+geolocation_country,individual_sparse_features,ONLINE_AND_OFFLINE,sparse,oecpm_features,350,1,mean,1,,,country,
+platform,individual_sparse_features,ONLINE_AND_OFFLINE,sparse,oecpm_features,10,1,mean,1,,,platform → coalesce 'null',
+gamer_id_scope,individual_sparse_features,ONLINE_AND_OFFLINE,sparse,oecpm_features,12,1,mean,1,,,gamerIdScope,
+video_orientation,individual_sparse_features,ONLINE_AND_OFFLINE,sparse,oecpm_features,10,1,mean,1,,,videoOrientation → coalesce 'null',
+device_connection_type,individual_sparse_features,ONLINE_AND_OFFLINE,sparse,device_features,11,1,mean,1,,,connectionType → coalesce 'null',
+device_type,individual_sparse_features,ONLINE_AND_OFFLINE,sparse,device_features,60000,1,mean,1,,,deviceType → coalesce 'null',
+device_orientation,individual_sparse_features,ONLINE_AND_OFFLINE,sparse,device_features,11,1,mean,1,,,deviceOrientation → coalesce 'null',
+audience_id,individual_sparse_features,ONLINE_AND_OFFLINE,sparse,oecpm_features,35000,1,mean,1,,,campaignInfo.audienceId → coalesce 'null',
+publisher_store_id,individual_sparse_features,ONLINE_AND_OFFLINE,sparse,oecpm_features,87000,1,mean,1,,,sourceStoreId,
+publisher_developer_id,individual_sparse_features,ONLINE_AND_OFFLINE,sparse,oecpm_features,70000,1,mean,1,,,developerId,
+publisher_game_id,individual_sparse_features,ONLINE_AND_OFFLINE,sparse,oecpm_features,46000,1,mean,1,,,sourceGameId,
+target_store_id,individual_sparse_features,ONLINE_AND_OFFLINE,sparse,oecpm_features,87000,1,mean,1,,,targetStoreId,
+target_game_id,individual_sparse_features,ONLINE_AND_OFFLINE,sparse,oecpm_features,46000,1,mean,1,,,targetGameId cast string,
+creative_id,individual_sparse_features,ONLINE_AND_OFFLINE,sparse,oecpm_features,1000000,1,mean,1,,,campaignInfo.unityCreativeId → coalesce 'null',
+creative_pack_id,individual_sparse_features,ONLINE_AND_OFFLINE,sparse,oecpm_features,651011,1,mean,1,,,campaignInfo.creativePackId → coalesce 'null',
+ad_type,individual_sparse_features,ONLINE_AND_OFFLINE,sparse,oecpm_features,110,1,mean,1,,,campaignInfo.adType → coalesce 'null',
+sdk_event_name,individual_sparse_features,ONLINE_AND_OFFLINE,sparse,oecpm_features,10000,1,mean,1,,,derived: split(prob_sdk_event_name on '_' limit=2)[1],"bare event name e.g. level_complete; overwritten in Stage 6 from prob_sdk_event_name; Go serving sends as campaign.SdkEventNames[0]"
+max_cost,cpe_online_only_features,ONLINE_ONLY,online,user_value_features,,,,,,,Go serving layer (campaign bid cap parameter),max advertiser bid cap; packed as campaign (multi-batch) feature; available as inputs['max_cost']
+discount_factor,cpe_online_only_features,ONLINE_ONLY,online,user_value_features,,,,,,,Go serving layer (BBB discount factor parameter),BBB discount factor; packed as campaign (multi-batch) feature; available as inputs['discount_factor']

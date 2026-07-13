@@ -1,0 +1,328 @@
+feature_name,feature_set,feature_set_type,role,source_module,hash_size,list_len,agg_mode,repeat,transform,soft_clip_cap,source_col,notes
+post_install_deposit_sum_d1,labels,OFFLINE_ONLY,label,labels_featureset,,,,,identity,,,UV label: post-install deposit revenue sum day 1
+post_install_deposit_sum_d3,labels,OFFLINE_ONLY,label,labels_featureset,,,,,identity,,,UV label: post-install deposit revenue sum day 3
+post_install_deposit_sum_d7,labels,OFFLINE_ONLY,label,labels_featureset,,,,,identity,,,UV label: post-install deposit revenue sum day 7
+post_install_deposit_sum_w2,labels,OFFLINE_ONLY,label,labels_featureset,,,,,identity,,,UV label: post-install deposit revenue sum week 2
+post_install_deposit_sum_w3,labels,OFFLINE_ONLY,label,labels_featureset,,,,,identity,,,UV label: post-install deposit revenue sum week 3
+post_install_deposit_sum_w4,labels,OFFLINE_ONLY,label,labels_featureset,,,,,identity,,,UV label: post-install deposit revenue sum week 4
+post_install_adrev_sum_d0,labels,OFFLINE_ONLY,label,labels_featureset,,,,,identity,,,UV label: post-install ad revenue sum day 0
+post_install_adrev_sum_d1,labels,OFFLINE_ONLY,label,labels_featureset,,,,,identity,,,UV label: post-install ad revenue sum day 1
+post_install_adrev_sum_d3,labels,OFFLINE_ONLY,label,labels_featureset,,,,,identity,,,UV label: post-install ad revenue sum day 3
+post_install_adrev_sum_d7,labels,OFFLINE_ONLY,label,labels_featureset,,,,,identity,,,UV label: post-install ad revenue sum day 7
+post_install_adrev_sum_w2,labels,OFFLINE_ONLY,label,labels_featureset,,,,,identity,,,UV label: post-install ad revenue sum week 2
+post_install_adrev_sum_w3,labels,OFFLINE_ONLY,label,labels_featureset,,,,,identity,,,UV label: post-install ad revenue sum week 3
+post_install_adrev_sum_w4,labels,OFFLINE_ONLY,label,labels_featureset,,,,,identity,,,UV label: post-install ad revenue sum week 4
+post_install_retention_d1,labels,OFFLINE_ONLY,label,labels_featureset,,,,,identity,,,UV label: post-install retention day 1
+post_install_retention_d3,labels,OFFLINE_ONLY,label,labels_featureset,,,,,identity,,,UV label: post-install retention day 3
+post_install_retention_d7,labels,OFFLINE_ONLY,label,labels_featureset,,,,,identity,,,UV label: post-install retention day 7
+post_install_retention_w2,labels,OFFLINE_ONLY,label,labels_featureset,,,,,identity,,,UV label: post-install retention week 2
+post_install_retention_w3,labels,OFFLINE_ONLY,label,labels_featureset,,,,,identity,,,UV label: post-install retention week 3
+post_install_retention_w4,labels,OFFLINE_ONLY,label,labels_featureset,,,,,identity,,,UV label: post-install retention week 4
+source_weights,labels,OFFLINE_ONLY,label,labels_featureset,,,,,identity,,,UV label: sample source weighting
+post_install_deposit_count_d7,payer_labels,OFFLINE_ONLY,label,payer_labels_featureset,,,,,identity,,,payer label: total deposit count day 7
+post_install_deposit_capped_count_d7,payer_labels,OFFLINE_ONLY,label,payer_labels_featureset,,,,,identity,,,payer label: capped deposit count day 7
+post_install_deposit_uncapped_count_d7,payer_labels,OFFLINE_ONLY,label,payer_labels_featureset,,,,,identity,,,payer label: uncapped deposit count day 7
+post_install_deposit_zero_count_d7,payer_labels,OFFLINE_ONLY,label,payer_labels_featureset,,,,,identity,,,payer label: zero-value deposit count day 7
+post_install_deposit_capped_sum_d7,payer_labels,OFFLINE_ONLY,label,payer_labels_featureset,,,,,identity,,,payer label: capped deposit sum day 7
+post_install_deposit_uncapped_sum_d7,payer_labels,OFFLINE_ONLY,label,payer_labels_featureset,,,,,identity,,,payer label: uncapped deposit sum day 7
+bucket,offline_only_features,OFFLINE_ONLY,offline,offline_only_featureset,,,,,,,abs(hash(mediation_auction_id or auctionId or gamer_id)) % 100 / 100.0,train/val split column
+cold_start_simulation_mask,offline_only_features,OFFLINE_ONLY,offline,offline_only_featureset,,,,,,,,cold start simulation mask flag
+install_timestamp,offline_only_features,OFFLINE_ONLY,offline,offline_only_featureset,,,,,,,,install event timestamp
+valuation_id,offline_only_features,OFFLINE_ONLY,offline,offline_only_featureset,,,,,,,,valuation identifier
+ad_request_timestamp,offline_only_features,OFFLINE_ONLY,offline,offline_only_featureset,,,,,,,,ad request unix timestamp (offline only)
+source_enum,offline_only_features,OFFLINE_ONLY,offline,offline_only_featureset,,,,,,,,data source enum for multi-source training
+is_iap_campaign,online_only_features,ONLINE_ONLY,online,online_only_featureset,,,,,,,,Go serving: is IAP campaign type
+is_adrev_campaign,online_only_features,ONLINE_ONLY,online,online_only_featureset,,,,,,,,Go serving: is ad revenue campaign type
+is_hybrid_campaign,online_only_features,ONLINE_ONLY,online,online_only_featureset,,,,,,,,Go serving: is hybrid (IAP+adrev) campaign type
+is_retention_campaign,online_only_features,ONLINE_ONLY,online,online_only_featureset,,,,,,,,Go serving: is retention campaign type
+max_cost,online_only_features,ONLINE_ONLY,online,online_only_featureset,,,,,,,,Go serving: max advertiser bid cap
+discount_factor,online_only_features,ONLINE_ONLY,online,online_only_featureset,,,,,,,,Go serving: BBB discount factor
+roas_target,online_only_features,ONLINE_ONLY,online,online_only_featureset,,,,,,,,Go serving: ROAS target value
+post_install_window,online_only_features,ONLINE_ONLY,online,online_only_featureset,,,,,,,,Go serving: post-install attribution window
+is_payer_campaign,payer_online_only_features,ONLINE_ONLY,online,payer_online_only_featureset,,,,,,,,Go serving: is payer campaign type
+gamer_limited_tracking,dense_oecpm_features,ONLINE_AND_OFFLINE,dense,oecpm_featureset,,,,,log1p,10.0,gamerLimitedTracking → coalesce 0,privacy: gamer limited ad tracking flag
+publisher_is_coppa_targeted,dense_oecpm_features,ONLINE_AND_OFFLINE,dense,oecpm_featureset,,,,,log1p,10.0,publisherIsCoppaTargeted → coalesce 0,publisher COPPA targeting flag
+gamer_age,dense_oecpm_features,ONLINE_AND_OFFLINE,dense,oecpm_featureset,,,,,,,1634661120.0,derived: ad_request_timestamp - gamer_creation_timestamp,gamer age in seconds at request time
+source_age,dense_oecpm_features,ONLINE_AND_OFFLINE,dense,oecpm_featureset,,,,,,,42386560000.0,derived: ad_request_timestamp - source_store_release_date,publisher app age in seconds
+gamer_click_count,dense_agc_features,ONLINE_AND_OFFLINE,dense,agc_featureset,,,,,log1p,10.0,gamerCounters.total.clickCount → coalesce 0.0,gamer-level total click count
+gamer_install_count,dense_agc_features,ONLINE_AND_OFFLINE,dense,agc_featureset,,,,,log1p,10.0,gamerCounters.total.installCount → coalesce 0.0,gamer-level total install count
+gamer_start_count,dense_agc_features,ONLINE_AND_OFFLINE,dense,agc_featureset,,,,,log1p,20.0,gamerCounters.total.startCount → coalesce 0.0,gamer-level total start count
+gamer_start_count_in_last_24_hours,dense_agc_features,ONLINE_AND_OFFLINE,dense,agc_featureset,,,,,log1p,10.0,gamerCounters.total.startCount1d → coalesce 0.0,gamer-level starts in last 24h
+gamer_start_count_in_last_7_days,dense_agc_features,ONLINE_AND_OFFLINE,dense,agc_featureset,,,,,log1p,10.0,gamerCounters.total.startCount7d → coalesce 0.0,gamer-level starts in last 7d
+gamer_view_count,dense_agc_features,ONLINE_AND_OFFLINE,dense,agc_featureset,,,,,log1p,10.0,gamerCounters.total.viewCount → coalesce 0.0,gamer-level total view count
+target_game_click_count,dense_agc_features,ONLINE_AND_OFFLINE,dense,agc_featureset,,,,,log1p,10.0,gamerCounters.targetGame.clickCount → coalesce 0.0,target-game click count (all time)
+target_game_start_count,dense_agc_features,ONLINE_AND_OFFLINE,dense,agc_featureset,,,,,log1p,10.0,gamerCounters.targetGame.startCount → coalesce 0.0,target-game start count (all time)
+target_game_start_count_in_last_7_days,dense_agc_features,ONLINE_AND_OFFLINE,dense,agc_featureset,,,,,log1p,10.0,gamerCounters.targetGame.startCount7d → coalesce 0.0,target-game starts last 7d
+target_game_view_count,dense_agc_features,ONLINE_AND_OFFLINE,dense,agc_featureset,,,,,log1p,10.0,gamerCounters.targetGame.viewCount → coalesce 0.0,target-game view count (all time)
+target_game_view_count_in_last_7_days,dense_agc_features,ONLINE_AND_OFFLINE,dense,agc_featureset,,,,,log1p,10.0,gamerCounters.targetGame.viewCount7d → coalesce 0.0,target-game views last 7d
+target_game_click_count_in_last_24_hours,dense_agc_features,ONLINE_AND_OFFLINE,dense,agc_featureset,,,,,log1p,10.0,gamerCounters.targetGame.clickCount1d → coalesce 0.0,target-game clicks last 24h
+target_game_click_count_in_last_7_days,dense_agc_features,ONLINE_AND_OFFLINE,dense,agc_featureset,,,,,log1p,10.0,gamerCounters.targetGame.clickCount7d → coalesce 0.0,target-game clicks last 7d
+target_game_start_count_in_last_24_hours,dense_agc_features,ONLINE_AND_OFFLINE,dense,agc_featureset,,,,,log1p,10.0,gamerCounters.targetGame.startCount1d → coalesce 0.0,target-game starts last 24h
+target_game_view_count_in_last_24_hours,dense_agc_features,ONLINE_AND_OFFLINE,dense,agc_featureset,,,,,log1p,10.0,gamerCounters.targetGame.viewCount1d → coalesce 0.0,target-game views last 24h
+device_atlas_device_age,dense_device_atlas_features,ONLINE_AND_OFFLINE,dense,device_atlas_featureset,,,,,,,20.0,device_atlas enrichment on device_type,device model age in years
+device_atlas_hardware_score,dense_device_atlas_features,ONLINE_AND_OFFLINE,dense,device_atlas_featureset,,,,,,,161930.0,device_atlas enrichment on device_type,device hardware performance score
+device_atlas_diagonal_screen_size,dense_device_atlas_features,ONLINE_AND_OFFLINE,dense,device_atlas_featureset,,,,,,,20.0,device_atlas enrichment on device_type,diagonal screen size in inches
+ad_req_project_id_len,dense_length_features,ONLINE_AND_OFFLINE,dense,hist_length_featureset,,,,,log1p,10.0,,length of ad_req_project_id (IBT) list
+installed_store_ids_channel_len,dense_length_features,ONLINE_AND_OFFLINE,dense,hist_length_featureset,,,,,log1p,20.0,,length of installed_store_ids_channel list
+raw_uups_adrev_levelplay_v2_store_id_len,dense_length_features,ONLINE_AND_OFFLINE,dense,hist_length_featureset,,,,,log1p,10.0,,length of UUPS levelplay adrev store_id list
+raw_uups_adrev_oecpm_interstitial_v2_store_id_len,dense_length_features,ONLINE_AND_OFFLINE,dense,hist_length_featureset,,,,,log1p,10.0,,length of UUPS OECPM interstitial store_id list
+raw_uups_adrev_oecpm_rewarded_v2_store_id_len,dense_length_features,ONLINE_AND_OFFLINE,dense,hist_length_featureset,,,,,log1p,10.0,,length of UUPS OECPM rewarded store_id list
+raw_uups_adrev_s2s_attributed_v2_store_id_len,dense_length_features,ONLINE_AND_OFFLINE,dense,hist_length_featureset,,,,,log1p,10.0,,length of UUPS S2S attributed store_id list
+raw_uups_adrev_s2s_unattributed_v2_store_id_len,dense_length_features,ONLINE_AND_OFFLINE,dense,hist_length_featureset,,,,,log1p,10.0,,length of UUPS S2S unattributed store_id list
+raw_uups_purchase_attributed_v3_store_id_len,dense_length_features,ONLINE_AND_OFFLINE,dense,hist_length_featureset,,,,,log1p,10.0,,length of UUPS purchase attributed store_id list
+raw_uups_purchase_uasdk_v3_store_id_len,dense_length_features,ONLINE_AND_OFFLINE,dense,hist_length_featureset,,,,,log1p,10.0,,length of UUPS purchase UA SDK store_id list
+raw_uups_purchase_unattributed_v3_store_id_len,dense_length_features,ONLINE_AND_OFFLINE,dense,hist_length_featureset,,,,,log1p,10.0,,length of UUPS purchase unattributed store_id list
+installed_store_ids_len,dense_length_features,ONLINE_AND_OFFLINE,dense,hist_length_featureset,,,,,log1p,1000.0,,total number of installed store IDs
+feature_store_gamer_levelplay_adrev_distinct_store_id_last_180_days_len,dense_feature_store_length_features,ONLINE_AND_OFFLINE,dense,feature_store_featureset,,,,,log1p,10.0,,feature store: count of distinct levelplay adrev store IDs (180d)
+feature_store_gamer_levelplay_adrev_distinct_store_id_current_2_days_len,dense_feature_store_length_features,ONLINE_AND_OFFLINE,dense,feature_store_featureset,,,,,log1p,10.0,,feature store: count of distinct levelplay adrev store IDs (2d)
+feature_store_gamer_mmp_s2s_adrev_attributed_distinct_store_id_last_180_days_len,dense_feature_store_length_features,ONLINE_AND_OFFLINE,dense,feature_store_featureset,,,,,log1p,10.0,,feature store: count of distinct MMP S2S attributed store IDs (180d)
+feature_store_gamer_mmp_s2s_adrev_attributed_distinct_store_id_current_2_days_len,dense_feature_store_length_features,ONLINE_AND_OFFLINE,dense,feature_store_featureset,,,,,log1p,10.0,,feature store: count of distinct MMP S2S attributed store IDs (2d)
+feature_store_gamer_mmp_s2s_adrev_unattributed_distinct_store_id_last_180_days_len,dense_feature_store_length_features,ONLINE_AND_OFFLINE,dense,feature_store_featureset,,,,,log1p,10.0,,feature store: count of distinct MMP S2S unattributed store IDs (180d)
+feature_store_gamer_mmp_s2s_adrev_unattributed_distinct_store_id_current_2_days_len,dense_feature_store_length_features,ONLINE_AND_OFFLINE,dense,feature_store_featureset,,,,,log1p,10.0,,feature store: count of distinct MMP S2S unattributed store IDs (2d)
+feature_store_gamer_mmp_dl_adrev_attributed_distinct_store_id_last_180_days_len,dense_feature_store_length_features,ONLINE_AND_OFFLINE,dense,feature_store_featureset,,,,,log1p,10.0,,feature store: count of distinct MMP DL attributed store IDs (180d)
+feature_store_gamer_mmp_dl_adrev_unattributed_distinct_store_id_last_180_days_len,dense_feature_store_length_features,ONLINE_AND_OFFLINE,dense,feature_store_featureset,,,,,log1p,10.0,,feature store: count of distinct MMP DL unattributed store IDs (180d)
+apptopia_storeinfo_source_ratings_average,dense_apptopia_features,ONLINE_AND_OFFLINE,dense,apptopia_featureset,,,,,,,10.0,apptopia enrichment on publisher_store_id,publisher app ratings average
+apptopia_storeinfo_source_approx_size_bytes,dense_apptopia_features,ONLINE_AND_OFFLINE,dense,apptopia_featureset,,,,,,,16359449600.0,apptopia enrichment on publisher_store_id,publisher app approximate size in bytes
+apptopia_storeinfo_source_price_cents,dense_apptopia_features,ONLINE_AND_OFFLINE,dense,apptopia_featureset,,,,,,,10000.0,apptopia enrichment on publisher_store_id,publisher app price in cents
+apptopia_storeinfo_target_ratings_average,dense_apptopia_features,ONLINE_AND_OFFLINE,dense,apptopia_featureset,,,,,,,10.0,apptopia enrichment on target_store_id,target app ratings average
+apptopia_storeinfo_target_approx_size_bytes,dense_apptopia_features,ONLINE_AND_OFFLINE,dense,apptopia_featureset,,,,,,,16359449600.0,apptopia enrichment on target_store_id,target app approximate size in bytes
+apptopia_storeinfo_target_price_cents,dense_apptopia_features,ONLINE_AND_OFFLINE,dense,apptopia_featureset,,,,,,,10000.0,apptopia enrichment on target_store_id,target app price in cents
+sensor_tower_source_demographics_average_age,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,100.0,sensortower enrichment on publisher_store_id,source store: average user age
+sensor_tower_source_demographics_female,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,sensortower enrichment on publisher_store_id,source store: fraction of female users
+sensor_tower_source_retention_d1_retention,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,sensortower enrichment on publisher_store_id,source store: day-1 retention rate
+sensor_tower_source_retention_d3_retention,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,sensortower enrichment on publisher_store_id,source store: day-3 retention rate
+sensor_tower_source_retention_d5_retention,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,sensortower enrichment on publisher_store_id,source store: day-5 retention rate
+sensor_tower_source_retention_d7_retention,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,sensortower enrichment on publisher_store_id,source store: day-7 retention rate
+sensor_tower_source_retention_d14_retention,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,sensortower enrichment on publisher_store_id,source store: day-14 retention rate
+sensor_tower_source_retention_d21_retention,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,sensortower enrichment on publisher_store_id,source store: day-21 retention rate
+sensor_tower_source_retention_d28_retention,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,sensortower enrichment on publisher_store_id,source store: day-28 retention rate
+sensor_tower_source_retention_d90_retention,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,sensortower enrichment on publisher_store_id,source store: day-90 retention rate
+sensor_tower_source_average_session_count_per_user_per_day,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,50.0,sensortower enrichment on publisher_store_id,source store: avg sessions per user per day
+sensor_tower_source_average_session_count_per_user_per_week,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,350.0,sensortower enrichment on publisher_store_id,source store: avg sessions per user per week
+sensor_tower_source_average_session_count_per_user_per_month,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1500.0,sensortower enrichment on publisher_store_id,source store: avg sessions per user per month
+sensor_tower_source_average_session_duration_seconds,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,3600.0,sensortower enrichment on publisher_store_id,source store: avg session duration (seconds)
+sensor_tower_source_average_time_spent_seconds_per_user_per_day,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,86400.0,sensortower enrichment on publisher_store_id,source store: avg time spent per user per day (seconds)
+sensor_tower_source_average_time_spent_seconds_per_user_per_week,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,604800.0,sensortower enrichment on publisher_store_id,source store: avg time spent per user per week (seconds)
+sensor_tower_source_average_time_spent_seconds_per_user_per_month,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,2592000.0,sensortower enrichment on publisher_store_id,source store: avg time spent per user per month (seconds)
+sensor_tower_target_demographics_average_age,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,100.0,sensortower enrichment on target_store_id,target store: average user age
+sensor_tower_target_demographics_female,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,sensortower enrichment on target_store_id,target store: fraction of female users
+sensor_tower_target_retention_d1_retention,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,sensortower enrichment on target_store_id,target store: day-1 retention rate
+sensor_tower_target_retention_d3_retention,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,sensortower enrichment on target_store_id,target store: day-3 retention rate
+sensor_tower_target_retention_d5_retention,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,sensortower enrichment on target_store_id,target store: day-5 retention rate
+sensor_tower_target_retention_d7_retention,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,sensortower enrichment on target_store_id,target store: day-7 retention rate
+sensor_tower_target_retention_d14_retention,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,sensortower enrichment on target_store_id,target store: day-14 retention rate
+sensor_tower_target_retention_d21_retention,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,sensortower enrichment on target_store_id,target store: day-21 retention rate
+sensor_tower_target_retention_d28_retention,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,sensortower enrichment on target_store_id,target store: day-28 retention rate
+sensor_tower_target_retention_d90_retention,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,sensortower enrichment on target_store_id,target store: day-90 retention rate
+sensor_tower_target_average_session_count_per_user_per_day,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,50.0,sensortower enrichment on target_store_id,target store: avg sessions per user per day
+sensor_tower_target_average_session_count_per_user_per_week,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,350.0,sensortower enrichment on target_store_id,target store: avg sessions per user per week
+sensor_tower_target_average_session_count_per_user_per_month,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1500.0,sensortower enrichment on target_store_id,target store: avg sessions per user per month
+sensor_tower_target_average_session_duration_seconds,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,3600.0,sensortower enrichment on target_store_id,target store: avg session duration (seconds)
+sensor_tower_target_average_time_spent_seconds_per_user_per_day,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,86400.0,sensortower enrichment on target_store_id,target store: avg time spent per user per day (seconds)
+sensor_tower_target_average_time_spent_seconds_per_user_per_week,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,604800.0,sensortower enrichment on target_store_id,target store: avg time spent per user per week (seconds)
+sensor_tower_target_average_time_spent_seconds_per_user_per_month,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,2592000.0,sensortower enrichment on target_store_id,target store: avg time spent per user per month (seconds)
+sensor_tower_source_demographics_average_age_unknown,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,,source store: unknown indicator for average_age
+sensor_tower_source_demographics_female_unknown,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,,source store: unknown indicator for female fraction
+sensor_tower_source_retention_d1_retention_unknown,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,,source store: unknown indicator for d1 retention
+sensor_tower_source_retention_d3_retention_unknown,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,,source store: unknown indicator for d3 retention
+sensor_tower_source_retention_d5_retention_unknown,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,,source store: unknown indicator for d5 retention
+sensor_tower_source_retention_d7_retention_unknown,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,,source store: unknown indicator for d7 retention
+sensor_tower_source_retention_d14_retention_unknown,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,,source store: unknown indicator for d14 retention
+sensor_tower_source_retention_d21_retention_unknown,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,,source store: unknown indicator for d21 retention
+sensor_tower_source_retention_d28_retention_unknown,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,,source store: unknown indicator for d28 retention
+sensor_tower_source_retention_d90_retention_unknown,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,,source store: unknown indicator for d90 retention
+sensor_tower_source_average_session_count_per_user_per_day_unknown,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,,source store: unknown indicator for session count/day
+sensor_tower_source_average_session_count_per_user_per_week_unknown,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,,source store: unknown indicator for session count/week
+sensor_tower_source_average_session_count_per_user_per_month_unknown,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,,source store: unknown indicator for session count/month
+sensor_tower_source_average_session_duration_seconds_unknown,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,,source store: unknown indicator for session duration
+sensor_tower_source_average_time_spent_seconds_per_user_per_day_unknown,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,,source store: unknown indicator for time spent/day
+sensor_tower_source_average_time_spent_seconds_per_user_per_week_unknown,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,,source store: unknown indicator for time spent/week
+sensor_tower_source_average_time_spent_seconds_per_user_per_month_unknown,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,,source store: unknown indicator for time spent/month
+sensor_tower_target_demographics_average_age_unknown,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,,target store: unknown indicator for average_age
+sensor_tower_target_demographics_female_unknown,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,,target store: unknown indicator for female fraction
+sensor_tower_target_retention_d1_retention_unknown,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,,target store: unknown indicator for d1 retention
+sensor_tower_target_retention_d3_retention_unknown,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,,target store: unknown indicator for d3 retention
+sensor_tower_target_retention_d5_retention_unknown,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,,target store: unknown indicator for d5 retention
+sensor_tower_target_retention_d7_retention_unknown,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,,target store: unknown indicator for d7 retention
+sensor_tower_target_retention_d14_retention_unknown,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,,target store: unknown indicator for d14 retention
+sensor_tower_target_retention_d21_retention_unknown,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,,target store: unknown indicator for d21 retention
+sensor_tower_target_retention_d28_retention_unknown,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,,target store: unknown indicator for d28 retention
+sensor_tower_target_retention_d90_retention_unknown,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,,target store: unknown indicator for d90 retention
+sensor_tower_target_average_session_count_per_user_per_day_unknown,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,,target store: unknown indicator for session count/day
+sensor_tower_target_average_session_count_per_user_per_week_unknown,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,,target store: unknown indicator for session count/week
+sensor_tower_target_average_session_count_per_user_per_month_unknown,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,,target store: unknown indicator for session count/month
+sensor_tower_target_average_session_duration_seconds_unknown,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,,target store: unknown indicator for session duration
+sensor_tower_target_average_time_spent_seconds_per_user_per_day_unknown,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,,target store: unknown indicator for time spent/day
+sensor_tower_target_average_time_spent_seconds_per_user_per_week_unknown,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,,target store: unknown indicator for time spent/week
+sensor_tower_target_average_time_spent_seconds_per_user_per_month_unknown,dense_sensortower_features,ONLINE_AND_OFFLINE,dense,sensortower_featureset,,,,,,,1.0,,target store: unknown indicator for time spent/month
+is_holiday,dense_holiday_features,ONLINE_AND_OFFLINE,dense,holiday_featureset,,,,,,,1.0,,derived: is ad request on a holiday (min_cap=-1.0 cap=1.0)
+hour_of_day_cos,dense_cyclical_features,ONLINE_AND_OFFLINE,dense,cyclic_time_featureset,,,,,,,1.0,,cyclical encoding of hour-of-day (cosine); min_cap=-1.0
+hour_of_day_sin,dense_cyclical_features,ONLINE_AND_OFFLINE,dense,cyclic_time_featureset,,,,,,,1.0,,cyclical encoding of hour-of-day (sine); min_cap=-1.0
+day_of_week_cos,dense_cyclical_features,ONLINE_AND_OFFLINE,dense,cyclic_time_featureset,,,,,,,1.0,,cyclical encoding of day-of-week (cosine); min_cap=-1.0
+day_of_week_sin,dense_cyclical_features,ONLINE_AND_OFFLINE,dense,cyclic_time_featureset,,,,,,,1.0,,cyclical encoding of day-of-week (sine); min_cap=-1.0
+raw_uups_purchase_uasdk_v3_count_d7,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: UA SDK purchase count day 7; list_len=5
+raw_uups_purchase_uasdk_v3_count_d30,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: UA SDK purchase count day 30; list_len=5
+raw_uups_purchase_uasdk_v3_count_d180,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: UA SDK purchase count day 180; list_len=5
+raw_uups_purchase_uasdk_v3_sum_d7,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: UA SDK purchase revenue sum day 7; list_len=5
+raw_uups_purchase_uasdk_v3_sum_d30,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: UA SDK purchase revenue sum day 30; list_len=5
+raw_uups_purchase_uasdk_v3_sum_d180,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: UA SDK purchase revenue sum day 180; list_len=5
+raw_uups_purchase_unattributed_v3_count_d7,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: unattributed purchase count day 7; list_len=10
+raw_uups_purchase_unattributed_v3_count_d30,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: unattributed purchase count day 30; list_len=10
+raw_uups_purchase_unattributed_v3_count_d180,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: unattributed purchase count day 180; list_len=10
+raw_uups_purchase_unattributed_v3_sum_d7,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: unattributed purchase revenue sum day 7; list_len=10
+raw_uups_purchase_unattributed_v3_sum_d30,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: unattributed purchase revenue sum day 30; list_len=10
+raw_uups_purchase_unattributed_v3_sum_d180,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: unattributed purchase revenue sum day 180; list_len=10
+raw_uups_purchase_attributed_v3_count_d7,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: attributed purchase count day 7; list_len=5
+raw_uups_purchase_attributed_v3_count_d30,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: attributed purchase count day 30; list_len=5
+raw_uups_purchase_attributed_v3_count_d180,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: attributed purchase count day 180; list_len=5
+raw_uups_purchase_attributed_v3_sum_d7,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: attributed purchase revenue sum day 7; list_len=5
+raw_uups_purchase_attributed_v3_sum_d30,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: attributed purchase revenue sum day 30; list_len=5
+raw_uups_purchase_attributed_v3_sum_d180,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: attributed purchase revenue sum day 180; list_len=5
+raw_uups_adrev_levelplay_v2_count_d0,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: levelplay adrev event count day 0; list_len=30
+raw_uups_adrev_levelplay_v2_count_d7,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: levelplay adrev event count day 7; list_len=30
+raw_uups_adrev_levelplay_v2_count_d30,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: levelplay adrev event count day 30; list_len=30
+raw_uups_adrev_levelplay_v2_count_d180,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: levelplay adrev event count day 180; list_len=30
+raw_uups_adrev_levelplay_v2_sum_d0,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: levelplay adrev revenue sum day 0; list_len=30
+raw_uups_adrev_levelplay_v2_sum_d7,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: levelplay adrev revenue sum day 7; list_len=30
+raw_uups_adrev_levelplay_v2_sum_d30,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: levelplay adrev revenue sum day 30; list_len=30
+raw_uups_adrev_levelplay_v2_sum_d180,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: levelplay adrev revenue sum day 180; list_len=30
+raw_uups_adrev_oecpm_interstitial_v2_count_d7,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: OECPM interstitial adrev count day 7; list_len=10
+raw_uups_adrev_oecpm_interstitial_v2_count_d30,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: OECPM interstitial adrev count day 30; list_len=10
+raw_uups_adrev_oecpm_interstitial_v2_count_d180,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: OECPM interstitial adrev count day 180; list_len=10
+raw_uups_adrev_oecpm_interstitial_v2_sum_d7,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: OECPM interstitial adrev revenue sum day 7; list_len=10
+raw_uups_adrev_oecpm_interstitial_v2_sum_d30,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: OECPM interstitial adrev revenue sum day 30; list_len=10
+raw_uups_adrev_oecpm_interstitial_v2_sum_d180,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: OECPM interstitial adrev revenue sum day 180; list_len=10
+raw_uups_adrev_oecpm_rewarded_v2_count_d7,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: OECPM rewarded adrev count day 7; list_len=10
+raw_uups_adrev_oecpm_rewarded_v2_count_d30,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: OECPM rewarded adrev count day 30; list_len=10
+raw_uups_adrev_oecpm_rewarded_v2_count_d180,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: OECPM rewarded adrev count day 180; list_len=10
+raw_uups_adrev_oecpm_rewarded_v2_sum_d7,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: OECPM rewarded adrev revenue sum day 7; list_len=10
+raw_uups_adrev_oecpm_rewarded_v2_sum_d30,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: OECPM rewarded adrev revenue sum day 30; list_len=10
+raw_uups_adrev_oecpm_rewarded_v2_sum_d180,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: OECPM rewarded adrev revenue sum day 180; list_len=10
+raw_uups_adrev_s2s_unattributed_v2_count_d0,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: S2S unattributed adrev count day 0; list_len=30
+raw_uups_adrev_s2s_unattributed_v2_count_d7,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: S2S unattributed adrev count day 7; list_len=30
+raw_uups_adrev_s2s_unattributed_v2_count_d30,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: S2S unattributed adrev count day 30; list_len=30
+raw_uups_adrev_s2s_unattributed_v2_count_d180,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: S2S unattributed adrev count day 180; list_len=30
+raw_uups_adrev_s2s_unattributed_v2_sum_d0,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: S2S unattributed adrev revenue sum day 0; list_len=30
+raw_uups_adrev_s2s_unattributed_v2_sum_d7,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: S2S unattributed adrev revenue sum day 7; list_len=30
+raw_uups_adrev_s2s_unattributed_v2_sum_d30,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: S2S unattributed adrev revenue sum day 30; list_len=30
+raw_uups_adrev_s2s_unattributed_v2_sum_d180,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: S2S unattributed adrev revenue sum day 180; list_len=30
+raw_uups_adrev_s2s_attributed_v2_count_d0,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: S2S attributed adrev count day 0; list_len=10
+raw_uups_adrev_s2s_attributed_v2_count_d7,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: S2S attributed adrev count day 7; list_len=10
+raw_uups_adrev_s2s_attributed_v2_count_d30,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: S2S attributed adrev count day 30; list_len=10
+raw_uups_adrev_s2s_attributed_v2_count_d180,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: S2S attributed adrev count day 180; list_len=10
+raw_uups_adrev_s2s_attributed_v2_sum_d0,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: S2S attributed adrev revenue sum day 0; list_len=10
+raw_uups_adrev_s2s_attributed_v2_sum_d7,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: S2S attributed adrev revenue sum day 7; list_len=10
+raw_uups_adrev_s2s_attributed_v2_sum_d30,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: S2S attributed adrev revenue sum day 30; list_len=10
+raw_uups_adrev_s2s_attributed_v2_sum_d180,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,,,,log1p,,50.0,uups table: S2S attributed adrev revenue sum day 180; list_len=10
+raw_uups_adrev_levelplay_v2_last_updated,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,30,,,,50.0,,timestamp of last levelplay adrev update; list_len=30
+raw_uups_adrev_oecpm_interstitial_v2_last_updated,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,10,,,,,,timestamp of last OECPM interstitial adrev update; list_len=10
+raw_uups_adrev_oecpm_rewarded_v2_last_updated,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,10,,,,,,timestamp of last OECPM rewarded adrev update; list_len=10
+raw_uups_adrev_s2s_attributed_v2_last_updated,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,10,,,,,,timestamp of last S2S attributed adrev update; list_len=10
+raw_uups_adrev_s2s_unattributed_v2_last_updated,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,30,,,,,,timestamp of last S2S unattributed adrev update; list_len=30
+raw_uups_purchase_attributed_v3_last_updated,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,5,,,,,,timestamp of last attributed purchase update; list_len=5
+raw_uups_purchase_uasdk_v3_last_updated,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,5,,,,,,timestamp of last UA SDK purchase update; list_len=5
+raw_uups_purchase_unattributed_v3_last_updated,static_shape_dense_uups_features,ONLINE_AND_OFFLINE,dense,uups_featureset,,10,,,,,,timestamp of last unattributed purchase update; list_len=10
+feature_store_gamer_levelplay_adrev_revenue_sum_by_store_id_last_1_day,static_shape_dense_feature_store_features,ONLINE_AND_OFFLINE,dense,feature_store_featureset,,,,,log1p,,50.0,feature store levelplay adrev by store_id; revenue sum 1d; list_len=30
+feature_store_gamer_levelplay_adrev_revenue_sum_by_store_id_last_7_days,static_shape_dense_feature_store_features,ONLINE_AND_OFFLINE,dense,feature_store_featureset,,,,,log1p,,50.0,feature store levelplay adrev by store_id; revenue sum 7d; list_len=30
+feature_store_gamer_levelplay_adrev_revenue_sum_by_store_id_last_30_days,static_shape_dense_feature_store_features,ONLINE_AND_OFFLINE,dense,feature_store_featureset,,,,,log1p,,50.0,feature store levelplay adrev by store_id; revenue sum 30d; list_len=30
+feature_store_gamer_levelplay_adrev_revenue_sum_by_store_id_last_180_days,static_shape_dense_feature_store_features,ONLINE_AND_OFFLINE,dense,feature_store_featureset,,,,,log1p,,50.0,feature store levelplay adrev by store_id; revenue sum 180d; list_len=30
+feature_store_gamer_levelplay_adrev_impression_sum_by_store_id_last_1_day,static_shape_dense_feature_store_features,ONLINE_AND_OFFLINE,dense,feature_store_featureset,,,,,log1p,,50.0,feature store levelplay adrev by store_id; impression sum 1d; list_len=30
+feature_store_gamer_levelplay_adrev_impression_sum_by_store_id_last_7_days,static_shape_dense_feature_store_features,ONLINE_AND_OFFLINE,dense,feature_store_featureset,,,,,log1p,,50.0,feature store levelplay adrev by store_id; impression sum 7d; list_len=30
+feature_store_gamer_levelplay_adrev_impression_sum_by_store_id_last_30_days,static_shape_dense_feature_store_features,ONLINE_AND_OFFLINE,dense,feature_store_featureset,,,,,log1p,,50.0,feature store levelplay adrev by store_id; impression sum 30d; list_len=30
+feature_store_gamer_levelplay_adrev_impression_sum_by_store_id_last_180_days,static_shape_dense_feature_store_features,ONLINE_AND_OFFLINE,dense,feature_store_featureset,,,,,log1p,,50.0,feature store levelplay adrev by store_id; impression sum 180d; list_len=30
+feature_store_gamer_levelplay_adrev_event_days_by_store_id_last_1_day,static_shape_dense_feature_store_features,ONLINE_AND_OFFLINE,dense,feature_store_featureset,,,,,log1p,,50.0,feature store levelplay adrev by store_id; active event days 1d; list_len=30
+feature_store_gamer_levelplay_adrev_event_days_by_store_id_last_7_days,static_shape_dense_feature_store_features,ONLINE_AND_OFFLINE,dense,feature_store_featureset,,,,,log1p,,50.0,feature store levelplay adrev by store_id; active event days 7d; list_len=30
+feature_store_gamer_levelplay_adrev_event_days_by_store_id_last_30_days,static_shape_dense_feature_store_features,ONLINE_AND_OFFLINE,dense,feature_store_featureset,,,,,log1p,,50.0,feature store levelplay adrev by store_id; active event days 30d; list_len=30
+feature_store_gamer_levelplay_adrev_event_days_by_store_id_last_180_days,static_shape_dense_feature_store_features,ONLINE_AND_OFFLINE,dense,feature_store_featureset,,,,,log1p,,50.0,feature store levelplay adrev by store_id; active event days 180d; list_len=30
+feature_store_gamer_mmp_s2s_adrev_attributed_revenue_sum_by_store_id_last_1_day,static_shape_dense_feature_store_features,ONLINE_AND_OFFLINE,dense,feature_store_featureset,,,,,log1p,,50.0,feature store MMP S2S attributed adrev by store_id; revenue sum 1d; list_len=30
+feature_store_gamer_mmp_s2s_adrev_attributed_revenue_sum_by_store_id_last_7_days,static_shape_dense_feature_store_features,ONLINE_AND_OFFLINE,dense,feature_store_featureset,,,,,log1p,,50.0,feature store MMP S2S attributed adrev by store_id; revenue sum 7d; list_len=30
+feature_store_gamer_mmp_s2s_adrev_attributed_revenue_sum_by_store_id_last_30_days,static_shape_dense_feature_store_features,ONLINE_AND_OFFLINE,dense,feature_store_featureset,,,,,log1p,,50.0,feature store MMP S2S attributed adrev by store_id; revenue sum 30d; list_len=30
+feature_store_gamer_mmp_s2s_adrev_attributed_revenue_sum_by_store_id_last_180_days,static_shape_dense_feature_store_features,ONLINE_AND_OFFLINE,dense,feature_store_featureset,,,,,log1p,,50.0,feature store MMP S2S attributed adrev by store_id; revenue sum 180d; list_len=30
+feature_store_gamer_mmp_s2s_adrev_attributed_impression_sum_by_store_id_last_1_day,static_shape_dense_feature_store_features,ONLINE_AND_OFFLINE,dense,feature_store_featureset,,,,,log1p,,50.0,feature store MMP S2S attributed adrev by store_id; impression sum 1d; list_len=30
+feature_store_gamer_mmp_s2s_adrev_attributed_impression_sum_by_store_id_last_7_days,static_shape_dense_feature_store_features,ONLINE_AND_OFFLINE,dense,feature_store_featureset,,,,,log1p,,50.0,feature store MMP S2S attributed adrev by store_id; impression sum 7d; list_len=30
+feature_store_gamer_mmp_s2s_adrev_attributed_impression_sum_by_store_id_last_30_days,static_shape_dense_feature_store_features,ONLINE_AND_OFFLINE,dense,feature_store_featureset,,,,,log1p,,50.0,feature store MMP S2S attributed adrev by store_id; impression sum 30d; list_len=30
+feature_store_gamer_mmp_s2s_adrev_attributed_impression_sum_by_store_id_last_180_days,static_shape_dense_feature_store_features,ONLINE_AND_OFFLINE,dense,feature_store_featureset,,,,,log1p,,50.0,feature store MMP S2S attributed adrev by store_id; impression sum 180d; list_len=30
+feature_store_gamer_mmp_s2s_adrev_attributed_event_days_by_store_id_last_1_day,static_shape_dense_feature_store_features,ONLINE_AND_OFFLINE,dense,feature_store_featureset,,,,,log1p,,50.0,feature store MMP S2S attributed adrev by store_id; active event days 1d; list_len=30
+feature_store_gamer_mmp_s2s_adrev_attributed_event_days_by_store_id_last_7_days,static_shape_dense_feature_store_features,ONLINE_AND_OFFLINE,dense,feature_store_featureset,,,,,log1p,,50.0,feature store MMP S2S attributed adrev by store_id; active event days 7d; list_len=30
+feature_store_gamer_mmp_s2s_adrev_attributed_event_days_by_store_id_last_30_days,static_shape_dense_feature_store_features,ONLINE_AND_OFFLINE,dense,feature_store_featureset,,,,,log1p,,50.0,feature store MMP S2S attributed adrev by store_id; active event days 30d; list_len=30
+feature_store_gamer_mmp_s2s_adrev_attributed_event_days_by_store_id_last_180_days,static_shape_dense_feature_store_features,ONLINE_AND_OFFLINE,dense,feature_store_featureset,,,,,log1p,,50.0,feature store MMP S2S attributed adrev by store_id; active event days 180d; list_len=30
+feature_store_gamer_mmp_s2s_adrev_unattributed_revenue_sum_by_store_id_last_1_day,static_shape_dense_feature_store_features,ONLINE_AND_OFFLINE,dense,feature_store_featureset,,,,,log1p,,50.0,feature store MMP S2S unattributed adrev by store_id; revenue sum 1d; list_len=30
+feature_store_gamer_mmp_s2s_adrev_unattributed_revenue_sum_by_store_id_last_7_days,static_shape_dense_feature_store_features,ONLINE_AND_OFFLINE,dense,feature_store_featureset,,,,,log1p,,50.0,feature store MMP S2S unattributed adrev by store_id; revenue sum 7d; list_len=30
+feature_store_gamer_mmp_s2s_adrev_unattributed_revenue_sum_by_store_id_last_30_days,static_shape_dense_feature_store_features,ONLINE_AND_OFFLINE,dense,feature_store_featureset,,,,,log1p,,50.0,feature store MMP S2S unattributed adrev by store_id; revenue sum 30d; list_len=30
+feature_store_gamer_mmp_s2s_adrev_unattributed_revenue_sum_by_store_id_last_180_days,static_shape_dense_feature_store_features,ONLINE_AND_OFFLINE,dense,feature_store_featureset,,,,,log1p,,50.0,feature store MMP S2S unattributed adrev by store_id; revenue sum 180d; list_len=30
+feature_store_gamer_mmp_s2s_adrev_unattributed_impression_sum_by_store_id_last_1_day,static_shape_dense_feature_store_features,ONLINE_AND_OFFLINE,dense,feature_store_featureset,,,,,log1p,,50.0,feature store MMP S2S unattributed adrev by store_id; impression sum 1d; list_len=30
+feature_store_gamer_mmp_s2s_adrev_unattributed_impression_sum_by_store_id_last_7_days,static_shape_dense_feature_store_features,ONLINE_AND_OFFLINE,dense,feature_store_featureset,,,,,log1p,,50.0,feature store MMP S2S unattributed adrev by store_id; impression sum 7d; list_len=30
+feature_store_gamer_mmp_s2s_adrev_unattributed_impression_sum_by_store_id_last_30_days,static_shape_dense_feature_store_features,ONLINE_AND_OFFLINE,dense,feature_store_featureset,,,,,log1p,,50.0,feature store MMP S2S unattributed adrev by store_id; impression sum 30d; list_len=30
+feature_store_gamer_mmp_s2s_adrev_unattributed_impression_sum_by_store_id_last_180_days,static_shape_dense_feature_store_features,ONLINE_AND_OFFLINE,dense,feature_store_featureset,,,,,log1p,,50.0,feature store MMP S2S unattributed adrev by store_id; impression sum 180d; list_len=30
+feature_store_gamer_mmp_s2s_adrev_unattributed_event_days_by_store_id_last_1_day,static_shape_dense_feature_store_features,ONLINE_AND_OFFLINE,dense,feature_store_featureset,,,,,log1p,,50.0,feature store MMP S2S unattributed adrev by store_id; active event days 1d; list_len=30
+feature_store_gamer_mmp_s2s_adrev_unattributed_event_days_by_store_id_last_7_days,static_shape_dense_feature_store_features,ONLINE_AND_OFFLINE,dense,feature_store_featureset,,,,,log1p,,50.0,feature store MMP S2S unattributed adrev by store_id; active event days 7d; list_len=30
+feature_store_gamer_mmp_s2s_adrev_unattributed_event_days_by_store_id_last_30_days,static_shape_dense_feature_store_features,ONLINE_AND_OFFLINE,dense,feature_store_featureset,,,,,log1p,,50.0,feature store MMP S2S unattributed adrev by store_id; active event days 30d; list_len=30
+feature_store_gamer_mmp_s2s_adrev_unattributed_event_days_by_store_id_last_180_days,static_shape_dense_feature_store_features,ONLINE_AND_OFFLINE,dense,feature_store_featureset,,,,,log1p,,50.0,feature store MMP S2S unattributed adrev by store_id; active event days 180d; list_len=30
+feature_store_gamer_levelplay_adrev_lastupdated_by_store_id_last_180_days,static_shape_dense_feature_store_timestamp_features,ONLINE_AND_OFFLINE,dense,feature_store_featureset,,30,,,,50.0,,feature store: levelplay adrev last-updated timestamp by store_id (180d); list_len=30
+feature_store_gamer_mmp_s2s_adrev_attributed_lastupdated_by_store_id_last_180_days,static_shape_dense_feature_store_timestamp_features,ONLINE_AND_OFFLINE,dense,feature_store_featureset,,30,,,,,,feature store: MMP S2S attributed adrev last-updated timestamp by store_id (180d); list_len=30
+feature_store_gamer_mmp_s2s_adrev_unattributed_lastupdated_by_store_id_last_180_days,static_shape_dense_feature_store_timestamp_features,ONLINE_AND_OFFLINE,dense,feature_store_featureset,,30,,,,,,feature store: MMP S2S unattributed adrev last-updated timestamp by store_id (180d); list_len=30
+ad_format,sparse_oecpm_features,ONLINE_AND_OFFLINE,sparse,oecpm_featureset,10,1,none,1,,,adFormat,
+geolocation_country,sparse_oecpm_features,ONLINE_AND_OFFLINE,sparse,oecpm_featureset,300,1,none,1,,,country,
+platform,sparse_oecpm_features,ONLINE_AND_OFFLINE,sparse,oecpm_featureset,10,1,none,1,,,platform → coalesce 'null',
+gamer_id_scope,sparse_oecpm_features,ONLINE_AND_OFFLINE,sparse,oecpm_featureset,10,1,none,1,,,gamerIdScope,
+audience_id,sparse_oecpm_features,ONLINE_AND_OFFLINE,sparse,oecpm_featureset,46000,1,none,1,,,campaignInfo.audienceId → coalesce 'null',
+publisher_developer_id,sparse_oecpm_features,ONLINE_AND_OFFLINE,sparse,oecpm_featureset,40000,1,none,1,,,developerId,
+publisher_game_id,sparse_oecpm_features,ONLINE_AND_OFFLINE,sparse,oecpm_featureset,56000,1,none,1,,,sourceGameId,
+publisher_store_id,sparse_oecpm_features,ONLINE_AND_OFFLINE,sparse,oecpm_featureset,110000,1,none,1,,,sourceStoreId,
+target_developer_id,sparse_oecpm_features,ONLINE_AND_OFFLINE,sparse,oecpm_featureset,40000,1,none,1,,,targetDeveloperId,UV model adds target_developer_id (not in LC)
+target_game_id,sparse_oecpm_features,ONLINE_AND_OFFLINE,sparse,oecpm_featureset,56000,1,none,1,,,targetGameId cast string,
+target_store_id,sparse_oecpm_features,ONLINE_AND_OFFLINE,sparse,oecpm_featureset,110000,1,none,1,,,targetStoreId,
+ad_req_project_id,sparse_oecpm_features,ONLINE_AND_OFFLINE,sparse,oecpm_featureset,128000,50,none,1,,,ad_req_project_id array (IBT),IBT publisher app ID list
+installed_store_ids_channel,sparse_oecpm_features,ONLINE_AND_OFFLINE,sparse,oecpm_featureset,15,50,none,1,,,installed_store_ids_channel array,attribution channel for each installed store
+installed_store_ids,sparse_oecpm_features,ONLINE_AND_OFFLINE,sparse,oecpm_featureset,110000,50,none,1,,,installed_store_ids array,list of installed store IDs (IBT)
+device_connection_type,sparse_device_features,ONLINE_AND_OFFLINE,sparse,device_featureset,10,1,none,1,,,connectionType → coalesce 'null',
+device_orientation,sparse_device_features,ONLINE_AND_OFFLINE,sparse,device_featureset,10,1,none,1,,,deviceOrientation → coalesce 'null',
+device_type,sparse_device_features,ONLINE_AND_OFFLINE,sparse,device_featureset,67000,1,none,1,,,deviceType → coalesce 'null',
+apptopia_storeinfo_source_category_id,sparse_apptopia_features,ONLINE_AND_OFFLINE,sparse,apptopia_featureset,50,1,none,1,,,apptopia enrichment on publisher_store_id,source app category ID
+apptopia_storeinfo_source_subcategory_id,sparse_apptopia_features,ONLINE_AND_OFFLINE,sparse,apptopia_featureset,200,1,none,1,,,apptopia enrichment on publisher_store_id,source app subcategory ID
+apptopia_storeinfo_source_cross_store_app_id,sparse_apptopia_features,ONLINE_AND_OFFLINE,sparse,apptopia_featureset,10000,1,none,1,,,apptopia enrichment on publisher_store_id,source app cross-store app ID
+apptopia_storeinfo_source_offers_in_app_purchases,sparse_apptopia_features,ONLINE_AND_OFFLINE,sparse,apptopia_featureset,10,1,none,1,,,apptopia enrichment on publisher_store_id,source app IAP availability flag
+apptopia_storeinfo_target_category_id,sparse_apptopia_features,ONLINE_AND_OFFLINE,sparse,apptopia_featureset,50,1,none,1,,,apptopia enrichment on target_store_id,target app category ID
+apptopia_storeinfo_target_subcategory_id,sparse_apptopia_features,ONLINE_AND_OFFLINE,sparse,apptopia_featureset,200,1,none,1,,,apptopia enrichment on target_store_id,target app subcategory ID
+apptopia_storeinfo_target_cross_store_app_id,sparse_apptopia_features,ONLINE_AND_OFFLINE,sparse,apptopia_featureset,10000,1,none,1,,,apptopia enrichment on target_store_id,target app cross-store app ID
+apptopia_storeinfo_target_offers_in_app_purchases,sparse_apptopia_features,ONLINE_AND_OFFLINE,sparse,apptopia_featureset,10,1,none,1,,,apptopia enrichment on target_store_id,target app IAP availability flag
+device_atlas_hardware_classification,sparse_device_atlas_features,ONLINE_AND_OFFLINE,sparse,device_atlas_featureset,20,1,none,1,,,device_atlas enrichment on device_type,device hardware tier classification
+device_atlas_os_vendor,sparse_device_atlas_features,ONLINE_AND_OFFLINE,sparse,device_atlas_featureset,50,1,none,1,,,device_atlas enrichment on device_type,OS vendor (e.g. Apple/Google)
+device_atlas_device_vendor,sparse_device_atlas_features,ONLINE_AND_OFFLINE,sparse,device_atlas_featureset,5000,1,none,1,,,device_atlas enrichment on device_type,device manufacturer
+device_atlas_highest_cellular_generation,sparse_device_atlas_features,ONLINE_AND_OFFLINE,sparse,device_atlas_featureset,20,1,none,1,,,device_atlas enrichment on device_type,highest cellular network generation (3G/4G/5G)
+raw_uups_adrev_levelplay_v2_channel,sparse_uups_features,ONLINE_AND_OFFLINE,sparse,uups_featureset,15,30,none,1,,,uups table: levelplay adrev channel name,attribution channel per levelplay adrev event; list_len=30
+raw_uups_adrev_oecpm_interstitial_v2_channel,sparse_uups_features,ONLINE_AND_OFFLINE,sparse,uups_featureset,15,10,none,1,,,uups table: OECPM interstitial adrev channel name,attribution channel per OECPM interstitial adrev event; list_len=10
+raw_uups_adrev_oecpm_rewarded_v2_channel,sparse_uups_features,ONLINE_AND_OFFLINE,sparse,uups_featureset,15,10,none,1,,,uups table: OECPM rewarded adrev channel name,attribution channel per OECPM rewarded adrev event; list_len=10
+raw_uups_adrev_s2s_attributed_v2_channel,sparse_uups_features,ONLINE_AND_OFFLINE,sparse,uups_featureset,15,10,none,1,,,uups table: S2S attributed adrev channel name,attribution channel per S2S attributed adrev event; list_len=10
+raw_uups_adrev_s2s_unattributed_v2_channel,sparse_uups_features,ONLINE_AND_OFFLINE,sparse,uups_featureset,15,30,none,1,,,uups table: S2S unattributed adrev channel name,attribution channel per S2S unattributed adrev event; list_len=30
+raw_uups_purchase_attributed_v3_channel,sparse_uups_features,ONLINE_AND_OFFLINE,sparse,uups_featureset,15,5,none,1,,,uups table: attributed purchase channel name,attribution channel per attributed purchase event; list_len=5
+raw_uups_purchase_uasdk_v3_channel,sparse_uups_features,ONLINE_AND_OFFLINE,sparse,uups_featureset,15,5,none,1,,,uups table: UA SDK purchase channel name,attribution channel per UA SDK purchase event; list_len=5
+raw_uups_purchase_unattributed_v3_channel,sparse_uups_features,ONLINE_AND_OFFLINE,sparse,uups_featureset,15,10,none,1,,,uups table: unattributed purchase channel name,attribution channel per unattributed purchase event; list_len=10
+raw_uups_adrev_levelplay_v2_store_id,sparse_uups_features,ONLINE_AND_OFFLINE,sparse,uups_featureset,110000,30,none,1,,,uups table: levelplay adrev store ID,app store ID per levelplay adrev event; list_len=30
+raw_uups_adrev_oecpm_interstitial_v2_store_id,sparse_uups_features,ONLINE_AND_OFFLINE,sparse,uups_featureset,110000,10,none,1,,,uups table: OECPM interstitial adrev store ID,app store ID per OECPM interstitial adrev event; list_len=10
+raw_uups_adrev_oecpm_rewarded_v2_store_id,sparse_uups_features,ONLINE_AND_OFFLINE,sparse,uups_featureset,110000,10,none,1,,,uups table: OECPM rewarded adrev store ID,app store ID per OECPM rewarded adrev event; list_len=10
+raw_uups_adrev_s2s_attributed_v2_store_id,sparse_uups_features,ONLINE_AND_OFFLINE,sparse,uups_featureset,110000,10,none,1,,,uups table: S2S attributed adrev store ID,app store ID per S2S attributed adrev event; list_len=10
+raw_uups_adrev_s2s_unattributed_v2_store_id,sparse_uups_features,ONLINE_AND_OFFLINE,sparse,uups_featureset,110000,30,none,1,,,uups table: S2S unattributed adrev store ID,app store ID per S2S unattributed adrev event; list_len=30
+raw_uups_purchase_attributed_v3_store_id,sparse_uups_features,ONLINE_AND_OFFLINE,sparse,uups_featureset,110000,5,none,1,,,uups table: attributed purchase store ID,app store ID per attributed purchase event; list_len=5
+raw_uups_purchase_uasdk_v3_store_id,sparse_uups_features,ONLINE_AND_OFFLINE,sparse,uups_featureset,110000,5,none,1,,,uups table: UA SDK purchase store ID,app store ID per UA SDK purchase event; list_len=5
+raw_uups_purchase_unattributed_v3_store_id,sparse_uups_features,ONLINE_AND_OFFLINE,sparse,uups_featureset,110000,10,none,1,,,uups table: unattributed purchase store ID,app store ID per unattributed purchase event; list_len=10
+sensor_tower_source_primary_category,sparse_sensortower_features,ONLINE_AND_OFFLINE,sparse,sensortower_featureset,85,1,mean,1,,,sensortower enrichment on publisher_store_id,source store: primary app category
+sensor_tower_source_game_genre,sparse_sensortower_features,ONLINE_AND_OFFLINE,sparse,sensortower_featureset,27,1,mean,1,,,sensortower enrichment on publisher_store_id,source store: game genre
+sensor_tower_source_game_subgenre,sparse_sensortower_features,ONLINE_AND_OFFLINE,sparse,sensortower_featureset,150,1,mean,1,,,sensortower enrichment on publisher_store_id,source store: game subgenre
+sensor_tower_source_game_theme,sparse_sensortower_features,ONLINE_AND_OFFLINE,sparse,sensortower_featureset,188,1,mean,1,,,sensortower enrichment on publisher_store_id,source store: game theme
+sensor_tower_source_game_class,sparse_sensortower_features,ONLINE_AND_OFFLINE,sparse,sensortower_featureset,14,1,mean,1,,,sensortower enrichment on publisher_store_id,source store: game class
+sensor_tower_source_game_subcategory,sparse_sensortower_features,ONLINE_AND_OFFLINE,sparse,sensortower_featureset,35,1,mean,1,,,sensortower enrichment on publisher_store_id,source store: game subcategory
+sensor_tower_target_primary_category,sparse_sensortower_features,ONLINE_AND_OFFLINE,sparse,sensortower_featureset,85,1,none,1,,,sensortower enrichment on target_store_id,target store: primary app category
+sensor_tower_target_game_genre,sparse_sensortower_features,ONLINE_AND_OFFLINE,sparse,sensortower_featureset,27,1,none,1,,,sensortower enrichment on target_store_id,target store: game genre
+sensor_tower_target_game_subgenre,sparse_sensortower_features,ONLINE_AND_OFFLINE,sparse,sensortower_featureset,150,1,none,1,,,sensortower enrichment on target_store_id,target store: game subgenre
+sensor_tower_target_game_theme,sparse_sensortower_features,ONLINE_AND_OFFLINE,sparse,sensortower_featureset,188,1,none,1,,,sensortower enrichment on target_store_id,target store: game theme
+sensor_tower_target_game_class,sparse_sensortower_features,ONLINE_AND_OFFLINE,sparse,sensortower_featureset,14,1,mean,1,,,sensortower enrichment on target_store_id,target store: game class
+sensor_tower_target_game_subcategory,sparse_sensortower_features,ONLINE_AND_OFFLINE,sparse,sensortower_featureset,35,1,mean,1,,,sensortower enrichment on target_store_id,target store: game subcategory
+sensor_tower_target_game_monetization_model,sparse_sensortower_features,ONLINE_AND_OFFLINE,sparse,sensortower_featureset,15,1,mean,1,,,sensortower enrichment on target_store_id,target store: monetization model (free/paid/freemium)
+feature_store_gamer_levelplay_adrev_channel,sparse_feature_store_features,ONLINE_AND_OFFLINE,sparse,feature_store_featureset,15,30,none,1,,,feature store: levelplay adrev attribution channel,list of channels with levelplay adrev activity; list_len=30
+feature_store_gamer_mmp_s2s_adrev_attributed_channel,sparse_feature_store_features,ONLINE_AND_OFFLINE,sparse,feature_store_featureset,15,30,none,1,,,feature store: MMP S2S attributed adrev attribution channel,list of channels with S2S attributed adrev activity; list_len=30
+feature_store_gamer_mmp_s2s_adrev_unattributed_channel,sparse_feature_store_features,ONLINE_AND_OFFLINE,sparse,feature_store_featureset,15,30,none,1,,,feature store: MMP S2S unattributed adrev attribution channel,list of channels with S2S unattributed adrev activity; list_len=30
+feature_store_gamer_levelplay_adrev_distinct_store_id_last_180_days,sparse_feature_store_features,ONLINE_AND_OFFLINE,sparse,feature_store_featureset,110000,30,none,1,,,feature store: distinct levelplay adrev store IDs (180d),list of stores with levelplay adrev activity last 180d; list_len=30
+feature_store_gamer_mmp_s2s_adrev_attributed_distinct_store_id_last_180_days,sparse_feature_store_features,ONLINE_AND_OFFLINE,sparse,feature_store_featureset,110000,30,none,1,,,feature store: distinct S2S attributed adrev store IDs (180d),list of stores with S2S attributed adrev activity last 180d; list_len=30
+feature_store_gamer_mmp_s2s_adrev_unattributed_distinct_store_id_last_180_days,sparse_feature_store_features,ONLINE_AND_OFFLINE,sparse,feature_store_featureset,110000,30,none,1,,,feature store: distinct S2S unattributed adrev store IDs (180d),list of stores with S2S unattributed adrev activity last 180d; list_len=30
+platform_os_version,sparse_user_value_plt_os_version_featureset,ONLINE_AND_OFFLINE,sparse,user_value_featureset,400,1,none,1,,,platform + OS version string,combined platform and OS version token
