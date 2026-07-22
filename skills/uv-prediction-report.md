@@ -620,6 +620,251 @@ plot_specs = [
      allval_data, "discount_factor",        "discount_factor",         ",.4f", allval_cmap),
 ]
 
+# ── Highlights & Analysis ─────────────────────────────────────────────────────
+def build_highlights(iap_rows, adrev_rows, cpe_rows, cost_rows, campaign_rows, allval_rows):
+    """Analyse loaded CSVs and return an HTML highlights block."""
+    cards = []
+
+    def hl_card(title, body, kind="neutral"):
+        return f'<div class="hl-card hl-{kind}"><div class="hl-title">{title}</div><div class="hl-body">{body}</div></div>'
+
+    # ── IAP d7 & d28 weighted daily trend ──────────────────────────────────────
+    for window, final_col, label in [
+        ("d7",  "avg_dep_d7_final",  "IAP D7 Final (dep_d7_final)"),
+        ("d28", "avg_dep_d28_final", "IAP D28 Final (dep_d28_final)"),
+    ]:
+        daily = {}
+        for r in iap_rows:
+            if r.get("post_install_window", "").strip() != window:
+                continue
+            d = r.get("submit_date", "")
+            try:
+                v, c = float(r[final_col]), int(r["start_count"])
+                prev = daily.get(d, (0.0, 0))
+                daily[d] = (prev[0] + v * c, prev[1] + c)
+            except (ValueError, KeyError):
+                pass
+        if len(daily) < 3:
+            continue
+        pts = sorted((d, s / c) for d, (s, c) in daily.items() if c > 0)
+        dates, vals = zip(*pts)
+        peak_v, peak_d = max((v, d) for d, v in pts)
+        low_v,  low_d  = min((v, d) for d, v in pts)
+        first_v = vals[0]
+        last_v  = vals[-1]
+        pct_from_start = (last_v - first_v) / first_v * 100 if first_v else 0
+
+        # Find largest single-day drop
+        drops = [(vals[i+1] - vals[i], dates[i], dates[i+1]) for i in range(len(vals)-1)]
+        worst_drop, d_from, d_to = min(drops, key=lambda x: x[0])
+        worst_drop_pct = worst_drop / vals[list(dates).index(d_from)] * 100 if vals[list(dates).index(d_from)] else 0
+
+        kind = "warn" if abs(worst_drop_pct) > 10 or abs(pct_from_start) > 15 else "info"
+        lines = [
+            f"Range: <strong>{first_v:.3f}</strong> ({dates[0]}) → <strong>{last_v:.3f}</strong> ({dates[-1]}) "
+            f"(<strong>{'%+.1f' % pct_from_start}%</strong> overall).",
+            f"Peak: <strong>{peak_v:.3f}</strong> on {peak_d}. Low: <strong>{low_v:.3f}</strong> on {low_d}.",
+        ]
+        if abs(worst_drop_pct) > 5:
+            lines.append(
+                f"Largest single-day move: <strong>{'%+.3f' % worst_drop} ({'%+.1f' % worst_drop_pct}%)</strong> "
+                f"from {d_from} → {d_to}."
+            )
+        cards.append(hl_card(label, " ".join(lines), kind))
+
+    # ── AdRev weighted daily trend ──────────────────────────────────────────────
+    for window, val_col, label in [
+        ("d0",  "avg_adrev_d0_value", "AdRev D0 Value"),
+        ("d7",  "avg_adrev_d7_value", "AdRev D7 Value"),
+        ("d28", "avg_adrev_value",    "AdRev D28 Value"),
+    ]:
+        daily = {}
+        for r in adrev_rows:
+            if r.get("post_install_window", "").strip() != window:
+                continue
+            d = r.get("submit_date", "")
+            try:
+                v, c = float(r[val_col]), int(r["start_count"])
+                prev = daily.get(d, (0.0, 0))
+                daily[d] = (prev[0] + v * c, prev[1] + c)
+            except (ValueError, KeyError):
+                pass
+        if len(daily) < 3:
+            continue
+        pts = sorted((d, s / c) for d, (s, c) in daily.items() if c > 0)
+        dates, vals = zip(*pts)
+        first_v, last_v = vals[0], vals[-1]
+        peak_v, peak_d = max((v, d) for d, v in pts)
+        low_v,  low_d  = min((v, d) for d, v in pts)
+        pct = (last_v - first_v) / first_v * 100 if first_v else 0
+        drops = [(vals[i+1] - vals[i], dates[i], dates[i+1]) for i in range(len(vals)-1)]
+        worst_drop, d_from, d_to = min(drops, key=lambda x: x[0])
+        worst_pct = worst_drop / vals[list(dates).index(d_from)] * 100 if vals[list(dates).index(d_from)] else 0
+        kind = "warn" if abs(worst_pct) > 10 or abs(pct) > 15 else "info"
+        lines = [
+            f"Range: <strong>{first_v:.4f}</strong> ({dates[0]}) → <strong>{last_v:.4f}</strong> ({dates[-1]}) "
+            f"(<strong>{'%+.1f' % pct}%</strong> overall).",
+            f"Peak: <strong>{peak_v:.4f}</strong> on {peak_d}. Low: <strong>{low_v:.4f}</strong> on {low_d}.",
+        ]
+        if abs(worst_pct) > 5:
+            lines.append(
+                f"Largest single-day move: <strong>{'%+.4f' % worst_drop} ({'%+.1f' % worst_pct}%)</strong> "
+                f"from {d_from} → {d_to}."
+            )
+        cards.append(hl_card(label, " ".join(lines), kind))
+
+    # ── CPE purchase weighted daily trend ───────────────────────────────────────
+    for etype in ("purchase", "level_complete", "retention"):
+        daily = {}
+        for r in cpe_rows:
+            if r.get("app_event_type", "").strip() != etype:
+                continue
+            d = r.get("submit_date", "")
+            try:
+                v, c = float(r["avg_cpe_pred"]), int(r["start_count"])
+                prev = daily.get(d, (0.0, 0))
+                daily[d] = (prev[0] + v * c, prev[1] + c)
+            except (ValueError, KeyError):
+                pass
+        if len(daily) < 3:
+            continue
+        pts = sorted((d, s / c) for d, (s, c) in daily.items() if c > 0)
+        dates, vals = zip(*pts)
+        first_v, last_v = vals[0], vals[-1]
+        peak_v, peak_d = max((v, d) for d, v in pts)
+        low_v,  low_d  = min((v, d) for d, v in pts)
+        pct = (last_v - first_v) / first_v * 100 if first_v else 0
+        drops = [(vals[i+1] - vals[i], dates[i], dates[i+1]) for i in range(len(vals)-1)]
+        worst_drop, d_from, d_to = min(drops, key=lambda x: x[0])
+        worst_pct = worst_drop / vals[list(dates).index(d_from)] * 100 if vals[list(dates).index(d_from)] else 0
+        # volume
+        vol_daily = {}
+        for r in cpe_rows:
+            if r.get("app_event_type", "").strip() != etype:
+                continue
+            d = r.get("submit_date", "")
+            try:
+                vol_daily[d] = vol_daily.get(d, 0) + int(r["start_count"])
+            except (ValueError, KeyError):
+                pass
+        peak_vol_d = max(vol_daily, key=vol_daily.get) if vol_daily else ""
+        peak_vol   = vol_daily.get(peak_vol_d, 0)
+        kind = "warn" if abs(worst_pct) > 10 or abs(pct) > 15 else "info"
+        lines = [
+            f"Range: <strong>{first_v:.5f}</strong> ({dates[0]}) → <strong>{last_v:.5f}</strong> ({dates[-1]}) "
+            f"(<strong>{'%+.1f' % pct}%</strong> overall).",
+            f"Peak prob: <strong>{peak_v:.5f}</strong> on {peak_d}. Low: <strong>{low_v:.5f}</strong> on {low_d}.",
+        ]
+        if abs(worst_pct) > 5:
+            lines.append(
+                f"Largest single-day move: <strong>{'%+.5f' % worst_drop} ({'%+.1f' % worst_pct}%)</strong> "
+                f"from {d_from} → {d_to}."
+            )
+        if peak_vol_d:
+            lines.append(f"Volume peak: <strong>{peak_vol:,}</strong> starts on {peak_vol_d}.")
+        cards.append(hl_card(f"CPE — {etype.replace('_',' ').title()} Probability", " ".join(lines), kind))
+
+    # ── CPE model version transitions ───────────────────────────────────────────
+    model_dates = {}
+    for r in cpe_rows:
+        m = r.get("cpe_model_version", "").replace("unified-user-value-", "") or "(no version)"
+        d = r.get("submit_date", "")
+        if m not in model_dates:
+            model_dates[m] = [d, d]
+        else:
+            model_dates[m][0] = min(model_dates[m][0], d)
+            model_dates[m][1] = max(model_dates[m][1], d)
+    all_dates = sorted({r.get("submit_date","") for r in cpe_rows if r.get("submit_date")})
+    first_date, last_date = (all_dates[0], all_dates[-1]) if all_dates else ("", "")
+    entries = sorted([(m, ds[0]) for m, ds in model_dates.items() if ds[0] > first_date], key=lambda x: x[1])
+    exits   = sorted([(m, ds[1]) for m, ds in model_dates.items() if ds[1] < last_date],  key=lambda x: x[1])
+    if entries or exits:
+        lines = []
+        if entries:
+            lines.append("New model versions entered: " + ", ".join(f"<code>{m}</code> ({d})" for m, d in entries) + ".")
+        if exits:
+            lines.append("Model versions exited: " + ", ".join(f"<code>{m}</code> (last seen {d})" for m, d in exits) + ".")
+        cards.append(hl_card("CPE — Model Version Transitions", " ".join(lines), "neutral"))
+
+    # ── IAP model version transitions ───────────────────────────────────────────
+    iap_model_dates = {}
+    for r in iap_rows:
+        m = r.get("dep_model_version", "").replace("unified-user-value-", "") or "(no version)"
+        d = r.get("submit_date", "")
+        if m not in iap_model_dates:
+            iap_model_dates[m] = [d, d]
+        else:
+            iap_model_dates[m][0] = min(iap_model_dates[m][0], d)
+            iap_model_dates[m][1] = max(iap_model_dates[m][1], d)
+    iap_dates = sorted({r.get("submit_date","") for r in iap_rows if r.get("submit_date")})
+    iap_first, iap_last = (iap_dates[0], iap_dates[-1]) if iap_dates else ("", "")
+    iap_entries = sorted([(m, ds[0]) for m, ds in iap_model_dates.items() if ds[0] > iap_first], key=lambda x: x[1])
+    iap_exits   = sorted([(m, ds[1]) for m, ds in iap_model_dates.items() if ds[1] < iap_last],  key=lambda x: x[1])
+    if iap_entries or iap_exits:
+        lines = []
+        if iap_entries:
+            lines.append("New IAP model versions entered: " + ", ".join(f"<code>{m}</code> ({d})" for m, d in iap_entries) + ".")
+        if iap_exits:
+            lines.append("IAP model versions exited: " + ", ".join(f"<code>{m}</code> (last seen {d})" for m, d in iap_exits) + ".")
+        cards.append(hl_card("IAP — Model Version Transitions", " ".join(lines), "neutral"))
+
+    # ── Campaign changes ────────────────────────────────────────────────────────
+    all_camp_dates = sorted({r.get("submit_date","") for r in cpe_rows + iap_rows + cost_rows if r.get("submit_date","")})
+    period_first = all_camp_dates[0] if all_camp_dates else START_DATE
+    period_last  = all_camp_dates[-1] if all_camp_dates else END_DATE
+    new_camps  = [(r["campaign_id"], r.get("campaign_type",""), r["first_seen"])
+                  for r in campaign_rows if r.get("first_seen","") > period_first]
+    ended_camps= [(r["campaign_id"], r.get("campaign_type",""), r["last_seen"])
+                  for r in campaign_rows if r.get("last_seen","") < period_last]
+    if new_camps or ended_camps:
+        lines = []
+        if new_camps:
+            lines.append("Campaigns launched mid-period: " +
+                ", ".join(f"<code>{cid[:12]}…</code> ({ctype or 'unknown'}, started {fs})"
+                          for cid, ctype, fs in new_camps) + ".")
+        if ended_camps:
+            lines.append("Campaigns that went inactive before period end: " +
+                ", ".join(f"<code>{cid[:12]}…</code> (last seen {ls})"
+                          for cid, ctype, ls in ended_camps) + ".")
+        cards.append(hl_card("Campaign Changes", " ".join(lines), "neutral"))
+
+    # ── Cost trend ─────────────────────────────────────────────────────────────
+    cost_daily = {}
+    for r in cost_rows:
+        d = r.get("submit_date","")
+        try:
+            v, c = float(r["avg_cost"]), int(r["start_count"])
+            prev = cost_daily.get(d, (0.0, 0))
+            cost_daily[d] = (prev[0] + v * c, prev[1] + c)
+        except (ValueError, KeyError):
+            pass
+    if len(cost_daily) >= 3:
+        pts = sorted((d, s / c) for d, (s, c) in cost_daily.items() if c > 0)
+        dates, vals = zip(*pts)
+        first_v, last_v = vals[0], vals[-1]
+        peak_v, peak_d = max((v, d) for d, v in pts)
+        low_v,  low_d  = min((v, d) for d, v in pts)
+        pct = (last_v - first_v) / first_v * 100 if first_v else 0
+        kind = "warn" if abs(pct) > 20 else "neutral"
+        cards.append(hl_card(
+            "Avg Cost Trend",
+            f"Range: <strong>{first_v:,.0f}</strong> ({dates[0]}) → <strong>{last_v:,.0f}</strong> ({dates[-1]}) "
+            f"(<strong>{'%+.1f' % pct}%</strong> overall). "
+            f"Peak: <strong>{peak_v:,.0f}</strong> on {peak_d}. Low: <strong>{low_v:,.0f}</strong> on {low_d}.",
+            kind,
+        ))
+
+    if not cards:
+        return ""
+    grid = "\n".join(cards)
+    return f"""
+<div class="highlights">
+  <h2 style="border-left:4px solid #f0c040;color:#f0c040;margin-top:0">Highlights &amp; Analysis</h2>
+  <div class="hl-grid">{grid}</div>
+</div>"""
+
+highlights_html = build_highlights(iap_rows, adrev_rows, cpe_rows, cost_rows, campaign_rows, allval_rows)
+
 # ── Campaign summary section ───────────────────────────────────────────────────
 campaign_section = ""
 if campaign_rows:
@@ -712,6 +957,16 @@ html = f"""<!DOCTYPE html>
   th {{ background: #2a3550; color: #aac4ff; padding: 7px 10px; text-align: left; white-space: nowrap; }}
   td {{ padding: 6px 10px; border-bottom: 1px solid #2a3550; white-space: nowrap; }}
   tr:hover td {{ background: #1f2840; }}
+  code {{ background: #1f2840; padding: 1px 5px; border-radius: 4px; font-size: 0.85em; color: #a8c7fa; }}
+  .highlights {{ background: #12172a; border: 1px solid #3a4a7a; border-radius: 12px; padding: 24px; margin: 24px 0; }}
+  .hl-grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 14px; margin-top: 16px; }}
+  .hl-card {{ border-radius: 8px; padding: 16px; border-left: 4px solid; }}
+  .hl-warn    {{ background: #1f1a10; border-color: #f0a040; }}
+  .hl-info    {{ background: #0f1a2a; border-color: #4a9eff; }}
+  .hl-neutral {{ background: #151d2a; border-color: #5a7a9a; }}
+  .hl-title {{ font-size: 0.95rem; font-weight: 600; margin-bottom: 8px; color: #e8eaf0; }}
+  .hl-body  {{ font-size: 0.85rem; color: #a8b8cc; line-height: 1.6; }}
+  .hl-body strong {{ color: #e8eaf0; }}
 </style>
 </head>
 <body>
@@ -722,6 +977,7 @@ html = f"""<!DOCTYPE html>
   Game: <strong>{GAME_ID}</strong> &nbsp;|&nbsp;
   Campaign: <strong>{CAMPAIGN_ID}</strong>
 </div>
+{highlights_html}
 {sections_html}
 {sql_section}
 </div>
@@ -769,5 +1025,6 @@ A single HTML file with campaign summary table + **13 interactive plots** (+ 17 
 - **Window values**: Typical values are `d7` and `d28` for IAP/AdRev; `d0` also appears for AdRev. Rows with no window value default to `(no window)` in the legend.
 - **Campaign drill-down**: Uncomment `AND body.campaign_id = "..."` in all queries.
 - **Traffic type filter**: Add `AND body.\`valuation_metadata\`[SAFE_OFFSET(0)].model_type IN (...)` to filter by type.
+- **Avg Max Cost / tCPE**: For CPE campaigns (purchase, retention, level_complete), `max_cost` represents the **tCPE** (target cost-per-event) — the maximum the campaign is willing to pay per event. It is not a bid cap in the traditional sense but the campaign's optimization target.
 - **Winning vs. all bids**: `mz_dcpi_prediction_v1` = winning bids only. Use Query E (`dcpi_valuation_v1alpha1`) to see all valuations including losses — this matches what BI team dashboards typically show and will have lower avg cost/predictions since losses are included.
 - **Query E sampling**: `TABLESAMPLE SYSTEM (5 PERCENT)` is applied for cost control. Results are approximate; remove it for exact counts on short date ranges.

@@ -1,7 +1,7 @@
 # MMP Post-Install Optimization Training v2 — Deep Dive Analysis Report
 
 **Dataset:** `unity-feature-platform-prd.ads_feature_platform_paimon.mmp_post_install_optimization_training_v2`
-**Analysis Period:** 2026-06-01 to 2026-07-05 (latest available partition)
+**Analysis Period:** 2026-06-30 to 2026-07-06 (latest available partition)
 **Attribution Column:** `is_attributed` (BOOLEAN)
 
 ---
@@ -10,9 +10,9 @@
 
 | Segment | Row Count | Share |
 |---|---|---|
-| **Unattributed** (`is_attributed = false`) | 2,470,195,068 | 94.6% |
-| **Attributed** (`is_attributed = true`) | 141,199,454 | 5.4% |
-| **Total** | **2,611,394,522** | 100% |
+| **Unattributed** (`is_attributed = false`) | 1,627,724,531 | 94.6% |
+| **Attributed** (`is_attributed = true`) | 93,729,870 | 5.4% |
+| **Total** | **1,721,454,401** | 100% |
 
 The dataset is heavily skewed toward unattributed installs (~18:1 ratio). Attributed users represent users whose install was successfully tied to a Unity ad campaign via an MMP partner (e.g., AppsFlyer), while unattributed users came through organic channels or could not be matched to a campaign.
 
@@ -22,8 +22,8 @@ A key structural property of this dataset: **~83% of all rows have NULL values f
 
 | Segment | Rows with NULL event data | Rows with event data | NULL rate |
 |---|---|---|---|
-| Attributed | 117,163,675 | 24,035,779 | **83.0%** |
-| Unattributed | 2,057,675,786 | 412,519,282 | **83.3%** |
+| Attributed | 77,333,701 | 16,396,169 | **82.5%** |
+| Unattributed | 1,349,933,690 | 277,790,841 | **82.9%** |
 
 Because the NULL rate is consistent across D1 and D28 (i.e., `null_d1 ≈ null_d28`), this is **not a recency artifact** — it is a selective pipeline property. Event columns are only populated for installs where the advertiser actively configured post-install event tracking with their MMP. The remaining 83% of rows have bid request, auction, and device features but no post-install signal.
 
@@ -52,19 +52,21 @@ A direct integrity check across 47.5M attributed rows and 842M unattributed rows
 
 The columns are logically consistent. `cum_has_lc_event_dx` is strictly a subset of `cum_has_event_dx` as expected.
 
-### True Positive Rates (among non-null rows, 2026-06-01 to 2026-06-28)
+### True Positive Rates (among non-null rows, 2026-06-30 to 2026-07-06)
 
 | Metric | Attributed | Unattributed |
 |---|---|---|
-| Non-null event rows | 7,639,610 | 134,728,441 |
-| `cum_has_event_d7 = 1` | **7,633,329 (99.92%)** | **134,697,465 (99.98%)** |
-| `cum_has_lc_event_d7 = 1` | 2,456,120 (32.15%) | 66,855,282 (49.62%) |
-| Has event but NO LC | 5,177,209 (67.77%) | 67,842,183 (50.35%) |
-| No event at all by D7 | 6,281 (0.08%) | 30,976 (0.02%) |
-| Avg event count (D7) | 5.17 | 5.94 |
-| Avg LC event count (D7) | 1.95 | 2.18 |
+| Non-null event rows | 16,396,169 | 277,790,841 |
+| `cum_has_event_d7 = 1` | **15,896,696 (96.95%)** | **268,776,336 (96.76%)** |
+| `cum_has_lc_event_d7 = 1` | 5,427,053 (33.10%) | 141,054,478 (50.78%) |
+| Has event but NO LC | 10,469,643 (63.86%) | 127,721,858 (45.98%) |
+| No event at all by D7 | 499,473 (3.05%) | 9,014,505 (3.24%) |
+| Avg event count (D7) | 6.80 | 7.56 |
+| Avg LC event count (D7) | 2.19 | 2.89 |
+| `cum_has_event_d7` rate (NULL=0, all rows) | 16.96% | 16.51% |
+| `cum_has_lc_event_d7` rate (NULL=0, all rows) | 5.79% | 8.67% |
 
-> **Note on the report's ~97-98% figure:** Section 2 below shows slightly lower rates (97.81–97.90%) because the earlier query spanned June 1 – July 5 and included recent installs whose 7-day observation window had not fully elapsed at the partition date. The 99.9%+ figure above uses June 1–28 only, giving all installs at least 7 days to accumulate events.
+> **Note on the ~3% no-event rate:** The `has_no_event_d7` rate is higher here (3.0–3.2%) than in earlier analysis of June 1–28 (0.08–0.02%). This reflects installs from early July whose 7-day observation window had not fully elapsed at partition time. These rows will accumulate events as later partitions arrive.
 
 ### Why `cum_has_event_dx` Is Near-Universal (99.9%)
 
@@ -99,27 +101,25 @@ This metric captures the cumulative share of users — **among those with event 
 
 | Day | Unattributed | Attributed | Delta (Attr - Unattr) |
 |---|---|---|---|
-| D1 | 92.53% | 93.46% | **+0.93 pp** |
-| D3 | 95.41% | 95.89% | +0.48 pp |
-| D7 | 97.81% | 97.90% | +0.09 pp |
-| D14 | 99.05% | 99.23% | +0.18 pp |
+| D1 | 90.15% | 91.46% | **+1.31 pp** |
+| D3 | 93.53% | 94.31% | +0.78 pp |
+| D7 | 96.75% | 96.95% | +0.20 pp |
+| D14 | 98.60% | 98.87% | +0.27 pp |
 | D28 | 100.00% | 100.00% | 0 pp |
 
-**Key Finding:** Custom event completion rates are virtually identical across both segments within the event-configured population. Both converge to 100% by D28. The 100% at D28 reflects that within the event-configured subpopulation, every user who has tracking set up will eventually register at least one event — it is not evidence that all installs have events.
-
-The slight D1 edge for attributed users (+0.93 pp) disappears by D7, suggesting event-firing cadence is driven by product behavior rather than acquisition source.
+**Key Finding:** Custom event completion rates remain virtually identical across both segments. Both converge to 100% by D28. Attributed users show a slightly larger D1 edge (+1.31 pp vs +0.93 pp in the prior period) but this closes by D7.
 
 ### Event Volume Accumulation (Average Cumulative Event Count)
 
 | Day | Unattributed | Attributed | Delta |
 |---|---|---|---|
-| D1 | 4.832 | 4.278 | -0.554 |
-| D3 | 5.827 | 5.175 | -0.652 |
-| D7 | 7.030 | 6.278 | -0.752 |
-| D14 | 8.262 | 7.768 | -0.494 |
-| D28 | 9.663 | 10.306 | **+0.643** |
+| D1 | 4.752 | 4.224 | -0.528 |
+| D3 | 5.924 | 5.295 | -0.629 |
+| D7 | 7.558 | 6.796 | -0.762 |
+| D14 | 9.384 | 8.978 | -0.406 |
+| D28 | 11.465 | 12.698 | **+1.233** |
 
-**Noteworthy reversal:** Unattributed users accumulate more events per user up through D14, but attributed users surpass them by D28 (10.3 vs 9.7). This suggests paid-acquired users take longer to ramp up but become more engaged long-term — consistent with campaigns targeting D28 ROAS optimization windows.
+**Noteworthy reversal strengthens:** Attributed users overtake unattributed by D28 (12.7 vs 11.5 events/user), with a larger gap than the prior period (+1.23 vs +0.64). The crossover remains consistent — paid-acquired users plateau early but accumulate more events long-term.
 
 ---
 
@@ -131,29 +131,29 @@ All rates below are conditional on rows with non-null event data (~17% of total 
 
 | Day | Unattributed | Attributed | Delta (Attr - Unattr) |
 |---|---|---|---|
-| D1 | 46.47% | 29.98% | **-16.49 pp** |
-| D3 | 48.59% | 31.47% | **-17.12 pp** |
-| D7 | 50.40% | 32.80% | **-17.60 pp** |
-| D14 | 51.18% | 33.67% | **-17.51 pp** |
-| D28 | 51.73% | 34.06% | **-17.67 pp** |
+| D1 | 45.84% | 29.59% | **-16.25 pp** |
+| D3 | 48.33% | 31.33% | **-17.00 pp** |
+| D7 | 50.78% | 33.10% | **-17.68 pp** |
+| D14 | 51.93% | 34.34% | **-17.59 pp** |
+| D28 | 52.75% | 34.92% | **-17.83 pp** |
 
-**Key Finding:** Attributed users are ~17-18 percentage points less likely to trigger a Level Complete event at every time horizon. This gap is **persistent and does not close** — it slightly widens from D1 through D28.
+**Key Finding:** The ~17–18 pp LC gap between attributed and unattributed users is fully consistent with the prior analysis period. The gap persists and slightly widens over time — it is not a timing artifact.
 
 ### LC Event Volume (Average Cumulative LC Event Count)
 
 | Day | Unattributed | Attributed | Delta |
 |---|---|---|---|
-| D1 | 1.801 | 1.603 | -0.198 |
-| D3 | 2.194 | 1.887 | -0.307 |
-| D7 | 2.656 | 2.112 | -0.544 |
-| D14 | 3.022 | 2.258 | -0.764 |
-| D28 | 3.351 | 2.394 | **-0.957** |
+| D1 | 1.800 | 1.565 | -0.235 |
+| D3 | 2.262 | 1.891 | -0.371 |
+| D7 | 2.887 | 2.187 | -0.700 |
+| D14 | 3.428 | 2.401 | -1.027 |
+| D28 | 3.917 | 2.599 | **-1.318** |
 
-Unlike custom events (which reversed at D28), the LC event gap **compounds over time** — unattributed users accumulate nearly 1 more LC event by D28. Attributed users plateau in level progression by D7, while organic users continue to advance through D28.
+The LC count gap continues to compound — by D28 unattributed users accumulate 1.3 more LC events than attributed (up from 0.96 in the prior period), confirming the persistent divergence in level-progression behavior.
 
 **Absolute counts with LC events (within event-configured rows):**
-- Unattributed with any LC event by D7: **207,909,760** (~50.4% of non-null unattributed rows)
-- Attributed with any LC event by D7: **7,883,173** (~32.8% of non-null attributed rows)
+- Unattributed with any LC event by D7: **141,054,478** (~50.8% of non-null unattributed rows)
+- Attributed with any LC event by D7: **5,427,053** (~33.1% of non-null attributed rows)
 
 ### Interpreting the LC Gap
 
