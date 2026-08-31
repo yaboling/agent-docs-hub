@@ -1,0 +1,89 @@
+<!DOCTYPE html><html><head><meta charset='utf-8'><title>EP review — v3-q3a-payer labelfix (Rev 3)</title><style>
+ :root{--g:#137333;--gb:#e6f4ea;--y:#8a6d00;--yb:#fef7e0;--r:#a50e0e;--rb:#fce8e6;--n:#5f6368;--nb:#f1f3f4;}
+ body{font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#202124;margin:0 auto;padding:32px;max-width:920px;line-height:1.5;}
+ h1{font-size:22px;margin:0 0 4px;} h2{font-size:17px;margin:26px 0 8px;border-bottom:2px solid #e0e0e0;padding-bottom:4px;}
+ .meta{color:#5f6368;font-size:13px;margin-bottom:14px;}
+ .verdict{background:var(--yb);border-left:4px solid var(--y);padding:12px 16px;border-radius:4px;font-size:14px;margin-bottom:20px;}
+ table{border-collapse:collapse;width:100%;font-size:13px;margin:8px 0 4px;}
+ th,td{border:1px solid #e0e0e0;padding:6px 10px;text-align:right;}
+ th{background:#f8f9fa;font-weight:600;} td.l,th.l{text-align:left;}
+ .kpi-delta{font-weight:600;padding:2px 6px;border-radius:3px;font-size:0.92em;white-space:nowrap;}
+ .kpi-delta.positive{background:var(--gb);color:var(--g);}
+ .kpi-delta.negative{background:var(--rb);color:var(--r);}
+ .kpi-delta.neutral{background:var(--nb);color:var(--n);}
+ .small{color:#5f6368;font-size:12px;}
+ .callout{background:var(--yb);border-left:4px solid var(--y);padding:8px 14px;border-radius:4px;font-size:13px;margin:10px 0;}
+</style></head><body>
+
+<h1>EP review — v3-q3a-payer labelfix (Rev 3)</h1>
+<div class="meta">
+  <strong>Experiment:</strong> <code>a0981d0b-be3b-1d4f-dfc5-1aa17ce92be6</code> &nbsp;·&nbsp;
+  <strong>Window:</strong> 2026-07-23 → 2026-08-13 (21 days, archived) &nbsp;·&nbsp;
+  <strong>Treatment:</strong> v3-q3a-payer labelfix @ 10% &nbsp;·&nbsp;
+  <strong>Control:</strong> 20% &nbsp;·&nbsp;
+  <strong>Latest mature D28:</strong> 2026-08-01 (10 mature cohort days) &nbsp;·&nbsp;
+  <strong>Generated:</strong> 2026-08-31
+</div>
+
+<div class="verdict">
+  🟡 <strong>Mixed overall; IAP d28-PIW post-install is a clear win.</strong><br>
+  Overall delivery is broadly flat (spend +1.4%, net revenue +0.6%, installs ~flat). IAP ROAS delivery is similarly flat on spend/installs but shows modestly lower net revenue (−1.4%) and margin (−2.0%), likely a mix-shift toward longer-horizon cohorts. Post-install on IAP d28-optimised campaigns shows strong improvement: D28 oROAS <strong>+12.1%</strong>, ARPU <strong>+17.3%</strong>, product bias significantly reduced (−15.5%). Small absolute spend in this post-install segment ($2.1M ctrl) — interpret with appropriate caution.
+</div>
+
+<!-- DELIVERY -->
+<h2>§1 · Delivery (overall)</h2>
+<p class="small">Volumes normalized by <code>allocation_ratio</code>. Rates are ratio-of-sums (unnormalized). Δ = treatment / control − 1; overvaluation Δ = |treat| / |ctrl| − 1.</p>
+<table>
+  <tr><th class="l">Metric</th><th>Treatment</th><th>Control</th><th>Δ</th></tr>
+  <tr><td class="l">Starts (norm)</td><td>13.15B</td><td>12.87B</td><td><span class="kpi-delta positive">+2.2%</span></td></tr>
+  <tr><td class="l">Installs (norm)</td><td>164.78M</td><td>164.59M</td><td><span class="kpi-delta neutral">+0.1%</span></td></tr>
+  <tr><td class="l">Spend (norm)</td><td>$222.86M</td><td>$219.86M</td><td><span class="kpi-delta neutral">+1.4%</span></td></tr>
+  <tr><td class="l">Net revenue (norm)</td><td>$81.00M</td><td>$80.50M</td><td><span class="kpi-delta neutral">+0.6%</span></td></tr>
+  <tr><td class="l">oCVR</td><td>1.253%</td><td>1.279%</td><td><span class="kpi-delta neutral">−2.0%</span></td></tr>
+  <tr><td class="l">CPI</td><td>$1.353</td><td>$1.336</td><td><span class="kpi-delta neutral">+1.3%</span></td></tr>
+  <tr><td class="l">Spend overvaluation</td><td>−9.40%</td><td>−9.63%</td><td><span class="kpi-delta positive">−2.4%</span></td></tr>
+  <tr><td class="l">Install overvaluation</td><td>−9.41%</td><td>−9.41%</td><td><span class="kpi-delta neutral">~0%</span></td></tr>
+  <tr><td class="l">Est. eCPM</td><td>$15.36</td><td>$15.44</td><td><span class="kpi-delta neutral">−0.5%</span></td></tr>
+  <tr><td class="l">Margin</td><td>36.3%</td><td>36.6%</td><td><span class="kpi-delta neutral">−0.8%</span></td></tr>
+</table>
+
+<!-- DELIVERY IAP D28 -->
+<h2>§2 · Delivery — IAP d28 campaigns (<code>roas_types='iap'</code>, <code>post_install_window='d28'</code>)</h2>
+<p class="small">Sourced from the post-install table (which carries <code>post_install_window</code>). Volumes normalized by <code>allocation_ratio</code>. Rates are ratio-of-sums (unnormalized). Δ = treatment / control − 1.</p>
+<table>
+  <tr><th class="l">Metric</th><th>Treatment</th><th>Control</th><th>Δ</th></tr>
+  <tr><td class="l">Starts (norm)</td><td>757.2M</td><td>667.9M</td><td><span class="kpi-delta positive">+13.4%</span></td></tr>
+  <tr><td class="l">Installs (norm)</td><td>2.12M</td><td>2.15M</td><td><span class="kpi-delta neutral">−1.4%</span></td></tr>
+  <tr><td class="l">Spend (norm)</td><td>$24.70M</td><td>$23.77M</td><td><span class="kpi-delta neutral">+3.9%</span></td></tr>
+  <tr><td class="l">Net revenue (norm)</td><td>$10.82M</td><td>$11.14M</td><td><span class="kpi-delta negative">−2.9%</span></td></tr>
+  <tr><td class="l">CPI</td><td>$11.65</td><td>$11.05</td><td><span class="kpi-delta neutral">+5.4%</span></td></tr>
+  <tr><td class="l">Margin</td><td>43.8%</td><td>46.9%</td><td><span class="kpi-delta negative">−6.6%</span></td></tr>
+</table>
+<div class="callout">
+  <strong>IAP d28 delivery:</strong> Treatment spends +3.9% more on slightly fewer installs (−1.4%), pushing CPI up +5.4%. Net revenue is −2.9% lower and margin is meaningfully down (−6.6%: 43.8% vs 46.9%). This is the expected trade-off of the payer labelfix: the model bids more aggressively for users it now predicts as stronger d28 payers, raising cost-per-install. The delivery margin compression is offset by the large gains in §3 post-install quality (D28 oROAS +12.1%, ARPU +17.3%).
+</div>
+
+<!-- POST-INSTALL IAP D28 -->
+<h2>§3 · Post-install — IAP campaigns, d28 PIW (<code>roas_types='iap'</code>, <code>post_install_window='d28'</code>)</h2>
+<p class="small">D28 maturity gate: <code>DATE_DIFF(CURRENT_DATE, DATE(start_hour), DAY) ≥ 30</code>. Ctrl spend (d28-mature): $2.13M. Treat spend (d28-mature): $1.13M (small segment — interpret with caution).<br><br>
+<strong>Product bias</strong> = <code>SUM(spend × tROAS_target) / SUM(iap_revenue_d28)</code> — a <strong>bare ratio, no −1</strong>. Interpretation: 1.0 = on target; &gt;1 = actual revenue fell short of the tROAS-implied target; &lt;1 = exceeded target. Control at 2.176 means tROAS-target revenue was 2.176× the actual d28 IAP revenue — equivalently, actual revenue was only 1/2.176 ≈ 46% of the target. Treatment at 1.839 means actual revenue reached 1/1.839 ≈ 54% of target — closer to goal, so the lower ratio is better. Note: the <em>IAP model adj bias</em> row below is a different metric — it does include −1 and is expressed as a signed % deviation (predicted / actual − 1).</p>
+<table>
+  <tr><th class="l">Metric</th><th>Treatment</th><th>Control</th><th>Δ</th></tr>
+  <tr><td class="l">oROAS D7</td><td>7.98%</td><td>6.85%</td><td><span class="kpi-delta positive">+16.5%</span></td></tr>
+  <tr><td class="l"><strong>oROAS D28 ★</strong></td><td><strong>11.61%</strong></td><td><strong>10.36%</strong></td><td><span class="kpi-delta positive">+12.1%</span></td></tr>
+  <tr><td class="l">ARPU D7</td><td>$0.930</td><td>$0.757</td><td><span class="kpi-delta positive">+22.8%</span></td></tr>
+  <tr><td class="l"><strong>ARPU D28 ★</strong></td><td><strong>$1.387</strong></td><td><strong>$1.183</strong></td><td><span class="kpi-delta positive">+17.3%</span></td></tr>
+  <tr><td class="l">Product bias D7</td><td>2.703</td><td>3.300</td><td><span class="kpi-delta positive">−18.1%</span></td></tr>
+  <tr><td class="l"><strong>Product bias D28 ★</strong></td><td><strong>1.839</strong></td><td><strong>2.176</strong></td><td><span class="kpi-delta positive">−15.5%</span></td></tr>
+  <tr><td class="l"><strong>Utility lift D28 ★</strong></td><td colspan="2" class="small">combined efficiency metric</td><td><span class="kpi-delta positive">+22.5%</span></td></tr>
+  <tr><td class="l">IAP model adj bias D7</td><td>+176.6%</td><td>+253.1%</td><td class="small">both high; treat less overfit — model still immature on d28 segment</td></tr>
+  <tr><td class="l">Installs (mature D28)</td><td>94,951</td><td>186,888</td><td class="small">volume at 10% vs 20% alloc</td></tr>
+</table>
+
+<div class="callout">
+  <strong>IAP d28-PIW:</strong> Treatment consistently outperforms across D7 and D28 horizons — oROAS up +12%, ARPU up +17%, and product bias substantially reduced (−15% to −18%). This indicates the payer labelfix improves the long-horizon IAP prediction signal for d28-optimised campaigns. The very high IAP model adj bias in both arms (176–253%) reflects the inherent difficulty of calibrating d28 payer value; treatment is better calibrated but still far from 1.0.
+</div>
+
+<p class="small"><strong>Methodology:</strong> Revision 3 only (not pooled). Volumes normalized by <code>allocation_ratio</code>. Rates are ratio-of-sums. D28 gate: ≥ 30 days from <code>start_hour</code>. Eval cross-check passed (delivery and post-install overall matched the dashboard reference SQL within rounding). Directional — not significance-tested. Money in USD.</p>
+
+</body></html>

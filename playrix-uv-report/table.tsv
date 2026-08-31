@@ -1,0 +1,14 @@
+Advertiser	Platform	PIW (all IAP campaigns)	Game	Campaign	tROAS	oROAS	oROAS/tROAS	Product Bias	Δ tROAS W/W	Δ tROAS (period beginning/end)	tROAS change date	Spend W/W
+Century-K1	android	D7	Tasty Travels: Merge Game	FAT_Unity_AND_Global_ROAS_LF_20260403白名单	3.68%	2.78%	0.76×	32%	5.40%	9.50%	07-22	$58.9k → $44.3k
+Century-K1	ios	D7	Tasty Travels: Merge Game	FAT_Unity_iOS_Global_ROAS_YT_20250421	4.66%	2.74%	0.59×	70%	5.00%	8.40%	07-22	$32.3k → $26 (paused)
+Playrix	android	D7	Township 2	TS_GP_US_ROAS/AU152X	6.01%	4.43%	0.74×	36%	12.60%	15.00%	07-24	$197.4k → $114.7k
+Playrix	android	D28	Township 2	TS_GP_US_ROAS_D28/RGX1VX	19.20%	17.50%	0.91×	10%	5.00%	10.30%	07-21	$154.5k → $125.7k
+Playrix	android	D28	Township 2	TS_GP_WW_ROAS_D28/VPKSEJ	23.95%	16.70%	0.70×	43%	1.10%	3.30%	07-21	$81.2k → $57.3k
+Playrix	ios	D7	Gardenscapes - New Acres	GS_iOS_WW_ROAS_D7_roas_test/Q69HW9	6.49%	6.44%	0.99×	1%	0.90%	4.60%	07-23	$116.0k → $100.7k
+Playrix	ios	D7	Gardenscapes - New Acres	GS_iOS_WW_ROAS_Skan-Yes/12MF	8.06%	1.74%	0.22×	364%	0.90%	5.30%	07-26	$10.3k → $8.8k
+Playrix	ios	D7	Homescapes	HS_iOS_UK_ROAS_Skan-Yes/18MS	6.09%	7.36%	1.21×	−17.3%	5.90%	13.50%	07-21	$18.1k → $13.0k
+Playrix	ios	D7	Homescapes	HS_iOS_US_ROAS_SKAN-yes/VA16KC	8.29%	5.11%	0.62×	62%	3.90%	12.10%	07-21	$29.6k → $25.2k
+Playrix	ios	D7	Homescapes	HS_iOS_WW_ROAS_Skan-Yes/17SV	6.52%	3.45%	0.53×	89%	5.70%	11.20%	07-21	$43.8k → $37.2k
+Playrix	ios	D28	Homescapes	HS_iOS_UK_ROAS_D28/2ZNFOG	23.45%	21.59%	0.92×	9%	2.70%	10.10%	07-22	$1.5k → $3.3k
+Playrix	ios	D28	Homescapes	HS_iOS_US_ROAS_D28/Q22FGK	26.95%	12.21%	0.45×	121%	4.80%	9.70%	07-21	$3.5k → $3.6k
+Playrix	ios	D28	Homescapes	HS_iOS_WW_ROAS_D28/AKQGE1	21.11%	15.19%	0.72×	39%	4.60%	10.40%	07-21	$16.6k → $15.1k
