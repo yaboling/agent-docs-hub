@@ -13,7 +13,7 @@ header h1{font-size:22px;font-weight:700;margin-bottom:5px}
 header p{font-size:12px;opacity:.65;line-height:1.6}
 .kpi-row{display:flex;gap:16px;padding:24px 40px 0;flex-wrap:wrap}
 .kpi{background:white;border-radius:10px;padding:18px 22px;flex:1;min-width:150px;
-      box-shadow:0 1px 4px rgba(0,0,0,.08);border-left:4px solid #7c3aed}
+     box-shadow:0 1px 4px rgba(0,0,0,.08);border-left:4px solid #7c3aed}
 .kpi .label{font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
 .kpi .value{font-size:24px;font-weight:700;color:#e05d44}
 .kpi .sub{font-size:11px;color:#aaa;margin-top:3px}
@@ -25,13 +25,13 @@ header p{font-size:12px;opacity:.65;line-height:1.6}
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin:24px 40px 0}
 .two-col .card{margin:0}
 .insight{background:#ede9fe;border-left:4px solid #7c3aed;padding:14px 20px;
-          margin:24px 40px 0;border-radius:6px;font-size:13px;line-height:1.7}
+         margin:24px 40px 0;border-radius:6px;font-size:13px;line-height:1.7}
 .insight strong{color:#5b21b6}
-.divider{margin:36px 40px 0;padding:16px 0 0;border-top:2px solid #e5e7eb}
-.divider h2{font-size:18px;font-weight:700;color:#1a1a2e}
-.divider p{font-size:12px;color:#888;margin-top:4px}
+.section-title{margin:36px 40px 0;padding:16px 0 0;border-top:2px solid #e5e7eb}
+.section-title h2{font-size:18px;font-weight:700;color:#1a1a2e}
+.section-title p{font-size:12px;color:#888;margin-top:4px}
 .notice{background:#fef3c7;border-left:4px solid #f59e0b;padding:10px 16px;
-         margin:16px 24px 0;border-radius:4px;font-size:12px;color:#92400e}
+        margin:16px 40px 0;border-radius:4px;font-size:12px;color:#92400e}
 footer{text-align:center;font-size:11px;color:#bbb;padding:36px;margin-top:24px}
 </style>
 </head>
@@ -40,31 +40,31 @@ footer{text-align:center;font-size:11px;color:#bbb;padding:36px;margin-top:24px}
 <header>
   <h1>CPE Level Complete D7 — Model Bias Analysis</h1>
   <p>Period: 2026-06-15 → 2026-09-02 &nbsp;·&nbsp; <strong style="color:#fbbf24">Incident period 2026-07-25 – 2026-08-06 excluded</strong><br>
-     Source: mz_dcpi_prediction_v1 × operativeecpm_installs_outcomes_contextual</p>
+     Source: mz_dcpi_prediction_v1 × operativeecpm_installs_outcomes_contextual × unified_app_all_fields</p>
 </header>
 
 <div class="kpi-row">
-  <div class="kpi"><div class="label">Total Spend</div><div class="value">$4.10M</div><div class="sub">excl. incident period</div></div>
+  <div class="kpi"><div class="label">Total Spend</div><div class="value">$34.0M</div><div class="sub">excl. incident period</div></div>
   <div class="kpi"><div class="label">iOS Model Bias</div><div class="value">+67%</div><div class="sub">vs Android +6%</div></div>
   <div class="kpi"><div class="label">Worst LCR Bucket</div><div class="value">+1,794%</div><div class="sub">events with 0.1–0.5% LCR</div></div>
+  <div class="kpi"><div class="label">Puzzle Genre Bias</div><div class="value">+13,068%</div><div class="sub">85% of spend; Match-3 games</div></div>
   <div class="kpi"><div class="label">Game×Event Pairs</div><div class="value">219</div><div class="sub">≥100 auctions</div></div>
-  <div class="kpi"><div class="label">Target Events</div><div class="value">164</div><div class="sub">unique sdk_event_names</div></div>
 </div>
 
 <div class="notice" style="margin:16px 40px 0">
   ⚠️ <strong>Incident period excluded:</strong> 2026-07-25 – 2026-08-06 removed from all queries (predictions and outcomes).
 </div>
 
-<!-- Section 1: LCR Key Finding -->
-<div class="card">
+<!-- Section 0: LCR Key Finding -->
+<div class="card" style="margin-top:24px">
   <div class="card-header">
-    <h2>🔑 Key Finding — Model Bias vs Actual LC Rate</h2>
+    <h2>🔑 Key Finding — Model Bias vs Actual LC Rate (LCR Bucket)</h2>
     <p>Each bucket groups (game, event) pairs by observed D7 conversion rate. Bias decreases monotonically as events become more common.</p>
   </div>
   <div class="chart-wrap" id="lcr-chart"></div>
 </div>
 
-<!-- Section 2: Percentile -->
+<!-- Section 1: Percentile -->
 <div class="card">
   <div class="card-header">
     <h2>1. Bias by Prediction Percentile (NTILE 100)</h2>
@@ -73,29 +73,60 @@ footer{text-align:center;font-size:11px;color:#bbb;padding:36px;margin-top:24px}
   <div class="chart-wrap" id="pctile-chart"></div>
 </div>
 
-<!-- Section 3: Platform + Country -->
+<!-- Section 2: Platform + Country -->
 <div class="two-col">
   <div class="card">
     <div class="card-header">
       <h2>2. Platform Breakdown</h2>
-      <p>iOS model bias significantly higher than Android.</p>
+      <p>iOS bias (+67%) is nearly 11× Android (+6%).</p>
     </div>
     <div class="chart-wrap" id="platform-chart"></div>
   </div>
   <div class="card">
     <div class="card-header">
-      <h2>3. Country — Top 30 by Spend</h2>
-      <p>Sorted by model bias. Green = under-predict, red = severe over-predict.</p>
+      <h2>3. Country Breakdown (Top 30 by Spend)</h2>
+      <p>RU dominates spend ($1.6M). Bias varies significantly by country.</p>
     </div>
     <div class="chart-wrap" id="country-chart"></div>
   </div>
 </div>
 
-<!-- Section 4: Event -->
+<!-- Section 3: Game Genre (SensorTower) -->
+<div class="section-title">
+  <h2>Bias by Game Genre (SensorTower)</h2>
+  <p>Genre from <code>unified_app_all_fields.sensortower_game_genre</code>, joined on store bundle ID + platform. 85% of spend is Puzzle (Match-3).</p>
+</div>
+
+<div class="insight">
+  <strong>Puzzle / Match Pair is the entire over-prediction story:</strong>
+  85% of total LC spend ($27.6M) is in Puzzle games — almost entirely Match-3 (Match Pair subgenre).
+  These games set rare, late-funnel level milestones as targets (actual LCR 0.16–0.40%), while the model predicts a generic ~25% LC rate.
+  This structural mismatch produces <strong>+13,000–15,000% model bias</strong> for the Puzzle genre.
+  Strategy games show the opposite: 44 observed LC events per converting install → model severely under-predicts (−99.5%).
+</div>
+
+<div class="two-col">
+  <div class="card">
+    <div class="card-header">
+      <h2>Genre — Model Bias</h2>
+      <p>Puzzle dominates spend (bubble size) and carries the worst model bias. Strategy is under-predicted due to multi-event completions per install.</p>
+    </div>
+    <div class="chart-wrap" id="genre-bias-chart"></div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <h2>Genre — Avg Predicted vs Actual LC Rate</h2>
+      <p>Model predicts ~25% for Puzzle and Simulation; actual fire rate is 0.16–1.2%. The gap is structural and genre-wide.</p>
+    </div>
+    <div class="chart-wrap" id="genre-lcr-chart"></div>
+  </div>
+</div>
+
+<!-- Section 4: Event Name -->
 <div class="card">
   <div class="card-header">
-    <h2>4. Top 30 Target Events by Spend</h2>
-    <p>Sorted by total spend descending.</p>
+    <h2>4. Bias by Target Event Name (Top 30 by Spend)</h2>
+    <p>Wildcard campaigns (no specific event target) shown separately. Rarer events carry higher bias.</p>
   </div>
   <div class="chart-wrap" id="event-chart"></div>
 </div>
@@ -109,8 +140,8 @@ footer{text-align:center;font-size:11px;color:#bbb;padding:36px;margin-top:24px}
   <div class="chart-wrap" id="all-scatter"></div>
 </div>
 
-<!-- Game × Event deep dive -->
-<div class="divider" style="margin:36px 40px 0;padding:16px 0 0;border-top:2px solid #e5e7eb">
+<!-- Section 6: Game × Event Deep Dive -->
+<div class="section-title">
   <h2>Game × Event Deep Dive</h2>
   <p>Within the same game, harder-to-achieve target events carry far higher model bias.</p>
 </div>
@@ -138,27 +169,28 @@ footer{text-align:center;font-size:11px;color:#bbb;padding:36px;margin-top:24px}
   <div class="chart-wrap" id="facet-chart"></div>
 </div>
 
-<!-- Deep-Dive Section -->
-<div class="divider" style="margin:36px 40px 0;padding:16px 0 0;border-top:2px solid #e5e7eb">
+<!-- Section 7: Deep-Dive Over-valuation -->
+<div class="section-title">
   <h2>Deep-Dive: Heavily Over-Valued (game × event) Pairs</h2>
-  <p>Pairs with >$5K spend and >100% model bias — total ~$993K spend across 27 pairs.</p>
+  <p>Pairs with >$5K spend and >100% model bias — ~$993K total spend across 27 pairs. Three root cause categories.</p>
 </div>
 
-<div class="insight" style="margin:16px 40px 0">
-  <strong>Root cause analysis — three patterns:</strong><br>
-  <strong style="color:#dc2626">① Wrong event type (~$375K spend):</strong> Developers tagged MMP attribution events, retargeting signals, or social-engagement events under LC conversion type.
-  The model has no signal for these and defaults to high LC priors — e.g. <code>golden_android_conversion_mid</code> (actual LCR 0.07%, pred 0.59%, bias +667%) and
-  <code>segment_lambdas_first_offer_reconciled</code> (retargeting signal, +213% to +728% bias).<br><br>
-  <strong style="color:#ea580c">② Revenue/monetization proxy events (~$166K spend):</strong> Events like <code>revlow</code>, <code>superlow</code>, <code>netrevenuereachedmin7</code>, <code>reach_viplv2</code>
-  measure revenue thresholds or VIP tiers, not gameplay completion. Their LCR (1–5%) is far below what the model expects for any LC event.<br><br>
-  <strong style="color:#7c3aed">③ Rare genuine gameplay events (~$452K spend):</strong> Events like <code>eventw</code> (LCR 2.0%, bias +480%), <code>log_city_upgrade_6</code> (LCR 3.3%, bias +326%), <code>castle_lv8</code> (LCR 9.1%, bias +177%)
-  are real gameplay milestones but have a much lower fire rate than the model was trained to expect. Avg_pred is 5–8× above actual LCR across all these pairs.
+<div class="insight">
+  <strong style="color:#dc2626">① MMP / Attribution / Retargeting events (~$375K):</strong>
+  Events like <code>golden_android_conversion_mid</code> (MMP event, actual LCR 0.07%, bias +667%) and
+  <code>segment_lambdas_first_offer_reconciled</code> (retargeting signal, bias +213–728%) are not gameplay events.
+  Developers tagged them under LC conversion type; the model has no signal for these.<br><br>
+  <strong style="color:#ea580c">② Revenue / monetization proxy events (~$166K):</strong>
+  <code>revlow</code>, <code>superlow</code>, <code>netrevenuereachedmin7</code>, <code>reach_viplv2</code> — revenue thresholds or VIP tiers, not gameplay. LCR 1–5%, bias 170–555%.<br><br>
+  <strong style="color:#7c3aed">③ Rare genuine gameplay events (~$452K):</strong>
+  Real milestones like <code>eventw</code> (LCR 2.0%, bias +480%) and <code>log_city_upgrade_6</code> (LCR 3.3%, bias +326%).
+  Avg_pred is 5–8× above actual LCR universally — the model predicts a floor of 5–25% regardless of true event rarity.
 </div>
 
 <div class="card">
   <div class="card-header">
-    <h2>8. Over-Valued Pairs — Spend vs Bias, colored by root cause</h2>
-    <p>Bubble size = spend. x-axis = actual LC rate (how rare the event is). y-axis = model bias. Pattern: the rarer the event, the higher the bias.</p>
+    <h2>8. Over-Valued Pairs — Actual LCR vs Bias by Root Cause</h2>
+    <p>Bubble size = spend. x-axis = how rare the event is. Pattern: the rarer the event, the higher the bias.</p>
   </div>
   <div class="chart-wrap" id="overval-scatter"></div>
 </div>
@@ -166,10 +198,10 @@ footer{text-align:center;font-size:11px;color:#bbb;padding:36px;margin-top:24px}
 <div class="card" style="margin-bottom:24px">
   <div class="card-header">
     <h2>9. Top Over-Valued Pairs — Detail Table</h2>
-    <p>Sorted by model bias descending. avg_pred / actual_lcr = model overestimate factor.</p>
+    <p>Sorted by model bias descending. "Over-estimate" = avg_pred / actual_lcr ratio.</p>
   </div>
   <div style="overflow-x:auto;padding:0 24px 20px">
-    <table id="overval-table" style="width:100%;border-collapse:collapse;font-size:12px">
+    <table style="width:100%;border-collapse:collapse;font-size:12px">
       <thead>
         <tr style="background:#f8f7ff;border-bottom:2px solid #e5e7eb">
           <th style="text-align:left;padding:10px 8px">Game ID</th>
@@ -178,7 +210,7 @@ footer{text-align:center;font-size:11px;color:#bbb;padding:36px;margin-top:24px}
           <th style="text-align:right;padding:10px 8px">Spend</th>
           <th style="text-align:right;padding:10px 8px">Actual LCR</th>
           <th style="text-align:right;padding:10px 8px">Avg Pred</th>
-          <th style="text-align:right;padding:10px 8px">Over-predict</th>
+          <th style="text-align:right;padding:10px 8px">Over-estimate</th>
           <th style="text-align:right;padding:10px 8px">Model Bias</th>
           <th style="text-align:left;padding:10px 8px">Root Cause</th>
         </tr>
@@ -188,7 +220,7 @@ footer{text-align:center;font-size:11px;color:#bbb;padding:36px;margin-top:24px}
   </div>
 </div>
 
-<footer>CPE Level Complete D7 · Close Beta Review · Generated 2026-09-02 · Incident period 2026-07-25–08-06 excluded</footer>
+<footer>CPE Level Complete D7 · Close Beta Review · Generated 2026-09-03 · Incident period 2026-07-25–08-06 excluded · Genre: SensorTower via unified_app_all_fields</footer>
 
 <script>
 const PURPLE='#7c3aed', GOLD='#d97706', RED='#e05d44', GREEN='#16a34a';
@@ -203,142 +235,179 @@ const gameEv   = [{"target_game_id": 110055, "target_event": "complete_turfquest
 const TRACES   = [{"game_id": "500093311", "n_events": 8, "total_spend_k": 779.1, "events": [{"event": "complete_chapter_603", "lcr": 7.17, "bias": 126.5, "auctions": 32568, "spend_k": 187.5}, {"event": "complete_ksbattle_1014", "lcr": 7.546, "bias": 67.9, "auctions": 19890, "spend_k": 109.2}, {"event": "advanced_search10", "lcr": 8.214, "bias": 63.7, "auctions": 18846, "spend_k": 119.6}, {"event": "kill_zombie_lv1", "lcr": 8.355, "bias": 52.8, "auctions": 13907, "spend_k": 87.9}, {"event": "complete_ksbattle_3001", "lcr": 9.377, "bias": 77.7, "auctions": 37690, "spend_k": 202.9}, {"event": "castle_lv6", "lcr": 9.594, "bias": 41.9, "auctions": 3888, "spend_k": 29.7}, {"event": "complete_chessboard_1000004", "lcr": 15.875, "bias": 7.2, "auctions": 1537, "spend_k": 24.2}, {"event": "complete_chessboard_1000002", "lcr": 21.407, "bias": -34.7, "auctions": 11529, "spend_k": 18.0}]}, {"game_id": "500093455", "n_events": 6, "total_spend_k": 255.7, "events": [{"event": "reach_viplv2", "lcr": 3.039, "bias": 548.2, "auctions": 9509, "spend_k": 111.2}, {"event": "castle_lv8", "lcr": 9.091, "bias": 177.0, "auctions": 1628, "spend_k": 24.3}, {"event": "advanced_search10", "lcr": 12.108, "bias": 55.1, "auctions": 2552, "spend_k": 26.9}, {"event": "kill_zombie_lv1", "lcr": 12.593, "bias": 81.6, "auctions": 405, "spend_k": 7.3}, {"event": "complete_task_main_901030", "lcr": 45.676, "bias": -50.7, "auctions": 5007, "spend_k": 67.5}, {"event": "castle_lv2", "lcr": 62.154, "bias": -55.9, "auctions": 1300, "spend_k": 18.5}]}, {"game_id": "500226169", "n_events": 4, "total_spend_k": 133.8, "events": [{"event": "app_second_start", "lcr": 30.32, "bias": 43.1, "auctions": 105468, "spend_k": 67.4}, {"event": "app_feedback_eight", "lcr": 32.979, "bias": 38.6, "auctions": 94303, "spend_k": 58.3}, {"event": "app_feedback_five", "lcr": 34.172, "bias": 37.5, "auctions": 7550, "spend_k": 5.3}, {"event": "play_short_2", "lcr": 37.362, "bias": 2.4, "auctions": 4700, "spend_k": 2.8}]}, {"game_id": "500201983", "n_events": 8, "total_spend_k": 112.7, "events": [{"event": "eventw", "lcr": 1.444, "bias": 643.1, "auctions": 99049, "spend_k": 36.0}, {"event": "event9mru", "lcr": 4.278, "bias": 129.4, "auctions": 12482, "spend_k": 3.0}, {"event": "eventW", "lcr": 4.392, "bias": 245.6, "auctions": 21812, "spend_k": 11.2}, {"event": "event12mrusom", "lcr": 6.285, "bias": 22.2, "auctions": 35100, "spend_k": 12.1}, {"event": "eventa", "lcr": 6.82, "bias": 86.8, "auctions": 36332, "spend_k": 10.4}, {"event": "eventA2", "lcr": 7.19, "bias": 107.7, "auctions": 7455, "spend_k": 2.9}, {"event": "eventa2", "lcr": 7.938, "bias": 90.5, "auctions": 58034, "spend_k": 23.0}, {"event": "eventA", "lcr": 8.649, "bias": 79.9, "auctions": 29795, "spend_k": 14.3}]}, {"game_id": "500023189", "n_events": 3, "total_spend_k": 76.8, "events": [{"event": "herostage1-3_completion", "lcr": 6.308, "bias": 77.1, "auctions": 28346, "spend_k": 24.2}, {"event": "reach_academylv1", "lcr": 7.894, "bias": 46.7, "auctions": 19888, "spend_k": 25.6}, {"event": "COMPLETE_TURFQUESTS20", "lcr": 9.459, "bias": -0.5, "auctions": 70963, "spend_k": 27.1}]}, {"game_id": "500244354", "n_events": 3, "total_spend_k": 49.5, "events": [{"event": "level_25", "lcr": 21.58, "bias": 117.8, "auctions": 8837, "spend_k": 20.9}, {"event": "level_23", "lcr": 25.336, "bias": 94.1, "auctions": 10404, "spend_k": 23.0}, {"event": "level_20", "lcr": 27.526, "bias": 79.2, "auctions": 2910, "spend_k": 5.6}]}, {"game_id": "500251720", "n_events": 2, "total_spend_k": 33.2, "events": [{"event": "revlow", "lcr": 2.123, "bias": 431.3, "auctions": 1696, "spend_k": 29.8}, {"event": "superlow", "lcr": 5.145, "bias": 171.4, "auctions": 447, "spend_k": 3.4}]}, {"game_id": "110055", "n_events": 2, "total_spend_k": 30.7, "events": [{"event": "herostage1-3_completion", "lcr": 6.247, "bias": 131.5, "auctions": 2305, "spend_k": 10.8}, {"event": "complete_turfquests20", "lcr": 16.939, "bias": -46.5, "auctions": 3064, "spend_k": 20.0}]}, {"game_id": "500208356", "n_events": 2, "total_spend_k": 19.8, "events": [{"event": "af_registration", "lcr": 59.061, "bias": 43.9, "auctions": 9646, "spend_k": 8.3}, {"event": "af_login", "lcr": 93.674, "bias": -11.2, "auctions": 14637, "spend_k": 11.5}]}, {"game_id": "500238377", "n_events": 2, "total_spend_k": 17.4, "events": [{"event": "af_rounds30", "lcr": 37.693, "bias": 34.8, "auctions": 9450, "spend_k": 12.3}, {"event": "af_rounds10", "lcr": 59.417, "bias": -3.7, "auctions": 3945, "spend_k": 5.1}]}, {"game_id": "500241943", "n_events": 4, "total_spend_k": 16.6, "events": [{"event": "vip3", "lcr": 1.976, "bias": 610.8, "auctions": 253, "spend_k": 1.1}, {"event": "castle_lv8", "lcr": 7.143, "bias": 92.9, "auctions": 224, "spend_k": 0.9}, {"event": "castle_lv5", "lcr": 10.394, "bias": 6.6, "auctions": 1953, "spend_k": 13.3}, {"event": "castle_lv2", "lcr": 21.256, "bias": -51.4, "auctions": 207, "spend_k": 1.4}]}, {"game_id": "500206220", "n_events": 2, "total_spend_k": 16.1, "events": [{"event": "grt_24h_inter_15", "lcr": 3.87, "bias": 368.0, "auctions": 4341, "spend_k": 12.3}, {"event": "grt_3d_ltv0127_levelpass7", "lcr": 7.364, "bias": 99.4, "auctions": 1874, "spend_k": 3.8}]}, {"game_id": "500193586", "n_events": 2, "total_spend_k": 16.1, "events": [{"event": "adjustiosscreachedmin6", "lcr": 1.871, "bias": 673.0, "auctions": 1603, "spend_k": 10.4}, {"event": "adjustiosrevenuereachedmin4", "lcr": 4.981, "bias": 181.8, "auctions": 2309, "spend_k": 5.6}]}, {"game_id": "500241145", "n_events": 5, "total_spend_k": 11.4, "events": [{"event": "vip3", "lcr": 0.493, "bias": 1792.6, "auctions": 203, "spend_k": 1.0}, {"event": "castle_lv8", "lcr": 1.674, "bias": 356.7, "auctions": 478, "spend_k": 1.9}, {"event": "army_hire_1", "lcr": 2.4, "bias": 298.6, "auctions": 625, "spend_k": 4.1}, {"event": "castle_lv5", "lcr": 8.216, "bias": 34.3, "auctions": 499, "spend_k": 3.1}, {"event": "castle_lv2", "lcr": 20.851, "bias": -50.2, "auctions": 235, "spend_k": 1.4}]}, {"game_id": "500199981", "n_events": 2, "total_spend_k": 10.8, "events": [{"event": "grt_7d_ltv_20_15", "lcr": 4.64, "bias": 230.8, "auctions": 10021, "spend_k": 8.8}, {"event": "grt_7d_level40_notir", "lcr": 8.374, "bias": 123.0, "auctions": 1636, "spend_k": 2.1}]}, {"game_id": "500241147", "n_events": 3, "total_spend_k": 10.6, "events": [{"event": "castle_lv8", "lcr": 2.183, "bias": 297.3, "auctions": 458, "spend_k": 2.8}, {"event": "hero_num_8", "lcr": 2.405, "bias": 262.1, "auctions": 582, "spend_k": 3.3}, {"event": "castle_lv2", "lcr": 10.22, "bias": -21.8, "auctions": 910, "spend_k": 4.5}]}, {"game_id": "500250875", "n_events": 3, "total_spend_k": 9.1, "events": [{"event": "c4_cluster", "lcr": 28.777, "bias": -46.9, "auctions": 695, "spend_k": 3.9}, {"event": "c3_cluster", "lcr": 48.276, "bias": -64.0, "auctions": 580, "spend_k": 2.6}, {"event": "c2_cluster", "lcr": 66.397, "bias": -67.6, "auctions": 741, "spend_k": 2.6}]}, {"game_id": "500264973", "n_events": 3, "total_spend_k": 8.7, "events": [{"event": "af_rounds60", "lcr": 17.268, "bias": 78.1, "auctions": 4436, "spend_k": 2.1}, {"event": "af_rounds10", "lcr": 38.453, "bias": -5.0, "auctions": 892, "spend_k": 1.1}, {"event": "af_rounds30", "lcr": 38.589, "bias": -11.0, "auctions": 5696, "spend_k": 5.5}]}, {"game_id": "500257871", "n_events": 2, "total_spend_k": 7.9, "events": [{"event": "recvd_offerwall_coins_100", "lcr": 3.152, "bias": 226.3, "auctions": 15671, "spend_k": 1.7}, {"event": "recvd_coins_400", "lcr": 6.89, "bias": 144.5, "auctions": 91687, "spend_k": 6.3}]}, {"game_id": "500248919", "n_events": 2, "total_spend_k": 7.5, "events": [{"event": "int_reward_8", "lcr": 11.064, "bias": 257.5, "auctions": 470, "spend_k": 1.0}, {"event": "int_reward_5", "lcr": 22.155, "bias": 75.9, "auctions": 3286, "spend_k": 6.5}]}, {"game_id": "500238869", "n_events": 2, "total_spend_k": 6.1, "events": [{"event": "online40min", "lcr": 22.637, "bias": 59.6, "auctions": 402, "spend_k": 4.8}, {"event": "level_achieve_3", "lcr": 27.097, "bias": 55.2, "auctions": 155, "spend_k": 1.3}]}, {"game_id": "500258469", "n_events": 3, "total_spend_k": 5.5, "events": [{"event": "level_20", "lcr": 18.429, "bias": 207.0, "auctions": 331, "spend_k": 0.9}, {"event": "level_15", "lcr": 30.235, "bias": 87.6, "auctions": 2130, "spend_k": 4.5}, {"event": "level_22", "lcr": 30.769, "bias": 64.8, "auctions": 104, "spend_k": 0.2}]}, {"game_id": "500205921", "n_events": 5, "total_spend_k": 4.2, "events": [{"event": "level_end_success_25", "lcr": 6.407, "bias": 278.8, "auctions": 1233, "spend_k": 0.9}, {"event": "LEVEL_END_SUCCESS_50", "lcr": 6.725, "bias": 290.5, "auctions": 684, "spend_k": 0.8}, {"event": "LEVEL_END_SUCCESS_40", "lcr": 7.53, "bias": 263.1, "auctions": 332, "spend_k": 0.5}, {"event": "LEVEL_END_SUCCESS_35", "lcr": 8.837, "bias": 184.9, "auctions": 1109, "spend_k": 1.7}, {"event": "level_end_success_30", "lcr": 9.524, "bias": 182.6, "auctions": 441, "spend_k": 0.4}]}, {"game_id": "500035177", "n_events": 2, "total_spend_k": 3.1, "events": [{"event": "40levelsplayed", "lcr": 8.212, "bias": 234.3, "auctions": 1096, "spend_k": 1.6}, {"event": "40levelsplayed2", "lcr": 13.105, "bias": 0.7, "auctions": 1839, "spend_k": 1.6}]}, {"game_id": "500278538", "n_events": 4, "total_spend_k": 3.0, "events": [{"event": "game_playtime_3", "lcr": 26.54, "bias": -11.6, "auctions": 211, "spend_k": 0.1}, {"event": "game_deepplaysession_3", "lcr": 31.242, "bias": 25.3, "auctions": 4958, "spend_k": 1.9}, {"event": "game_playsession_5", "lcr": 43.184, "bias": -20.7, "auctions": 2575, "spend_k": 0.9}, {"event": "game_playsession_3", "lcr": 57.143, "bias": 0.5, "auctions": 301, "spend_k": 0.1}]}, {"game_id": "500149926", "n_events": 2, "total_spend_k": 3.0, "events": [{"event": "loop_online_168h_180_ios", "lcr": 3.724, "bias": 157.3, "auctions": 537, "spend_k": 1.1}, {"event": "s_custom18_revenue_ios_nu", "lcr": 9.069, "bias": 7.5, "auctions": 838, "spend_k": 1.9}]}, {"game_id": "500225462", "n_events": 2, "total_spend_k": 2.6, "events": [{"event": "bot_duration_d0_10", "lcr": 34.454, "bias": -45.1, "auctions": 119, "spend_k": 0.1}, {"event": "af_next_day_retention", "lcr": 38.556, "bias": -14.2, "auctions": 1385, "spend_k": 2.5}]}, {"game_id": "500203302", "n_events": 2, "total_spend_k": 1.7, "events": [{"event": "LEVEL_END_SUCCESS_35", "lcr": 0.205, "bias": 2936.1, "auctions": 1460, "spend_k": 0.6}, {"event": "LEVEL_END_SUCCESS_40", "lcr": 3.744, "bias": 285.5, "auctions": 1282, "spend_k": 1.0}]}, {"game_id": "500259173", "n_events": 2, "total_spend_k": 1.4, "events": [{"event": "order_15", "lcr": 25.0, "bias": 118.1, "auctions": 564, "spend_k": 0.8}, {"event": "order_12", "lcr": 34.839, "bias": 73.4, "auctions": 310, "spend_k": 0.6}]}, {"game_id": "500230137", "n_events": 2, "total_spend_k": 1.2, "events": [{"event": "LEVEL_END_SUCCESS_30", "lcr": 1.509, "bias": 822.5, "auctions": 729, "spend_k": 0.9}, {"event": "LEVEL_END_SUCCESS_40", "lcr": 2.424, "bias": 550.5, "auctions": 330, "spend_k": 0.3}]}, {"game_id": "500255418", "n_events": 3, "total_spend_k": 1.0, "events": [{"event": "key_action_ethi", "lcr": 0.962, "bias": 1311.2, "auctions": 208, "spend_k": 0.3}, {"event": "top20", "lcr": 3.175, "bias": 315.9, "auctions": 441, "spend_k": 0.6}, {"event": "gap_dett", "lcr": 8.559, "bias": 98.8, "auctions": 222, "spend_k": 0.2}]}, {"game_id": "500182711", "n_events": 2, "total_spend_k": 1.0, "events": [{"event": "LEVEL_END_SUCCESS_20", "lcr": 6.644, "bias": 175.8, "auctions": 602, "spend_k": 0.6}, {"event": "level_end_success_20", "lcr": 9.168, "bias": 162.6, "auctions": 469, "spend_k": 0.4}]}, {"game_id": "500182710", "n_events": 2, "total_spend_k": 0.6, "events": [{"event": "LEVEL_END_SUCCESS_20", "lcr": 1.135, "bias": 371.5, "auctions": 1321, "spend_k": 0.5}, {"event": "level_end_success_20", "lcr": 3.352, "bias": 222.4, "auctions": 179, "spend_k": 0.1}]}];
 const FACET    = [{"game_id": "500093311", "spend_k": 779.1, "events": [{"event": "complete_chapter_603", "lcr": 7.17, "bias": 126.5}, {"event": "complete_ksbattle_1014", "lcr": 7.55, "bias": 67.9}, {"event": "advanced_search10", "lcr": 8.21, "bias": 63.7}, {"event": "kill_zombie_lv1", "lcr": 8.36, "bias": 52.8}, {"event": "complete_ksbattle_3001", "lcr": 9.38, "bias": 77.7}, {"event": "castle_lv6", "lcr": 9.59, "bias": 41.9}, {"event": "complete_chessboard_1000004", "lcr": 15.88, "bias": 7.2}, {"event": "complete_chessboard_1000002", "lcr": 21.41, "bias": -34.7}]}, {"game_id": "500093455", "spend_k": 255.7, "events": [{"event": "reach_viplv2", "lcr": 3.04, "bias": 548.2}, {"event": "castle_lv8", "lcr": 9.09, "bias": 177.0}, {"event": "advanced_search10", "lcr": 12.11, "bias": 55.1}, {"event": "kill_zombie_lv1", "lcr": 12.59, "bias": 81.6}, {"event": "complete_task_main_901030", "lcr": 45.68, "bias": -50.7}, {"event": "castle_lv2", "lcr": 62.15, "bias": -55.9}]}, {"game_id": "500226169", "spend_k": 133.8, "events": [{"event": "app_second_start", "lcr": 30.32, "bias": 43.1}, {"event": "app_feedback_eight", "lcr": 32.98, "bias": 38.6}, {"event": "app_feedback_five", "lcr": 34.17, "bias": 37.5}, {"event": "play_short_2", "lcr": 37.36, "bias": 2.4}]}, {"game_id": "500201983", "spend_k": 112.7, "events": [{"event": "eventw", "lcr": 1.44, "bias": 643.1}, {"event": "event9mru", "lcr": 4.28, "bias": 129.4}, {"event": "eventW", "lcr": 4.39, "bias": 245.6}, {"event": "event12mrusom", "lcr": 6.28, "bias": 22.2}, {"event": "eventa", "lcr": 6.82, "bias": 86.8}, {"event": "eventA2", "lcr": 7.19, "bias": 107.7}, {"event": "eventa2", "lcr": 7.94, "bias": 90.5}, {"event": "eventA", "lcr": 8.65, "bias": 79.9}]}, {"game_id": "500023189", "spend_k": 76.8, "events": [{"event": "herostage1-3_completion", "lcr": 6.31, "bias": 77.1}, {"event": "reach_academylv1", "lcr": 7.89, "bias": 46.7}, {"event": "COMPLETE_TURFQUESTS20", "lcr": 9.46, "bias": -0.5}]}, {"game_id": "500244354", "spend_k": 49.5, "events": [{"event": "level_25", "lcr": 21.58, "bias": 117.8}, {"event": "level_23", "lcr": 25.34, "bias": 94.1}, {"event": "level_20", "lcr": 27.53, "bias": 79.2}]}, {"game_id": "500251720", "spend_k": 33.2, "events": [{"event": "revlow", "lcr": 2.12, "bias": 431.3}, {"event": "superlow", "lcr": 5.15, "bias": 171.4}]}, {"game_id": "110055", "spend_k": 30.7, "events": [{"event": "herostage1-3_completion", "lcr": 6.25, "bias": 131.5}, {"event": "complete_turfquests20", "lcr": 16.94, "bias": -46.5}]}, {"game_id": "500208356", "spend_k": 19.8, "events": [{"event": "af_registration", "lcr": 59.06, "bias": 43.9}, {"event": "af_login", "lcr": 93.67, "bias": -11.2}]}, {"game_id": "500238377", "spend_k": 17.4, "events": [{"event": "af_rounds30", "lcr": 37.69, "bias": 34.8}, {"event": "af_rounds10", "lcr": 59.42, "bias": -3.7}]}, {"game_id": "500241943", "spend_k": 16.6, "events": [{"event": "vip3", "lcr": 1.98, "bias": 610.8}, {"event": "castle_lv8", "lcr": 7.14, "bias": 92.9}, {"event": "castle_lv5", "lcr": 10.39, "bias": 6.6}, {"event": "castle_lv2", "lcr": 21.26, "bias": -51.4}]}, {"game_id": "500206220", "spend_k": 16.1, "events": [{"event": "grt_24h_inter_15", "lcr": 3.87, "bias": 368.0}, {"event": "grt_3d_ltv0127_levelpass7", "lcr": 7.36, "bias": 99.4}]}];
 
+const ZERO_LINE=(x0,x1)=>([
+  {type:'line',x0,x1,y0:0,y1:0,line:{color:'#333',width:1.5}},
+  {type:'line',x0,x1,y0:20,y1:20,line:{color:'#ddd',width:1,dash:'dot'}},
+  {type:'line',x0,x1,y0:-20,y1:-20,line:{color:'#ddd',width:1,dash:'dot'}}
+]);
+const BASE_LAYOUT={plot_bgcolor:'white',paper_bgcolor:'white'};
+const fmtSpend=v=>v>=1e6?'$'+(v/1e6).toFixed(2)+'M':'$'+(v/1e3).toFixed(0)+'K';
+
 function biasColor(v){
   if(v==null||isNaN(v)) return '#aaa';
-  if(v<-5)  return GREEN;
-  if(v<20)  return '#10b981';
-  if(v<50)  return PURPLE;
-  if(v<150) return GOLD;
-  return RED;
+  if(v<-5)  return '#16a34a';
+  if(v<20)  return '#14b8a6';
+  if(v<50)  return '#7c3aed';
+  if(v<150) return '#d97706';
+  return '#e05d44';
 }
 
-function fmtSpend(v){
-  if(v>=1e6) return '$'+(v/1e6).toFixed(2)+'M';
-  if(v>=1e3) return '$'+(v/1e3).toFixed(1)+'K';
-  return '$'+v.toFixed(0);
-}
-
-const ZERO_LINE = (x0,x1)=>([{type:'line',x0,x1,y0:0,y1:0,line:{color:'#333',width:1.5}},{type:'line',x0,x1,y0:20,y1:20,line:{color:'#ddd',width:1,dash:'dot'}},{type:'line',x0,x1,y0:-20,y1:-20,line:{color:'#ddd',width:1,dash:'dot'}}]);
-const BASE_LAYOUT = {plot_bgcolor:'white',paper_bgcolor:'white'};
-
-// ── LCR ──────────────────────────────────────────────────────────────────
+// ── LCR bucket ─────────────────────────────────────────────────────────────
 (function(){
-  const rows = lcr.filter(r=>r.target_model_bias_pct!=null);
-  const labels = rows.map(r=>r.lcr_bucket.replace(/^\d_/,''));
-  const mb = rows.map(r=>r.target_model_bias_pct);
-  const pb = rows.map(r=>r.target_product_bias_pct);
+  const valid=lcr.filter(d=>d.target_model_bias_pct!=null&&!isNaN(d.target_model_bias_pct));
+  const labels=valid.map(d=>d.lcr_bucket.replace(/^\d+_/,''));
+  const biases=valid.map(d=>d.target_model_bias_pct);
+  const spends=valid.map(d=>d.total_spend||0);
   Plotly.newPlot('lcr-chart',[
-    {x:labels,y:mb,name:'Model Bias %',type:'bar',marker:{color:PURPLE},
-      text:mb.map(v=>(v>0?'+':'')+v.toFixed(0)+'%'),textposition:'outside',
-      customdata:rows.map(r=>[r.avg_actual_lcr_pct?.toFixed(3)+'%',r.auction_count.toLocaleString()]),
-      hovertemplate:'<b>%{x}</b><br>Model bias: %{y:.1f}%<br>Avg LCR: %{customdata[0]}<br>Auctions: %{customdata[1]}<extra></extra>'},
-    {x:labels,y:pb,name:'Product Bias %',type:'bar',marker:{color:GOLD},
-      hovertemplate:'<b>%{x}</b><br>Product bias: %{y:.1f}%<extra></extra>'}
-  ],{...BASE_LAYOUT,barmode:'group',height:380,margin:{t:20,b:100,l:60,r:20},
-      xaxis:{tickangle:-20},yaxis:{title:'Bias %',zeroline:false},
-      shapes:ZERO_LINE(-0.5,rows.length-0.5),
-      legend:{orientation:'h',x:0,y:1.05}},{responsive:true});
+    {x:labels,y:biases,type:'bar',name:'Model Bias %',
+     marker:{color:biases.map(biasColor)},
+     text:biases.map(v=>v==null?'N/A':(v>0?'+':'')+v.toFixed(0)+'%'),
+     textposition:'outside',cliponaxis:false,
+     customdata:valid.map((d,i)=>[fmtSpend(spends[i]),d.event_pair_count,d.avg_actual_lcr_pct!=null?d.avg_actual_lcr_pct.toFixed(3)+'%':'N/A']),
+     hovertemplate:'<b>%{x}</b><br>Bias: %{y:.1f}%<br>Spend: %{customdata[0]}<br>Pairs: %{customdata[1]}<br>Avg LCR: %{customdata[2]}<extra></extra>'}
+  ],{...BASE_LAYOUT,height:380,margin:{t:20,b:130,l:70,r:20},
+    xaxis:{tickangle:-30},yaxis:{title:'Model Bias (%)',ticksuffix:'%'},
+    shapes:ZERO_LINE(-0.5,valid.length-0.5)},{responsive:true});
 })();
 
-// ── Percentile ───────────────────────────────────────────────────────────
+// ── Percentile ─────────────────────────────────────────────────────────────
 (function(){
-  const x=pctile.map(r=>r.pred_pctile),mb=pctile.map(r=>r.target_model_bias_pct),pb=pctile.map(r=>r.target_product_bias_pct);
+  const x=pctile.map(d=>d.pred_pctile);
+  const biasM=pctile.map(d=>d.target_model_bias_pct);
+  const biasP=pctile.map(d=>d.target_product_bias_pct);
   Plotly.newPlot('pctile-chart',[
-    {x,y:mb,name:'Model Bias %',type:'scatter',mode:'lines',line:{color:PURPLE,width:2},
-      customdata:pctile.map(r=>[r.pred_p_min,r.pred_p_max]),
-      hovertemplate:'P%{x}<br>Range: [%{customdata[0]:.4f}, %{customdata[1]:.4f}]<br>Model bias: %{y:.1f}%<extra></extra>'},
-    {x,y:pb,name:'Product Bias %',type:'scatter',mode:'lines',line:{color:GOLD,width:2},
-      hovertemplate:'P%{x}<br>Product bias: %{y:.1f}%<extra></extra>'}
+    {x,y:biasM,type:'scatter',mode:'lines',name:'Model Bias',line:{color:'#7c3aed',width:2}},
+    {x,y:biasP,type:'scatter',mode:'lines',name:'Product Bias',line:{color:'#e05d44',width:2,dash:'dot'}}
   ],{...BASE_LAYOUT,height:350,margin:{t:20,b:50,l:70,r:20},
-      xaxis:{title:'Prediction Percentile',dtick:10},yaxis:{title:'Bias %',zeroline:false},
-      shapes:ZERO_LINE(1,100),legend:{orientation:'h',x:0,y:1.05}},{responsive:true});
+    xaxis:{title:'Prediction Percentile'},yaxis:{title:'Bias (%)',ticksuffix:'%'},
+    shapes:ZERO_LINE(1,100),legend:{orientation:'h',x:0,y:1.05}},{responsive:true});
 })();
 
-// ── Platform ─────────────────────────────────────────────────────────────
+// ── Platform ────────────────────────────────────────────────────────────────
 (function(){
-  const labels=platform.map(r=>r.platform.toUpperCase());
-  const mb=platform.map(r=>r.target_model_bias_pct);
-  const pb=platform.map(r=>r.target_product_bias_pct);
-  const spendLabels=platform.map(r=>fmtSpend(r.total_spend));
+  const labels=platform.map(d=>d.platform.toUpperCase());
+  const biasM=platform.map(d=>d.target_model_bias_pct);
+  const biasP=platform.map(d=>d.target_product_bias_pct);
   Plotly.newPlot('platform-chart',[
-    {x:labels,y:mb,name:'Model Bias',type:'bar',marker:{color:[GREEN,RED]},
-      text:mb.map(v=>(v>0?'+':'')+v.toFixed(1)+'%'),textposition:'outside',
-      customdata:spendLabels,
-      hovertemplate:'<b>%{x}</b><br>Model bias: %{y:.1f}%<br>Spend: %{customdata}<extra></extra>'},
-    {x:labels,y:pb,name:'Product Bias',type:'bar',marker:{color:[GOLD+'88',GOLD]},
-      text:pb.map(v=>(v>0?'+':'')+v.toFixed(1)+'%'),textposition:'outside',
-      hovertemplate:'<b>%{x}</b><br>Product bias: %{y:.1f}%<extra></extra>'}
+    {x:labels,y:biasM,type:'bar',name:'Model Bias',marker:{color:'#7c3aed'},
+     text:biasM.map(v=>(v>0?'+':'')+v.toFixed(1)+'%'),textposition:'outside'},
+    {x:labels,y:biasP,type:'bar',name:'Product Bias',marker:{color:'#e05d44'},
+     text:biasP.map(v=>(v>0?'+':'')+v.toFixed(1)+'%'),textposition:'outside'}
   ],{...BASE_LAYOUT,barmode:'group',height:320,margin:{t:20,b:60,l:60,r:20},
-      yaxis:{title:'Bias %',range:[-20,120]},
-      shapes:ZERO_LINE(-0.5,1.5),legend:{orientation:'h',x:0,y:1.05}},{responsive:true});
+    yaxis:{title:'Bias (%)',ticksuffix:'%'},
+    shapes:ZERO_LINE(-0.5,1.5),legend:{orientation:'h',x:0,y:1.05}},{responsive:true});
 })();
 
-// ── Country ──────────────────────────────────────────────────────────────
+// ── Country ─────────────────────────────────────────────────────────────────
 (function(){
-  const sorted=[...country].sort((a,b)=>a.target_model_bias_pct-b.target_model_bias_pct);
-  const labels=sorted.map(r=>r.country);
-  const mb=sorted.map(r=>r.target_model_bias_pct);
-  const colors=mb.map(biasColor);
+  const top=country.slice(0,30);
+  const labels=top.map(d=>d.country);
+  const biasM=top.map(d=>d.target_model_bias_pct);
+  const biasP=top.map(d=>d.target_product_bias_pct);
+  const spends=top.map(d=>d.total_spend);
   Plotly.newPlot('country-chart',[
-    {x:mb,y:labels,type:'bar',orientation:'h',marker:{color:colors},
-      text:mb.map(v=>(v>0?'+':'')+v.toFixed(0)+'%'),textposition:'outside',
-      customdata:sorted.map(r=>fmtSpend(r.total_spend)),
-      hovertemplate:'<b>%{y}</b><br>Model bias: %{x:.1f}%<br>Spend: %{customdata}<extra></extra>'}
+    {x:labels,y:biasM,type:'bar',name:'Model Bias',marker:{color:biasM.map(biasColor)},
+     customdata:spends.map(fmtSpend),
+     hovertemplate:'<b>%{x}</b><br>Bias: %{y:.1f}%<br>Spend: %{customdata}<extra></extra>'}
   ],{...BASE_LAYOUT,height:680,margin:{t:20,b:40,l:50,r:70},
-      xaxis:{title:'Model Bias %',zeroline:true,zerolinecolor:'#333',zerolinewidth:1.5},
-      shapes:[{type:'line',x0:20,x1:20,y0:-0.5,y1:29.5,line:{color:'#ddd',width:1,dash:'dot'}},
-              {type:'line',x0:-20,x1:-20,y0:-0.5,y1:29.5,line:{color:'#ddd',width:1,dash:'dot'}}]},{responsive:true});
+    xaxis:{tickangle:-90,tickfont:{size:10}},yaxis:{title:'Model Bias (%)',ticksuffix:'%'},
+    shapes:ZERO_LINE(-0.5,29.5)},{responsive:true});
 })();
 
-// ── Event ────────────────────────────────────────────────────────────────
+// ── Genre ───────────────────────────────────────────────────────────────────
 (function(){
-  const sorted=[...events].sort((a,b)=>a.target_model_bias_pct-b.target_model_bias_pct);
-  const labels=sorted.map(r=>r.target_event_name);
-  const mb=sorted.map(r=>r.target_model_bias_pct);
-  const pb=sorted.map(r=>r.target_product_bias_pct);
-  Plotly.newPlot('event-chart',[
-    {x:mb,y:labels,name:'Model Bias',type:'bar',orientation:'h',marker:{color:PURPLE,opacity:.85},
-      customdata:sorted.map(r=>fmtSpend(r.total_spend)),
-      hovertemplate:'<b>%{y}</b><br>Model bias: %{x:.1f}%<br>Spend: %{customdata}<extra></extra>'},
-    {x:pb,y:labels,name:'Product Bias',type:'bar',orientation:'h',marker:{color:GOLD,opacity:.85},
-      hovertemplate:'<b>%{y}</b><br>Product bias: %{x:.1f}%<extra></extra>'}
-  ],{...BASE_LAYOUT,barmode:'group',height:700,margin:{t:20,b:60,l:310,r:80},
-      xaxis:{title:'Bias %',zeroline:true,zerolinecolor:'#333',zerolinewidth:1.5},
-      shapes:[{type:'line',x0:20,x1:20,y0:-0.5,y1:29.5,line:{color:'#ddd',width:1,dash:'dot'}},
-              {type:'line',x0:-20,x1:-20,y0:-0.5,y1:29.5,line:{color:'#ddd',width:1,dash:'dot'}}],
-      legend:{orientation:'h',x:0,y:1.02}},{responsive:true});
+  const GENRE=[
+    {genre:'Puzzle\n(Match Pair)',  spend:27140000, bias:15881, avg_pred:25.08, lcr:0.162,  color:'#dc2626'},
+    {genre:'Puzzle\n(Word)',        spend:410000,   bias:2609,  avg_pred:25.08, lcr:0.403,  color:'#ea580c'},
+    {genre:'Simulation\n(Tycoon)', spend:303280,   bias:1620,  avg_pred:21.07, lcr:1.225,  color:'#d97706'},
+    {genre:'Unknown\n(No Match)',  spend:5778296,  bias:292,   avg_pred:53.88, lcr:13.76,  color:'#7c3aed'},
+    {genre:'Casino',               spend:10486,    bias:-78,   avg_pred:23.12, lcr:102.33, color:'#16a34a'},
+    {genre:'Strategy\n(4X)',       spend:193444,   bias:-100,  avg_pred:20.40, lcr:4437.67,color:'#16a34a'},
+  ];
+
+  const spendFmt=d=>d.spend>=1e6?'$'+(d.spend/1e6).toFixed(2)+'M':'$'+(d.spend/1e3).toFixed(0)+'K';
+  const bySpend=[...GENRE].sort((a,b)=>b.spend-a.spend);
+
+  // Bias bar chart (horizontal)
+  Plotly.newPlot('genre-bias-chart',[{
+    y:bySpend.map(d=>d.genre),
+    x:bySpend.map(d=>Math.max(Math.min(d.bias,20000),-110)),
+    type:'bar',orientation:'h',
+    marker:{color:bySpend.map(d=>d.color)},
+    text:bySpend.map(d=>(d.bias>0?'+':'')+d.bias.toLocaleString()+'%  ('+spendFmt(d)+')'),
+    textposition:'outside',cliponaxis:false,
+    customdata:bySpend.map(d=>[spendFmt(d),d.lcr.toFixed(3)+'%',d.avg_pred.toFixed(1)+'%']),
+    hovertemplate:'<b>%{y}</b><br>Model Bias: %{x:.0f}%<br>Spend: %{customdata[0]}<br>Actual LCR: %{customdata[1]}<br>Avg Pred: %{customdata[2]}<extra></extra>'
+  }],{...BASE_LAYOUT,height:380,margin:{t:10,b:50,l:150,r:160},
+    xaxis:{title:'Model Bias (%)',ticksuffix:'%'},yaxis:{autorange:'reversed'},
+    shapes:[{type:'line',x0:0,x1:0,y0:-0.5,y1:GENRE.length-0.5,line:{color:'#333',width:1.5},xref:'x',yref:'y'}]
+  },{responsive:true});
+
+  // Avg pred vs actual LCR (exclude Strategy outlier >200%)
+  const forLcr=bySpend.filter(d=>d.lcr<200);
+  const labels=forLcr.map(d=>d.genre.replace('\n',' '));
+  Plotly.newPlot('genre-lcr-chart',[
+    {x:labels,y:forLcr.map(d=>d.avg_pred),type:'bar',name:'Avg Predicted (%)',
+     marker:{color:'#7c3aed',opacity:0.85},
+     hovertemplate:'<b>%{x}</b><br>Avg Pred: %{y:.1f}%<extra></extra>'},
+    {x:labels,y:forLcr.map(d=>d.lcr),type:'bar',name:'Actual LCR (%)',
+     marker:{color:'#16a34a',opacity:0.85},
+     hovertemplate:'<b>%{x}</b><br>Actual LCR: %{y:.3f}%<extra></extra>'}
+  ],{...BASE_LAYOUT,height:380,margin:{t:20,b:90,l:70,r:20},
+    barmode:'group',
+    xaxis:{tickangle:-20,tickfont:{size:11}},
+    yaxis:{title:'Rate (%)',ticksuffix:'%'},
+    legend:{x:0.65,y:0.97}},{responsive:true});
 })();
 
-// ── All pairs scatter ─────────────────────────────────────────────────────
+// ── Event name ──────────────────────────────────────────────────────────────
 (function(){
-  const data=gameEv.filter(r=>r.target_model_bias_pct!=null&&r.actual_lcr_pct!=null);
+  const top=events.slice(0,30);
+  const labels=top.map(d=>d.target_event_name||'(wildcard)');
+  const biasM=top.map(d=>d.target_model_bias_pct);
+  const spends=top.map(d=>d.total_spend);
+  Plotly.newPlot('event-chart',[{
+    x:biasM,y:labels,type:'bar',orientation:'h',
+    marker:{color:biasM.map(biasColor)},
+    customdata:spends.map(fmtSpend),
+    hovertemplate:'<b>%{y}</b><br>Bias: %{x:.1f}%<br>Spend: %{customdata}<extra></extra>'
+  }],{...BASE_LAYOUT,height:700,margin:{t:20,b:60,l:310,r:80},
+    xaxis:{title:'Model Bias (%)',ticksuffix:'%'},yaxis:{autorange:'reversed'},
+    shapes:[{type:'line',x0:0,x1:0,y0:-0.5,y1:29.5,line:{color:'#333',width:1.5},xref:'x',yref:'y'}]
+  },{responsive:true});
+})();
+
+// ── All-pairs scatter ────────────────────────────────────────────────────────
+(function(){
+  const valid=gameEv.filter(d=>d.target_model_bias_pct!=null&&!isNaN(d.target_model_bias_pct));
   Plotly.newPlot('all-scatter',[{
-    x:data.map(r=>r.actual_lcr_pct),y:data.map(r=>r.target_model_bias_pct),
+    x:valid.map(d=>d.actual_lcr_pct),
+    y:valid.map(d=>d.target_model_bias_pct),
     mode:'markers',type:'scatter',
-    marker:{size:data.map(r=>Math.max(5,Math.sqrt(r.auction_count)*.5)),
-             color:data.map(r=>biasColor(r.target_model_bias_pct)),opacity:.7,
-             line:{color:'white',width:.5}},
-    customdata:data.map(r=>[r.target_game_id,r.target_event,r.actual_lcr_pct.toFixed(2),
-                             r.auction_count.toLocaleString(),fmtSpend(r.total_spend)]),
-    hovertemplate:'<b>Game %{customdata[0]}</b><br>Event: <b>%{customdata[1]}</b><br>Actual LCR: %{customdata[2]}%<br>Model bias: %{y:.1f}%<br>Auctions: %{customdata[3]}<br>Spend: %{customdata[4]}<extra></extra>'
+    marker:{size:valid.map(d=>Math.sqrt((d.total_spend||1)/1000)*2+4),
+            color:valid.map(d=>biasColor(d.target_model_bias_pct)),opacity:0.7,
+            line:{width:0.5,color:'white'}},
+    customdata:valid.map(d=>[d.target_game_id,d.target_event,fmtSpend(d.total_spend||0),d.auction_count]),
+    hovertemplate:'<b>Game %{customdata[0]}</b><br>Event: %{customdata[1]}<br>LCR: %{x:.2f}%<br>Bias: %{y:.1f}%<br>Spend: %{customdata[2]}<br>Auctions: %{customdata[3]}<extra></extra>'
   }],{...BASE_LAYOUT,height:480,margin:{t:20,b:60,l:70,r:20},
-      xaxis:{title:'Actual LC Rate (%)',ticksuffix:'%',zeroline:false},
-      yaxis:{title:'Model Bias (%)',ticksuffix:'%',zeroline:true,zerolinecolor:'#333',zerolinewidth:1.5},
-      shapes:ZERO_LINE(0,100),showlegend:false},{responsive:true});
+    xaxis:{title:'Actual LC Rate (%) — rarer ← → more common',ticksuffix:'%'},
+    yaxis:{title:'Model Bias (%)',ticksuffix:'%'},
+    shapes:ZERO_LINE(0,100)},{responsive:true});
 })();
 
-// ── Connected Scatter ─────────────────────────────────────────────────────
+// ── Connected scatter ────────────────────────────────────────────────────────
 (function(){
   const maxX=Math.max(...TRACES.flatMap(g=>g.events.map(e=>e.lcr)));
   const traceData=TRACES.map((g,i)=>{
-    const color=PALETTE[i%PALETTE.length];
-    return {
-      x:g.events.map(e=>e.lcr),y:g.events.map(e=>e.bias),
-      mode:'lines+markers',
-      name:`Game ${g.game_id} (${g.n_events} ev, ${g.total_spend_k>=1000?'$'+(g.total_spend_k/1e3).toFixed(1)+'M':'$'+g.total_spend_k.toFixed(0)+'K'})`,
-      line:{color,width:1.8},marker:{color,size:8},
-      customdata:g.events.map(e=>[e.event,e.lcr.toFixed(2),e.spend_k>=1000?'$'+(e.spend_k/1e3).toFixed(2)+'M':'$'+e.spend_k.toFixed(1)+'K',e.auctions.toLocaleString()]),
-      hovertemplate:'<b>Game '+g.game_id+'</b><br>Event: <b>%{customdata[0]}</b><br>Actual LCR: %{customdata[1]}%<br>Model bias: %{y:.1f}%<br>Spend: %{customdata[2]}<br>Auctions: %{customdata[3]}<extra></extra>'
+    const sorted=[...g.events].sort((a,b)=>a.lcr-b.lcr);
+    return{
+      x:sorted.map(e=>e.lcr),y:sorted.map(e=>e.bias),
+      mode:'lines+markers',type:'scatter',name:'Game '+g.game_id,
+      line:{color:PALETTE[i%PALETTE.length],width:1.5},
+      marker:{size:sorted.map(e=>Math.sqrt((e.spend_k||1)*10)+4),
+              color:PALETTE[i%PALETTE.length],opacity:0.85},
+      customdata:sorted.map(e=>[e.event,e.lcr.toFixed(2),e.spend_k>=1000?'$'+(e.spend_k/1e3).toFixed(2)+'M':'$'+e.spend_k.toFixed(1)+'K',e.auctions||'']),
+      hovertemplate:'<b>Game '+g.game_id+'</b><br>Event: <b>%{customdata[0]}</b><br>Actual LCR: %{customdata[1]}%<br>Bias: %{y:.1f}%<br>Spend: %{customdata[2]}<extra></extra>'
     };
   });
   Plotly.newPlot('connected-scatter',traceData,{
@@ -352,11 +421,11 @@ const BASE_LAYOUT = {plot_bgcolor:'white',paper_bgcolor:'white'};
     legend:{x:1,xanchor:'right',y:1,font:{size:10}}},{responsive:true});
 })();
 
-// ── Facet ─────────────────────────────────────────────────────────────────
+// ── Faceted bars ─────────────────────────────────────────────────────────────
 (function(){
   const N=FACET.length, COLS=3, ROWS=Math.ceil(N/COLS);
   const layout={...BASE_LAYOUT,height:ROWS*240,margin:{t:40,b:30,l:10,r:10},showlegend:false,
-                  grid:{rows:ROWS,columns:COLS,pattern:'independent',roworder:'top to bottom'}};
+                grid:{rows:ROWS,columns:COLS,pattern:'independent',roworder:'top to bottom'}};
   const allTraces=[];
   FACET.forEach((g,i)=>{
     const sfx=i===0?'':String(i+1);
@@ -369,15 +438,15 @@ const BASE_LAYOUT = {plot_bgcolor:'white',paper_bgcolor:'white'};
       text:biases.map(v=>(v>0?'+':'')+v.toFixed(0)+'%'),textposition:'outside',cliponaxis:false,
       customdata:evs.map(e=>[e.lcr.toFixed(2)]),
       hovertemplate:'<b>%{x}</b><br>LCR: %{customdata[0]}%<br>Bias: %{y:.1f}%<extra></extra>',
-      name:`Game ${g.game_id}`
+      name:'Game '+g.game_id
     });
-    layout['shapes']=layout['shapes']||[];
-    layout['shapes'].push({type:'line',xref:'x'+sfx,yref:'y'+sfx,
+    layout.shapes=layout.shapes||[];
+    layout.shapes.push({type:'line',xref:'x'+sfx,yref:'y'+sfx,
       x0:-0.5,x1:evs.length-0.5,y0:0,y1:0,line:{color:'#333',width:1.2}});
-    layout['annotations']=layout['annotations']||[];
+    layout.annotations=layout.annotations||[];
     const spendStr=g.spend_k>=1000?'$'+(g.spend_k/1e3).toFixed(1)+'M':'$'+g.spend_k.toFixed(0)+'K';
-    layout['annotations'].push({
-      text:`<b>Game ${g.game_id}</b>  ${spendStr} spend  ·  sorted by LCR ↑`,
+    layout.annotations.push({
+      text:'<b>Game '+g.game_id+'</b>  '+spendStr+' spend  ·  sorted by LCR ↑',
       xref:'paper',yref:'paper',
       x:(((i%COLS)+0.5)/COLS),y:1-Math.floor(i/COLS)/ROWS+0.005,
       xanchor:'center',yanchor:'bottom',showarrow:false,font:{size:11,color:'#444'}
@@ -388,10 +457,9 @@ const BASE_LAYOUT = {plot_bgcolor:'white',paper_bgcolor:'white'};
   Plotly.newPlot('facet-chart',allTraces,layout,{responsive:true});
 })();
 
-// ── Over-valued deep-dive ──────────────────────────────────────────────────
+// ── Over-valued scatter ──────────────────────────────────────────────────────
 (function(){
-  // Raw data from BigQuery deep-dive query (rows with valid bias, >$5K spend, >100% bias)
-  const RAW=[
+  const OVERVAL=[
     {game:500219389,event:'segment_lambdas_first_offer_reconciled',plat:'android',spend:6384,lcr:0.31,pred:2.61,bias:728,cat:'MMP/Retargeting'},
     {game:500178023,event:'golden_android_conversion_mid',plat:'android',spend:35231,lcr:0.07,pred:0.59,bias:667,cat:'MMP/Retargeting'},
     {game:500187660,event:'revlow',plat:'android',spend:21801,lcr:1.48,pred:9.71,bias:555,cat:'Revenue Proxy'},
@@ -411,85 +479,51 @@ const BASE_LAYOUT = {plot_bgcolor:'white',paper_bgcolor:'white'};
     {game:500201983,event:'eventa2',plat:'android',spend:25821,lcr:7.85,pred:15.05,bias:92,cat:'Rare Gameplay'},
     {game:500206220,event:'grt_3d_ltv0127_levelpass7',plat:'ios',spend:3795,lcr:7.36,pred:14.68,bias:99,cat:'Rare Gameplay'},
     {game:500201983,event:'eventa',plat:'android',spend:24703,lcr:7.64,pred:14.00,bias:83,cat:'Rare Gameplay'},
-    {game:500093455,event:'kill_zombie_lv1',plat:'ios',spend:7299,lcr:12.59,pred:23.07,bias:82,cat:'Rare Gameplay'},
     {game:500093311,event:'complete_ksbattle_3001',plat:'android',spend:202940,lcr:9.38,pred:16.69,bias:78,cat:'Rare Gameplay'},
+    {game:500093311,event:'complete_chapter_603',plat:'android',spend:187495,lcr:7.17,pred:16.24,bias:126,cat:'Rare Gameplay'},
     {game:500093311,event:'complete_ksbattle_1014',plat:'android',spend:109177,lcr:7.55,pred:12.75,bias:68,cat:'Rare Gameplay'},
     {game:500093311,event:'advanced_search10',plat:'android',spend:119648,lcr:8.21,pred:14.13,bias:64,cat:'Rare Gameplay'},
-    {game:500093311,event:'kill_zombie_lv1',plat:'android',spend:87886,lcr:8.36,pred:14.17,bias:53,cat:'Rare Gameplay'},
-    {game:500093311,event:'castle_lv6',plat:'android',spend:29749,lcr:9.59,pred:14.48,bias:42,cat:'Rare Gameplay'},
-    {game:500093455,event:'advanced_search10',plat:'ios',spend:26887,lcr:12.11,pred:20.52,bias:55,cat:'Rare Gameplay'},
-    {game:500093311,event:'complete_chapter_603',plat:'android',spend:187495,lcr:7.17,pred:16.24,bias:126,cat:'Rare Gameplay'},
-    {game:500201983,event:'event9mru',plat:'android',spend:3021,lcr:4.28,pred:9.82,bias:129,cat:'Rare Gameplay'},
   ];
 
-  const CAT_COLOR={
-    'MMP/Retargeting':'#dc2626',
-    'Revenue Proxy':'#ea580c',
-    'Rare Gameplay':'#7c3aed'
-  };
-
-  // Group by category for separate traces
-  const cats=[...new Set(RAW.map(r=>r.cat))];
+  const CAT_COLOR={'MMP/Retargeting':'#dc2626','Revenue Proxy':'#ea580c','Rare Gameplay':'#7c3aed'};
+  const cats=[...new Set(OVERVAL.map(r=>r.cat))];
   const traces=cats.map(cat=>{
-    const rows=RAW.filter(r=>r.cat===cat);
+    const rows=OVERVAL.filter(r=>r.cat===cat);
     return{
-      x:rows.map(r=>r.lcr),
-      y:rows.map(r=>r.bias),
-      mode:'markers',
-      type:'scatter',
-      name:cat,
-      marker:{
-        size:rows.map(r=>Math.sqrt(r.spend/1000)*2.5),
-        color:CAT_COLOR[cat],
-        opacity:0.75,
-        line:{width:1,color:'white'}
-      },
-      customdata:rows.map(r=>[r.game,r.event,r.plat,
-        r.spend>=1e6?'$'+(r.spend/1e6).toFixed(2)+'M':r.spend>=1e3?'$'+(r.spend/1e3).toFixed(0)+'K':'$'+r.spend,
-        r.pred.toFixed(2),(r.pred/r.lcr).toFixed(1)+'×']),
-      hovertemplate:'<b>Game %{customdata[0]}</b> · %{customdata[2]}<br>Event: <b>%{customdata[1]}</b><br>Actual LCR: %{x:.2f}%<br>Avg Pred: %{customdata[4]}%<br>Over-estimate: %{customdata[5]}<br>Model Bias: +%{y:.0f}%<br>Spend: %{customdata[3]}<extra></extra>'
+      x:rows.map(r=>r.lcr),y:rows.map(r=>r.bias),
+      mode:'markers',type:'scatter',name:cat,
+      marker:{size:rows.map(r=>Math.sqrt(r.spend/1000)*2.5),color:CAT_COLOR[cat],opacity:0.75,line:{width:1,color:'white'}},
+      customdata:rows.map(r=>[r.game,r.event,r.plat,fmtSpend(r.spend),r.pred.toFixed(2),(r.pred/r.lcr).toFixed(1)+'×']),
+      hovertemplate:'<b>Game %{customdata[0]}</b> · %{customdata[2]}<br>Event: <b>%{customdata[1]}</b><br>Actual LCR: %{x:.2f}%<br>Avg Pred: %{customdata[4]}%<br>Over-estimate: %{customdata[5]}<br>Bias: +%{y:.0f}%<br>Spend: %{customdata[3]}<extra></extra>'
     };
   });
-
   Plotly.newPlot('overval-scatter',traces,{
     ...BASE_LAYOUT,height:480,margin:{t:20,b:70,l:80,r:20},
     xaxis:{title:'Actual LC Rate (%) — rarer ← → more common',ticksuffix:'%',zeroline:false,range:[-0.5,15]},
     yaxis:{title:'Model Bias (%)',ticksuffix:'%',zeroline:false},
     shapes:[{type:'line',x0:-1,x1:16,y0:100,y1:100,line:{color:'#e05d44',dash:'dot',width:1.5},xref:'x',yref:'y'}],
-    annotations:[{x:14.5,y:115,text:'+100% threshold',showarrow:false,font:{size:10,color:'#e05d44'}}],
+    annotations:[{x:14,y:115,text:'+100% threshold',showarrow:false,font:{size:10,color:'#e05d44'}}],
     legend:{x:0.02,y:0.98,bgcolor:'rgba(255,255,255,0.9)',bordercolor:'#eee',borderwidth:1}
   },{responsive:true});
 
-  // Populate table — sorted by bias desc, top 20
-  const sorted=[...RAW].sort((a,b)=>b.bias-a.bias).slice(0,20);
+  // Table
+  const sorted=[...OVERVAL].sort((a,b)=>b.bias-a.bias).slice(0,20);
+  const BIAS_BG={'MMP/Retargeting':'#fee2e2','Revenue Proxy':'#ffedd5','Rare Gameplay':'#ede9fe'};
+  const BIAS_TXT={'MMP/Retargeting':'#991b1b','Revenue Proxy':'#9a3412','Rare Gameplay':'#5b21b6'};
   const tbody=document.getElementById('overval-tbody');
-  const BIAS_BG={
-    'MMP/Retargeting':'#fee2e2',
-    'Revenue Proxy':'#ffedd5',
-    'Rare Gameplay':'#ede9fe'
-  };
-  const BIAS_TXT={
-    'MMP/Retargeting':'#991b1b',
-    'Revenue Proxy':'#9a3412',
-    'Rare Gameplay':'#5b21b6'
-  };
   sorted.forEach((r,i)=>{
-    const spendStr=r.spend>=1e6?'$'+(r.spend/1e6).toFixed(2)+'M':r.spend>=1e3?'$'+(r.spend/1e3).toFixed(0)+'K':'$'+r.spend;
-    const factorStr=(r.pred/r.lcr).toFixed(1)+'×';
-    const biasStr='+'+r.bias.toFixed(0)+'%';
     const bg=i%2===0?'#fff':'#fafafa';
-    const catBg=BIAS_BG[r.cat], catTxt=BIAS_TXT[r.cat];
     tbody.insertAdjacentHTML('beforeend',`
       <tr style="background:${bg};border-bottom:1px solid #f0f0f0">
         <td style="padding:8px;font-family:monospace;font-size:11px">${r.game}</td>
-        <td style="padding:8px;font-family:monospace;font-size:11px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.event}">${r.event}</td>
+        <td style="padding:8px;font-family:monospace;font-size:11px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.event}">${r.event}</td>
         <td style="padding:8px">${r.plat}</td>
-        <td style="padding:8px;text-align:right;font-weight:600">${spendStr}</td>
+        <td style="padding:8px;text-align:right;font-weight:600">${fmtSpend(r.spend)}</td>
         <td style="padding:8px;text-align:right">${r.lcr.toFixed(2)}%</td>
         <td style="padding:8px;text-align:right">${r.pred.toFixed(2)}%</td>
-        <td style="padding:8px;text-align:right;font-weight:700;color:#e05d44">${factorStr}</td>
-        <td style="padding:8px;text-align:right;font-weight:700;color:#e05d44">${biasStr}</td>
-        <td style="padding:8px"><span style="background:${catBg};color:${catTxt};padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600">${r.cat}</span></td>
+        <td style="padding:8px;text-align:right;font-weight:700;color:#e05d44">${(r.pred/r.lcr).toFixed(1)}×</td>
+        <td style="padding:8px;text-align:right;font-weight:700;color:#e05d44">+${r.bias.toFixed(0)}%</td>
+        <td style="padding:8px"><span style="background:${BIAS_BG[r.cat]};color:${BIAS_TXT[r.cat]};padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600">${r.cat}</span></td>
       </tr>`);
   });
 })();
